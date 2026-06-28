@@ -17,6 +17,7 @@
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen?style=flat-square)](CONTRIBUTING.md)
 [![Made with Python](https://img.shields.io/badge/Made%20with-Python-1f425f?style=flat-square)](https://www.python.org/)
 [![Stars](https://img.shields.io/github/stars/NickAiNYC/infini?style=flat-square&color=orange)](https://github.com/NickAiNYC/infini)
+[![Open in Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/NickAiNYC/infini?quickstart=1)
 
 </div>
 

@@ -1,0 +1,54 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "infini-cli"
+version = "0.1.0"
+description = "Serverless orchestration for autonomous AI agents. Write a Loopfile, run it on any engine."
+readme = "README.md"
+license = { text = "MIT" }
+requires-python = ">=3.10"
+authors = [{ name = "NickAiNYC and INFINI contributors" }]
+keywords = ["agents", "loops", "ai", "standard", "loopfile", "infini", "orchestration", "mcp", "sqlite", "ftS5"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Software Development :: Libraries",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+dependencies = [
+    "pyyaml>=6.0",
+    "jsonschema>=4.20",
+    "rich>=13.0",
+    "click>=8.1",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=7.0", "pytest-cov", "build>=1.0", "twine>=4.0"]
+live = ["anthropic>=0.30.0", "openai>=1.0.0"]
+ui = ["flask>=3.0"]
+
+[project.scripts]
+infini = "infini.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/NickAiNYC/infini"
+Documentation = "https://github.com/NickAiNYC/infini#readme"
+Repository = "https://github.com/NickAiNYC/infini"
+Issues = "https://github.com/NickAiNYC/infini/issues"
+Changelog = "https://github.com/NickAiNYC/infini/blob/main/CHANGELOG.md"
+
+[tool.setuptools.packages.find]
+where = ["cli/src"]
+include = ["infini*"]
+
+[tool.setuptools.package-data]
+infini = ["schema.json"]

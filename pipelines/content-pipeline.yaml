@@ -1,0 +1,77 @@
+# content-pipeline.yaml — production dogfood: INFINI orchestrates its own content workflow
+# Run: infini run pipelines/content-pipeline.yaml --mock
+# Or:  infini run pipelines/content-pipeline.yaml --live  (needs ANTHROPIC_API_KEY)
+
+LOOPFILE: "1.0"
+name: content-pipeline
+version: 1.0.0
+description: >
+  Production content pipeline: research a topic, draft an article,
+  critique and revise, optimize for SEO, verify quality, publish.
+  This is the loop INFINI uses to generate its own documentation and
+  blog posts. Dogfooding.
+
+OBJECTIVE: "Produce a publish-ready article on the declared topic that passes quality and SEO checks."
+
+AGENTS:
+  - { name: researcher, role: researcher, model_tier: sonnet, tools: [browser.navigate, browser.scrape, memory.recall] }
+  - { name: writer,     role: builder,    model_tier: sonnet, tools: [file_system.write] }
+  - { name: critic,     role: critic,     model_tier: sonnet, tools: [file_system.read] }
+  - { name: optimizer,  role: builder,    model_tier: haiku,  tools: [file_system.write] }
+  - { name: verifier,   role: verifier,   model_tier: haiku }
+
+STEPS:
+  - id: s1
+    name: research
+    action: browser.scrape
+    uses: researcher
+    produces: [research-notes.md]
+  - id: s2
+    name: draft
+    action: file_system.write
+    uses: writer
+    depends_on: [s1]
+    produces: [draft.md]
+  - id: s3
+    name: critique
+    action: file_system.read
+    uses: critic
+    depends_on: [s2]
+    produces: [critique.md]
+  - id: s4
+    name: revise
+    action: file_system.write
+    uses: writer
+    depends_on: [s2, s3]
+    produces: [revised.md]
+  - id: s5
+    name: optimize_seo
+    action: file_system.write
+    uses: optimizer
+    depends_on: [s4]
+    produces: [article.md, meta-description.txt]
+  - id: s6
+    name: verify
+    action: verify
+    uses: verifier
+    depends_on: [s5]
+    produces: [verification.json]
+
+VERIFY:
+  syntactic:
+    - "article.md:exists"
+    - "article.md:word_count_in_range"
+    - "meta-description.txt:exists"
+    - "verification.json:valid_json"
+  semantic:
+    - "judge:content_quality>=85"
+    - "judge:seo_score>=85"
+    - "judge:readability>=80"
+  confidence_threshold: 85
+
+BUDGET: { dollars: 4, minutes: 15 }
+STOP_WHEN: ["all_verify_passed", "iterations>=3"]
+
+memory:
+  persist: true
+  context_window: 100
