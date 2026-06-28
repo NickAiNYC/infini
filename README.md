@@ -49,6 +49,35 @@ INFINI      standardizes AI agent loops.
 
 ---
 
+## Status
+
+**INFINI is not production infrastructure yet.**
+
+It is an early open standard for portable agent loops, with a working CLI,
+conformance suite, certification flow, and adapter SDK.
+
+**What works today:**
+- ✅ `infini validate` — check any Loopfile against the spec
+- ✅ `infini run --mock` — execute loops deterministically (no API key)
+- ✅ `infini inspect` / `infini replay` / `infini diff` — trace tools
+- ✅ `infini conformance` — 8/8 tests passing
+- ✅ `infini certify` — Hermes (70.8%) and OpenClaw (66.7%) certified
+- ✅ Adapter SDK — build an adapter in under 30 minutes
+
+**What doesn't work yet:**
+- ⏳ `infini run` without `--mock` (live LLM execution)
+- ⏳ External adapters (Hermes and OpenClaw are reference implementations)
+- ⏳ `pip install infini-cli` (PyPI publication pending)
+- ⏳ MCP runtime (specified in [`docs/mcp-strategy.md`](docs/mcp-strategy.md), not yet implemented)
+- ⏳ Memory persistence (`LESSONS` block is in the schema, not the runtime)
+
+**What this means:**
+This is early. If you build agents and you're tired of framework lock-in,
+here's a standard with a working CLI, a conformance suite, and an SDK.
+Build an adapter and prove portability works.
+
+---
+
 ## The Problem
 
 Current agent frameworks create massive vendor lock-in. Your core logic gets entangled with LangChain, CrewAI, AutoGen, or OpenAI SDKs. Switching runtimes means rewriting everything. Traces are opaque, verification is an afterthought, and migration debt compounds silently.
