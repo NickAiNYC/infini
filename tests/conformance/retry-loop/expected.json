@@ -1,0 +1,15 @@
+{
+  "loopfile": "infini/retry-loop@1.0.0",
+  "expected_outcome": "verified",
+  "min_iterations": 1,
+  "max_iterations": 3,
+  "expected_steps": 1,
+  "expected_verifications": {
+    "syntactic_count": 1,
+    "semantic_count": 0
+  },
+  "budget": {
+    "dollars": 3,
+    "minutes": 5
+  }
+}

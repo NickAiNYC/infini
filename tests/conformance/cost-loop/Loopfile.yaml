@@ -1,0 +1,32 @@
+# Conformance test: cost-loop
+# Budget enforcement
+LOOPFILE: "1.0"
+name: cost-loop
+version: 1.0.0
+description: >
+  Conformance test loop: Budget enforcement
+
+OBJECTIVE: >
+  Budget enforcement.
+
+AGENTS:
+  - { name: builder, role: builder, model_tier: sonnet }
+  - { name: verifier, role: verifier, model_tier: haiku }
+  - { name: researcher, role: researcher, model_tier: sonnet }
+  - { name: planner, role: planner, model_tier: sonnet }
+
+STEPS:
+  - { id: s1, name: work, action: expensive_work, uses: builder, produces: [work.json] }
+
+VERIFY:
+  syntactic:
+    - "work.json:exists"
+  semantic:
+    - "judge:quality>=80"
+  confidence_threshold: 80
+
+BUDGET: { dollars: 1, minutes: 2 }
+
+STOP_WHEN:
+  - all_verify_passed
+  - iterations>=2

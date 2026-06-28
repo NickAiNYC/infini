@@ -17,7 +17,7 @@ See [`adapters/hermes/examples/claim-audit-loop.yaml`](../adapters/hermes/exampl
 
 10 insurance claims of varying complexity (simple approve, complex deny, edge-case escalate).
 
-Fixtures live in `benchmarks/fixtures/claim-audit-loop/` (planned).
+Fixtures live in `benchmarks/fixtures/compliance-loop/` (planned).
 
 ## Engines
 
@@ -51,7 +51,7 @@ We publish whatever we find.
 ```bash
 git clone https://github.com/NickAiNYC/infini
 cd infini
-infini benchmark benchmarks/fixtures/claim-audit-loop/ --engine infini --n 10
+infini benchmark benchmarks/fixtures/compliance-loop/ --engine infini --n 10
 ```
 
 Attach your `run.json` traces to a PR to `benchmarks/reports/`.

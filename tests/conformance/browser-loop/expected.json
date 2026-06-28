@@ -1,0 +1,15 @@
+{
+  "loopfile": "infini/browser-loop@1.0.0",
+  "expected_outcome": "verified",
+  "min_iterations": 1,
+  "max_iterations": 2,
+  "expected_steps": 4,
+  "expected_verifications": {
+    "syntactic_count": 2,
+    "semantic_count": 1
+  },
+  "budget": {
+    "dollars": 8,
+    "minutes": 12
+  }
+}

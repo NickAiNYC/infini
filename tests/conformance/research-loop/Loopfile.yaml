@@ -1,0 +1,35 @@
+# Conformance test: research-loop
+# Multi-step research with citation verification
+LOOPFILE: "1.0"
+name: research-loop
+version: 1.0.0
+description: >
+  Conformance test loop: Multi-step research with citation verification
+
+OBJECTIVE: >
+  Multi-step research with citation verification.
+
+AGENTS:
+  - { name: builder, role: builder, model_tier: sonnet }
+  - { name: verifier, role: verifier, model_tier: haiku }
+  - { name: researcher, role: researcher, model_tier: sonnet }
+  - { name: planner, role: planner, model_tier: sonnet }
+
+STEPS:
+  - { id: s1, name: find_sources, action: browser.find_sources, uses: researcher, produces: [sources.json] }
+  - { id: s2, name: extract, action: browser.extract_claims, uses: researcher, depends_on: [s1], produces: [claims.json] }
+  - { id: s3, name: verify_cites, action: browser.verify_citations, uses: verifier, depends_on: [s2], produces: [citation-check.json] }
+  - { id: s4, name: write_brief, action: file_system.write, uses: researcher, depends_on: [s3], produces: [brief.md] }
+
+VERIFY:
+  syntactic:
+    - "brief.md:every_claim_has_citation"
+  semantic:
+    - "judge:source_quality>=80"
+  confidence_threshold: 80
+
+BUDGET: { dollars: 10, minutes: 15 }
+
+STOP_WHEN:
+  - all_verify_passed
+  - iterations>=3

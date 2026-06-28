@@ -1,0 +1,32 @@
+# Conformance test: simple-loop
+# Basic parse + run + verify
+LOOPFILE: "1.0"
+name: simple-loop
+version: 1.0.0
+description: >
+  Conformance test loop: Basic parse + run + verify
+
+OBJECTIVE: >
+  Basic parse + run + verify.
+
+AGENTS:
+  - { name: builder, role: builder, model_tier: sonnet }
+  - { name: verifier, role: verifier, model_tier: haiku }
+  - { name: researcher, role: researcher, model_tier: sonnet }
+  - { name: planner, role: planner, model_tier: sonnet }
+
+STEPS:
+  - { id: s1, name: greet, action: write_greeting, uses: builder, produces: [greeting.txt] }
+
+VERIFY:
+  syntactic:
+    - "greeting.txt:exists"
+  semantic:
+    - "judge:correctness>=80"
+  confidence_threshold: 80
+
+BUDGET: { dollars: 5, minutes: 5 }
+
+STOP_WHEN:
+  - all_verify_passed
+  - iterations>=2

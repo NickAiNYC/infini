@@ -1,239 +1,243 @@
 <div align="center">
 
-<img src="assets/logo.png" alt="INFINI" width="180" />
+<img src="assets/logo.png" alt="INFINI" width="160" />
 
 # INFINI
 
-**Loops that don't end. Loops that improve.**
+**The Open Standard for Agent Portability**
 
-The open standard for agent loops. Write a `Loopfile`, run it on any engine.
+The declarative portability layer for AI agents. Write your logic once; execute it on any framework.
 
-[Spec](spec/loopfile-v1.md) · [RFCs](spec/rfcs/) · [Adapters](adapters/) · [Demos](examples/) · [Handbook](docs/handbook/) · [Manifesto](MANIFESTO.md)
+[Install](#install) · [Quickstart](#quickstart) · [Observatory](#the-local-observatory) · [Spec](spec/loopfile-v1.md) · [Manifesto](MANIFESTO.md)
 
 </div>
 
 ---
 
-## Vision
+## The Architecture of Vendor Lock-In
 
-INFINI is the **Loopfile standard**. Not a framework. Not a runtime. Not a company. A portable format for autonomous agent loops that any engine can run.
+The current state of AI agent development relies heavily on proprietary orchestration. Engineering teams are forced to couple their core operational logic directly to specific runtimes — LangChain, CrewAI, AutoGen, OpenAI Agents SDK. This creates an immediate and compounding technical debt: **rigid vendor lock-in**.
 
-```
-Docker      standardized containers.
-Terraform   standardized infrastructure.
-OpenAPI     standardized APIs.
-Markdown    standardized documents.
-Git         standardized collaboration.
-INFINI      standardizes autonomous work.
-```
+When an organization needs to transition its infrastructure or adopt a more efficient execution engine, the migration requires a complete architectural rewrite. The business logic becomes deeply entangled with the framework's specific memory handlers, routing mechanisms, and telemetry outputs. Instead of optimizing yield and refining models, engineering bandwidth is consumed by refactoring proprietary execution layers.
 
-> **INFINI runs Loopfiles.** Write a Loopfile once. Run it anywhere.
+Agent behavior should be defined by a universal specification, not dictated by the runtime executing it. We need a standardized, framework-agnostic protocol that separates the logic from the engine.
+
+**INFINI is that protocol.**
 
 ---
 
-## Demo
+## The Loopfile Specification
+
+INFINI introduces the **Loopfile** (`loop.yaml`) — a deterministic, declarative standard for defining agent execution. Rather than writing imperative routing logic tied to a single vendor, you declare the sequence of operations: the planners, the tool access, the verification steps, and the retry parameters.
 
 ```yaml
-# Loopfile
 LOOPFILE: "1.0"
-name: dark-mode-toggle
-OBJECTIVE: "Add a dark mode toggle, preserve tests"
-BUDGET: { dollars: 5, minutes: 15 }
+name: research-loop
+OBJECTIVE: "Answer a research question with at least three cited sources."
+AGENTS:
+  - { name: researcher, role: researcher, model_tier: sonnet, tools: [browser] }
+  - { name: verifier,  role: verifier,   model_tier: haiku }
+STEPS:
+  - { id: s1, name: find_sources,  action: browser.find_sources,  uses: researcher, produces: [sources.json] }
+  - { id: s2, name: extract,       action: browser.extract_claims, uses: researcher, depends_on: [s1] }
+  - { id: s3, name: verify_cites,  action: browser.verify_citations, uses: verifier, depends_on: [s2] }
 VERIFY:
-  syntactic: ["tests:pass", "lint"]
-  semantic:  ["rubric:90"]
+  syntactic: ["research_brief.md:every_claim_has_citation"]
+  semantic:  ["judge:source_quality>=85"]
+  confidence_threshold: 85
+BUDGET: { dollars: 6, minutes: 20 }
 STOP_WHEN: ["all_verify_passed"]
 ```
 
+By abstracting the definition from the execution, the Loopfile allows you to switch underlying runtimes seamlessly:
+
 ```bash
-$ infini run
-▶ reading state... none found, starting fresh
-▶ executing: plan → code → test → verify
-▶ verification: tests PASS · rubric 92/100 PASS
-▶ cost: $1.84 / $5.00 · 4m32s / 15m
-✓ shipped. state saved. lessons appended.
+infini run loop.yaml --engine=infini      # reference engine
+infini run loop.yaml --engine=hermes       # governance brain
+infini run loop.yaml --engine=openclaw     # execution runtime
 ```
 
-**One file. Any engine. Every loop.**
+Same YAML. Same verification. Same trace. Different engine.
 
-Run the hybrid demo — Hermes governs, OpenClaw executes, INFINI records:
+📖 **[Read the spec →](spec/loopfile-v1.md)** · **[Read the RFCs →](spec/rfcs/)**
+
+---
+
+## Install
 
 ```bash
-infini run examples/hybrid-hermes-openclaw/governed-coding-loop.yaml
+pip install infini-cli
+```
+
+Or from source:
+
+```bash
+git clone https://github.com/NickAiNYC/infini
+cd infini/cli && pip install -e .
+```
+
+Requires Python 3.10+. The CLI ships with a **mock mode** (`--mock`) so you can run loops without an API key — perfect for evaluation, CI, and demos.
+
+---
+
+## Quickstart
+
+```bash
+# 1. Validate a Loopfile
+infini validate examples/golden-research-assistant/research-loop.yaml
+
+# 2. Run it (mock mode — no API key needed)
+infini run examples/golden-research-assistant/research-loop.yaml --mock
+
+# 3. Inspect the trace
 infini inspect runs/latest/
+
+# 4. Replay from a specific step
+infini replay runs/latest/ --step s3
+
+# 5. Launch the Observatory UI
+infini ui runs/latest/run.json
 ```
+
+**Time to first loop: under 60 seconds.** No API key, no Docker, no Kubernetes. Just `pip install` and run.
+
+---
+
+## The Local Observatory
+
+Execution is only half the protocol; deterministic visibility is the other. Every INFINI run generates a standardized `.trace` file, capturing exact state changes, memory snapshots, and cost telemetry at every node.
+
+Running `infini ui` provisions a local, Next.js 15-powered dashboard to visualize these execution traces. Designed with a modern AI product aesthetic — deep charcoal backgrounds, atmospheric cyan haze, clean techno-sans-serif typography — the Observatory provides a polished, institutional environment to audit your agent's execution path.
+
+The signature view: a **3D execution graph** built with React Three Fiber. Drop a `.trace` file onto the dashboard and the loop's steps render as an interactive, rotatable node graph. Click any node to see its cost, tokens, artifacts, and replay from that point.
+
+<p align="center">
+  <img src="assets/observatory-ui.png" alt="INFINI Observatory UI — 3D execution graph, stat cards, log stream, verification results" />
+</p>
+
+> **Status: Preview.** The Observatory UI ships in [`observatory-ui/`](observatory-ui/). The 3D graph renders traces produced by `infini run --mock`.
+
+📖 **[Observatory source →](observatory-ui/)** · **[RFC-0008: Loop Observatory →](spec/rfcs/RFC-0008-observatory.md)**
+
+---
+
+## Zero-Downtime Integration
+
+Adopting a new standard must not disrupt active operations. INFINI is engineered for strict parallel integration. It acts as a **read-only overlay** that sits alongside your current infrastructure, allowing you to adopt the standard gradually without risking downtime on your established pipelines.
+
+Drop a `loop.yaml` into your repo. Point it at your existing agent scripts. INFINI orchestrates and traces the execution without disrupting your core operations. You sell your team on visibility and portability first — not a total architectural rewrite.
+
+When you're ready to swap engines, the Loopfile doesn't change. The `ENGINE` block does.
+
+---
+
+## Golden Examples
+
+Two production-grade loops that execute flawlessly across multiple engines using the exact same YAML:
+
+| Example | What it does | Run it |
+| --- | --- | --- |
+| **Research Assistant** | Multi-source research with citation verification. | [`examples/golden-research-assistant/`](examples/golden-research-assistant/) |
+| **SEO Pipeline** | Keyword research → draft → critique → optimize → verify. | [`examples/golden-seo-pipeline/`](examples/golden-seo-pipeline/) |
+
+```bash
+# Same YAML, three engines:
+infini run examples/golden-research-assistant/research-loop.yaml --engine=infini
+infini run examples/golden-research-assistant/research-loop.yaml --engine=hermes
+infini run examples/golden-research-assistant/research-loop.yaml --engine=openclaw
+```
+
+---
+
+## The CLI
+
+```bash
+infini validate  [loopfile]   # check spec compliance
+infini run       [loopfile]   # execute a loop (--mock for no API key)
+infini inspect   [run_dir]    # inspect a trace in the terminal
+infini replay    [run_dir]    # time-travel debug from any step
+infini diff      [v1] [v2]    # semantic diff between loops or traces
+infini ui        [trace]      # launch the Observatory web app
+infini engines                # list compatible engines
+infini conformance [dir]      # run the conformance test suite
+```
+
+📖 **[CLI source →](cli/)** · **[pyproject.toml →](cli/pyproject.toml)**
 
 ---
 
 ## Architecture
 
 ```text
-Loopfile
+Loopfile (loop.yaml)
   ↓
 INFINI Parser + Validator
   ↓
 Engine Adapter   ←─── Hermes (governance)  and/or  OpenClaw (execution)
   ↓
-Hermes / OpenClaw Agents
+Runtime
   ↓
 Trace + Verification + Replay   (in INFINI)
 ```
 
-The runtime is replaceable. The Loopfile is portable. INFINI owns the layer between governance systems and agent runtimes — the missing protocol that lets teams separate the loop from the runtime.
-
----
-
-## Loop Observatory
-
-The signature feature. Every execution leaves behind a visual trace — the **Loop Observatory** is the DevTools for autonomous systems. Eight views: timeline, decision graph, iteration diff, memory snapshots, cost, verification, artifacts, replay.
-
-> **Status: preview.** The Inspector ships in `infini inspect` today. The full Observatory UI is in active development.
-
-<p align="center">
-  <img src="assets/observatory.png" alt="INFINI Loop Observatory — swimlane trace" width="800" />
-</p>
-
-<p align="center">
-  <img src="assets/loop-graph.png" alt="Loop Observatory — decision graph view" width="700" />
-</p>
-
-<p align="center">
-  <img src="assets/verification-dashboard.png" alt="Loop Observatory — verification dashboard" width="700" />
-</p>
-
-<p align="center">
-  <img src="assets/replay-timeline.png" alt="Loop Observatory — replay timeline" width="700" />
-</p>
-
-📖 **Spec:** [RFC-0008: Loop Observatory](spec/rfcs/RFC-0008-observatory.md)
-
----
-
-## INFINI for Hermes and OpenClaw
-
-INFINI is not another agent framework.
-
-- **Hermes** gives teams governed agent operations — policy, memory, escalation, audit trails.
-- **OpenClaw** gives agents tools and execution — browser, GitHub, terminal, filesystem.
-- **INFINI** gives both a portable loop format — verification, trace, budget, and replay that survive engine swaps.
-
-Write one Loopfile. Run it through Hermes for governance, OpenClaw for execution, or both together.
-
-```text
-Loopfile → Hermes policy/memory/governance → OpenClaw execution/tools → INFINI trace/replay/verify
-```
-
-This lets teams separate the loop from the runtime. Governance systems and agent runtimes have been hard-coupled because no portable loop format existed between them. INFINI is that format.
-
-### Use Hermes for
-
-policy · memory · escalation · audit trails · business-objective alignment · agent governance
-
-### Use OpenClaw for
-
-tool execution · browser actions · repo edits · terminal commands · agent orchestration · task completion
-
-### Three demos
-
-| Demo | What it shows | Run it |
-| --- | --- | --- |
-| **Hermes Governance** | Run a claim-audit loop with policy, budget, escalation, and audit trail. | [`examples/hermes-governed-growth/`](examples/hermes-governed-growth/) |
-| **OpenClaw Execution** | Run a coding loop that edits files, runs tests, verifies output. | [`examples/openclaw-agent-loop/`](examples/openclaw-agent-loop/) |
-| **Hybrid** | Hermes governs. OpenClaw executes. INFINI records and replays. | [`examples/hybrid-hermes-openclaw/`](examples/hybrid-hermes-openclaw/) |
-
-The hybrid demo is the market hook. Run it first.
+INFINI owns the layer between governance systems and agent runtimes — the missing protocol that lets teams separate the loop from the runtime.
 
 ### Adapters
 
-- [`adapters/hermes/`](adapters/hermes/) — governance brain
-- [`adapters/openclaw/`](adapters/openclaw/) — execution runtime
-- [`sdk/`](sdk/) — build your own adapter
+- [`adapters/hermes/`](adapters/hermes/) — governance brain: policy, memory, escalation, audit
+- [`adapters/openclaw/`](adapters/openclaw/) — execution runtime: tools, browser, repo, terminal
+- [`sdk/`](sdk/) — Adapter SDK: build your own adapter in 6 capabilities
 
 ---
 
-## The Loopfile
+## Conformance Test Suite
 
-```yaml
-LOOPFILE: "1.0"
-name: my-first-loop
-version: 1.0.0
-
-OBJECTIVE: "Say hello in three languages and verify each is correct."
-
-AGENTS:
-  - { name: builder, role: builder,  model_tier: haiku }
-  - { name: judge,   role: verifier, model_tier: sonnet }
-
-STEPS:
-  - { id: s1, name: greet,  action: write_greetings, uses: builder, produces: [greetings.json] }
-  - { id: s2, name: verify, action: judge_greetings, uses: judge,   depends_on: [s1] }
-
-VERIFY:
-  syntactic: ["greetings.json:valid_json"]
-  semantic:  ["judge:correctness>=90"]
-  confidence_threshold: 85
-
-BUDGET: { dollars: 1, minutes: 5 }
-
-STOP_WHEN: ["all_verify_passed"]
-```
-
-📖 **Spec:** [`spec/loopfile-v1.md`](spec/loopfile-v1.md) · [`spec/grammar.ebnf`](spec/grammar.ebnf) · [`spec/schema.json`](spec/schema.json)
-
----
-
-## Examples
-
-| Example | Engine | What it shows |
-| --- | --- | --- |
-| [`hermes-governed-growth/`](examples/hermes-governed-growth/) | Hermes | Governance brain: policy, budget, escalation, audit trail. |
-| [`openclaw-agent-loop/`](examples/openclaw-agent-loop/) | OpenClaw | Execution runtime: file edits, tests, PR creation. |
-| [`hybrid-hermes-openclaw/`](examples/hybrid-hermes-openclaw/) | Both | The market hook: Hermes governs. OpenClaw executes. INFINI records. |
-
----
-
-## Marketplace
-
-> **Status: Preview.** A static mock of the future marketplace. The real marketplace ships after the public registry launches.
-
-<p align="center">
-  <img src="assets/marketplace.png" alt="INFINI Marketplace — preview" width="800" />
-</p>
-
-Browse the registry by use case: Research, Coding, Compliance, Security, Sales, SEO, Marketing, Healthcare, Finance, Legal, Education, Infrastructure.
-
-Every loop shows a real verification badge, real download count, and real engine support — no fake numbers.
-
-📖 **[`marketplace/`](marketplace/) · [RFC-0006: Marketplace](spec/rfcs/RFC-0006-marketplace.md)**
-
----
-
-## Registry
-
-`infini publish` pushes your Loopfile to the public registry. `infini install` pulls. Versions are immutable, content-addressed, and signed.
+Every adapter must pass the same tests. This is the certification layer.
 
 ```bash
-infini install infini/coding-loop@1.2
-infini search "research loop with citations"
-infini publish ./Loopfile
+infini conformance tests/conformance/ --engine=infini
+infini conformance tests/conformance/ --engine=hermes
+infini conformance tests/conformance/ --engine=openclaw
 ```
 
-📖 **[`registry/`](registry/) · [RFC-0005: Registry Protocol](spec/rfcs/RFC-0005-registry.md) · [Metadata Schema](registry/metadata-schema.md)**
+8 test loops covering: simple execution, retry, verification, cost enforcement, memory, parallelism, research, browser tools.
+
+An adapter that passes all 6 conformance levels earns the **INFINI Certified** badge.
+
+📖 **[Conformance suite →](tests/conformance/)** · **[Compatibility matrix →](spec/compatibility.md)**
+
+---
+
+## The 12 Canonical Loops
+
+Curated, versioned, benchmarked. Each ships with a Loopfile, essay, diagram, trace, verification spec, benchmark, and replay guide.
+
+| Loop | What it does |
+| --- | --- |
+| [`coding-loop`](loops/coding-loop/) | Implement a feature, preserve tests |
+| [`refactor-loop`](loops/refactor-loop/) | Refactor without behavior change |
+| [`test-gen-loop`](loops/test-gen-loop/) | Generate tests until coverage target |
+| [`debug-loop`](loops/debug-loop/) | Reproduce, isolate, fix, verify |
+| [`review-loop`](loops/review-loop/) | Code review with rubric + cross-check |
+| [`research-loop`](loops/research-loop/) | Multi-source research with citations |
+| [`content-loop`](loops/content-loop/) | Draft → critique → revise |
+| [`outreach-loop`](loops/outreach-loop/) | Personalized outreach at scale |
+| [`migration-loop`](loops/migration-loop/) | Migrate code across versions |
+| [`doc-sync-loop`](loops/doc-sync-loop/) | Keep docs in sync with code |
+| [`oncall-loop`](loops/oncall-loop/) | Triage incidents, propose fixes |
+| [`sre-loop`](loops/sre-loop/) | Investigate, mitigate, postmortem |
 
 ---
 
 ## Specification
-
-The Loopfile spec is the project's core asset. Everything else exists to serve it.
 
 | File | What it is |
 | --- | --- |
 | [`spec/loopfile-v1.md`](spec/loopfile-v1.md) | Normative v1.0 spec |
 | [`spec/grammar.ebnf`](spec/grammar.ebnf) | Formal grammar |
 | [`spec/schema.json`](spec/schema.json) | JSON Schema for validation |
-| [`spec/migration.md`](spec/migration.md) | Version-to-version migration |
-| [`spec/compatibility.md`](spec/compatibility.md) | Engine support matrix |
 | [`spec/rfcs/`](spec/rfcs/) | RFC process + 10 RFCs |
+| [`spec/compatibility.md`](spec/compatibility.md) | Engine support matrix |
 
 ### RFCs
 
@@ -250,66 +254,64 @@ The Loopfile spec is the project's core asset. Everything else exists to serve i
 | [RFC-0009](spec/rfcs/RFC-0009-provenance.md) | Provenance and Signing | draft |
 | [RFC-0010](spec/rfcs/RFC-0010-cost-accounting.md) | Cost Accounting | draft |
 
-📖 **[RFC process](spec/rfcs/README.md)**
-
-### Compatibility Matrix
-
-| Engine | Parse | Run | Verify | Inspect | Replay | Diff |
-| --- | :---: | :---: | :---: | :---: | :---: | :---: |
-| INFINI Reference | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| Hermes | ✅ | ✅ | ✅ | ✅ | ✅ | 🚧 |
-| OpenClaw | ✅ | ✅ | ✅ | ✅ | 🚧 | 🚧 |
-| LangGraph | ✅ | 🚧 | 🚧 | 🚧 | 🚧 | 🚧 |
-| CrewAI | 🚧 | 🚧 | ❌ | ❌ | ❌ | ❌ |
-| AutoGen | 🚧 | 🚧 | 🚧 | 🚧 | ❌ | ❌ |
-| OpenAI Agents SDK | 🚧 | 🚧 | 🚧 | 🚧 | ❌ | 🚧 |
-| Claude Code | 🚧 | 🚧 | 🚧 | 🚧 | 🚧 | 🚧 |
-| Gemini | 🚧 | ❌ | ❌ | ❌ | ❌ | ❌ |
-
-Legend: ✅ shipped · 🚧 adapter in progress · ❌ not yet supported. Updated quarterly.
-
 ---
 
-## Adapters
+## Repository structure
 
-- [`adapters/hermes/`](adapters/hermes/) — governance brain: policy, memory, escalation, audit
-- [`adapters/openclaw/`](adapters/openclaw/) — execution runtime: tools, browser, repo, terminal
-- [`sdk/`](sdk/) — Adapter SDK: build your own adapter in 6 capabilities
-
-📖 **[Adapter Interface Reference](sdk/adapter-interface.md) · [RFC-0007](spec/rfcs/RFC-0007-adapter-interface.md)**
-
----
-
-## The 12 Canonical Loops
-
-Curated, versioned, benchmarked. Each ships with a Loopfile, essay, diagram, trace, verification spec, benchmark, and replay guide.
-
-| Loop | What it does |
-| --- | --- |
-| [`coding-loop`](loops/coding-loop/) | Implement a feature, preserve tests |
-| [`refactor-loop`](loops/refactor-loop/) | Refactor a module without behavior change |
-| [`test-gen-loop`](loops/test-gen-loop/) | Generate tests until coverage hits target |
-| [`debug-loop`](loops/debug-loop/) | Reproduce, isolate, fix, verify a bug |
-| [`review-loop`](loops/review-loop/) | Code review with rubric + cross-check |
-| [`research-loop`](loops/research-loop/) | Multi-source research with citations |
-| [`content-loop`](loops/content-loop/) | Draft → critique → revise content |
-| [`outreach-loop`](loops/outreach-loop/) | Personalized outreach at scale |
-| [`migration-loop`](loops/migration-loop/) | Migrate code across versions |
-| [`doc-sync-loop`](loops/doc-sync-loop/) | Keep docs in sync with code |
-| [`oncall-loop`](loops/oncall-loop/) | Triage incidents, propose fixes |
-| [`sre-loop`](loops/sre-loop/) | Investigate, mitigate, postmortem |
-
-Install any: `infini install infini/coding-loop@1.0`.
+```
+infini/
+├── README.md                  # you are here
+├── MANIFESTO.md               # Loops > Chains
+├── ROADMAP.md                 # themed roadmap
+├── CONTRIBUTING.md            # how to contribute
+├── CHANGELOG.md               # history
+├── LICENSE                    # MIT + CC-BY-4.0
+├── SECURITY.md                # disclosure policy
+├── CODE_OF_CONDUCT.md
+│
+├── cli/                       # the infini CLI (working, pip installable)
+│   ├── pyproject.toml
+│   ├── src/infini/            # parser, engine, trace, mock, inspect, replay, diff, ui
+│   └── tests/
+│
+├── observatory-ui/            # Next.js 15 dashboard with 3D trace visualizer
+│   ├── src/app/page.tsx       # the Observatory dashboard
+│   └── package.json
+│
+├── spec/                      # the Loopfile specification
+│   ├── loopfile-v1.md         # normative
+│   ├── grammar.ebnf           # formal grammar
+│   ├── schema.json            # JSON Schema
+│   ├── compatibility.md       # engine matrix
+│   └── rfcs/                  # 10 RFCs
+│
+├── adapters/                  # engine adapters
+│   ├── hermes/                # governance brain
+│   └── openclaw/              # execution runtime
+│
+├── sdk/                       # Adapter SDK
+├── tests/conformance/         # 8 conformance test loops
+├── examples/                  # 5 demos including 2 golden examples
+├── loops/                     # 12 canonical loops
+├── patterns/                  # 13 design patterns
+├── anti-patterns/             # 9 anti-patterns
+├── benchmarks/                # 5 benchmark specs
+├── marketplace/               # 12 category pages (preview)
+├── docs/handbook/             # 10-chapter Loop Engineer handbook
+├── prompts/                   # the Loop Engineer prompt
+├── registry/                  # registry protocol + metadata schema
+└── assets/                    # logo, Observatory screenshots, mockups
+```
 
 ---
 
 ## Roadmap
 
-📖 **[Full roadmap](ROADMAP.md)** — organized by theme: Spec, Reference Engine, Adapters, Registry, Discipline, Community.
+📖 **[Full roadmap →](ROADMAP.md)**
 
-**Now:** Spec v1.0 final · Hermes + OpenClaw adapters · `infini inspect` + `replay` + `diff` · local registry.
+**Now (V1 — shipped):** Working CLI (`infini validate/run/inspect/replay/diff/ui`) · Mock mode (no API key) · Observatory UI with 3D trace graph · Loopfile spec v1.0 · 10 RFCs · Adapter SDK · Hermes + OpenClaw adapters · Conformance suite · 2 Golden Examples.
 
-**Next:** Public registry · LangGraph adapter · full Observatory UI · structured memory (v1.1).
+**Next:** Public registry · LangGraph adapter · Live execution mode · structured memory (v1.1).
 
 **Later:** Spec v2.0 (composition, typed objectives) · cross-engine replay · foundation governance.
 
@@ -317,36 +319,16 @@ Install any: `infini install infini/coding-loop@1.0`.
 
 ## Contributing
 
-We accept:
+We accept spec changes (RFCs), new canonical loops, engine adapters, CLI/Inspector improvements, and essays/benchmarks. Read [`CONTRIBUTING.md`](CONTRIBUTING.md) first. Sign your commits.
 
-- **Spec changes** (RFCs in `spec/rfcs/`)
-- **New canonical loops** (PRs to `loops/`)
-- **Engine adapters** (any runtime that can parse Loopfiles — see `sdk/`)
-- **Inspector / replay / diff / CLI** (`cli/`)
-- **Essays, patterns, anti-patterns, benchmarks** (`docs/`, `benchmarks/`)
-
-Read [`CONTRIBUTING.md`](CONTRIBUTING.md) first. Sign your commits. Be excellent to each other.
-
-### First contribution
-
-| Want to... | Start here |
-| --- | --- |
-| Create a loop | [`loops/`](loops/) |
-| Improve an adapter | [`adapters/`](adapters/) · [`sdk/`](sdk/) |
-| Improve the spec | [`spec/rfcs/`](spec/rfcs/) |
-| Improve docs | [`docs/handbook/`](docs/handbook/) · [`docs/patterns/`](docs/patterns/) · [`docs/anti-patterns/`](docs/anti-patterns/) |
-| Improve the Observatory | [`assets/`](assets/) · [RFC-0008](spec/rfcs/RFC-0008-observatory.md) |
-| Improve verification | [RFC-0002](spec/rfcs/RFC-0002-verification.md) · [`docs/handbook/verification.md`](docs/handbook/verification.md) |
-| Improve the CLI | [`cli/`](cli/) |
-
-Beginner issues are tagged `good-first-issue` in the issue tracker.
+Beginner issues are tagged `good-first-issue`.
 
 ---
 
 ## License
 
 - **Spec:** CC-BY-4.0 (`spec/`, `docs/`, `MANIFESTO.md`)
-- **Code:** MIT (`cli/`, `ci/`, `adapters/`, `sdk/`)
+- **Code:** MIT (`cli/`, `ci/`, `adapters/`, `sdk/`, `observatory-ui/`)
 - **Loops:** MIT (`loops/`, `examples/`)
 
 See [`LICENSE`](LICENSE).
@@ -357,18 +339,15 @@ See [`LICENSE`](LICENSE).
 
 - **Discussions:** GitHub Discussions
 - **RFCs:** [`spec/rfcs/`](spec/rfcs/)
-- **Office hours:** weekly, see [`docs/community.md`](docs/community.md)
-- **Discord:** `https://discord.gg/infini-dev` (coming soon)
 - **Security:** [`SECURITY.md`](SECURITY.md)
 - **Code of conduct:** [`CODE_OF_CONDUCT.md`](CODE_OF_CONDUCT.md)
-- **Funding:** [`.github/FUNDING.yml`](.github/FUNDING.yml)
 
 ---
 
 ## Status
 
-Spec v1.0 — draft, open for community feedback. The CLI ships with reference implementations of `validate`, `inspect`, `replay`, `diff`, and `ci`. The `run`, `publish`, and `install` commands require an engine adapter (Hermes and OpenClaw adapters ship first; LangGraph adapter follows).
+V1 shipped. The CLI works end-to-end in mock mode. The Observatory UI renders traces in 3D. The spec is open for community feedback.
 
-We are shipping first. Join us.
+You aren't being asked to use our software. You're being invited to govern a new standard.
 
-**Loops that don't end. Loops that improve.**
+**Write your logic once. Execute it on any framework.**

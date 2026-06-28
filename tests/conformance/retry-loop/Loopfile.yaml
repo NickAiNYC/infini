@@ -1,0 +1,33 @@
+# Conformance test: retry-loop
+# Step-level retry with exponential backoff
+LOOPFILE: "1.0"
+name: retry-loop
+version: 1.0.0
+description: >
+  Conformance test loop: Step-level retry with exponential backoff
+
+OBJECTIVE: >
+  Step-level retry with exponential backoff.
+
+AGENTS:
+  - { name: builder, role: builder, model_tier: sonnet }
+  - { name: verifier, role: verifier, model_tier: haiku }
+  - { name: researcher, role: researcher, model_tier: sonnet }
+  - { name: planner, role: planner, model_tier: sonnet }
+
+STEPS:
+  - { id: s1, name: flaky, action: flaky_action, uses: builder, produces: [output.txt] }
+    retry: { max: 3, backoff: exponential }
+
+VERIFY:
+  syntactic:
+    - "output.txt:exists"
+  semantic:
+    []
+  confidence_threshold: 0
+
+BUDGET: { dollars: 3, minutes: 5 }
+
+STOP_WHEN:
+  - all_verify_passed
+  - iterations>=3

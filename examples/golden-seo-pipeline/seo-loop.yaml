@@ -1,0 +1,82 @@
+# golden-seo-pipeline.yaml
+# A portable SEO content pipeline that runs on any conforming engine.
+# Same YAML, same verification, same trace — different runtimes.
+
+LOOPFILE: "1.0"
+name: golden-seo-pipeline
+version: 1.0.0
+description: >
+  Golden example: an SEO content pipeline that researches keywords,
+  drafts an article, optimizes for the target keyword, verifies the
+  content passes SEO and quality checks, and produces a publish-ready
+  article. Runs identically across INFINI Reference, Hermes, and OpenClaw.
+
+OBJECTIVE: >
+  Produce a publish-ready SEO article that targets the declared keyword,
+  meets word-count and keyword-density targets, passes a content-quality
+  rubric, and includes internal links and a meta description.
+
+AGENTS:
+  - { name: researcher, role: researcher, model_tier: sonnet, tools: [browser, file_system] }
+  - { name: writer,     role: builder,    model_tier: sonnet, tools: [file_system] }
+  - { name: critic,     role: critic,     model_tier: sonnet, tools: [file_system] }
+  - { name: verifier,   role: verifier,   model_tier: haiku,  tools: [file_system] }
+
+STEPS:
+  - id: s1
+    name: keyword_research
+    action: browser.keyword_research
+    uses: researcher
+    produces: [keywords.json]
+  - id: s2
+    name: draft_article
+    action: content.draft
+    uses: writer
+    depends_on: [s1]
+    produces: [draft.md]
+  - id: s3
+    name: critique
+    action: content.critique
+    uses: critic
+    depends_on: [s2]
+    produces: [critique.md]
+  - id: s4
+    name: revise
+    action: content.revise
+    uses: writer
+    depends_on: [s2, s3]
+    produces: [revised.md]
+  - id: s5
+    name: optimize_seo
+    action: content.optimize_seo
+    uses: writer
+    depends_on: [s4]
+    produces: [article.md, meta-description.txt]
+  - id: s6
+    name: verify_seo
+    action: content.verify_seo
+    uses: verifier
+    depends_on: [s5]
+    produces: [seo-check.json]
+
+VERIFY:
+  syntactic:
+    - "article.md:exists"
+    - "article.md:word_count_in_range"
+    - "article.md:keyword_density_in_range"
+    - "meta-description.txt:exists"
+    - "seo-check.json:valid_json"
+  semantic:
+    - "judge:content_quality>=85"
+    - "judge:seo_score>=85"
+    - "judge:readability>=80"
+  confidence_threshold: 85
+
+BUDGET: { dollars: 4, minutes: 15, tokens: 400000 }
+
+STOP_WHEN:
+  - all_verify_passed
+  - iterations>=3
+
+LESSONS: { path: memory/golden-seo.md, append: true }
+STATE:   { path: state/golden-seo/, resume: true }

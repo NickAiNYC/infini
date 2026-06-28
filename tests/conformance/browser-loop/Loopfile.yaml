@@ -1,0 +1,36 @@
+# Conformance test: browser-loop
+# Browser tool calls
+LOOPFILE: "1.0"
+name: browser-loop
+version: 1.0.0
+description: >
+  Conformance test loop: Browser tool calls
+
+OBJECTIVE: >
+  Browser tool calls.
+
+AGENTS:
+  - { name: builder, role: builder, model_tier: sonnet }
+  - { name: verifier, role: verifier, model_tier: haiku }
+  - { name: researcher, role: researcher, model_tier: sonnet }
+  - { name: planner, role: planner, model_tier: sonnet }
+
+STEPS:
+  - { id: s1, name: navigate, action: browser.navigate, uses: researcher, produces: [page.html] }
+  - { id: s2, name: scrape, action: browser.scrape, uses: researcher, depends_on: [s1], produces: [data.json] }
+  - { id: s3, name: screenshot, action: browser.screenshot, uses: researcher, depends_on: [s1], produces: [screenshot.png] }
+  - { id: s4, name: verify, action: browser.verify_content, uses: verifier, depends_on: [s2, s3], produces: [verify.json] }
+
+VERIFY:
+  syntactic:
+    - "data.json:valid_json"
+    - "screenshot.png:exists"
+  semantic:
+    - "judge:scrape_quality>=80"
+  confidence_threshold: 80
+
+BUDGET: { dollars: 8, minutes: 12 }
+
+STOP_WHEN:
+  - all_verify_passed
+  - iterations>=2

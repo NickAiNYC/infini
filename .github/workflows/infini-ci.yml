@@ -1,0 +1,94 @@
+name: INFINI CI
+on:
+  pull_request:
+    paths:
+      - '**/Loopfile'
+      - '**/Loopfile.yaml'
+      - '**/*-loop.yaml'
+      - 'loops/**'
+      - 'adapters/**'
+      - 'examples/**'
+      - 'spec/**'
+      - 'cli/**'
+      - 'tests/conformance/**'
+
+jobs:
+  validate:
+    name: Validate Loopfiles
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.11' }
+      - run: pip install infini-cli
+      - name: Validate every Loopfile in the repo
+        run: |
+          find . -name 'Loopfile' -o -name 'Loopfile.yaml' -o -name '*-loop.yaml' | while read f; do
+            echo "::group::Validating $f"
+            infini validate "$f" || exit 1
+            echo "::endgroup::"
+          done
+
+  conformance:
+    name: Conformance suite
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.11' }
+      - run: pip install infini-cli
+      - name: Run conformance suite (mock mode)
+        run: |
+          for loop in tests/conformance/*/Loopfile.yaml; do
+            echo "::group::Conformance: $loop"
+            infini run "$loop" --mock -o "runs/$(dirname "$loop" | tr / -)" || exit 1
+            echo "::endgroup::"
+          done
+
+  golden-examples:
+    name: Golden examples
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        example:
+          - examples/golden-research-assistant/research-loop.yaml
+          - examples/golden-seo-pipeline/seo-loop.yaml
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.11' }
+      - run: pip install infini-cli
+      - name: Run golden example in mock mode
+        run: |
+          infini run "${{ matrix.example }}" --mock -o runs/golden/
+          infini inspect runs/golden/
+
+  diff:
+    name: Post Loopfile diff
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.11' }
+      - run: pip install infini-cli
+      - name: Diff changed Loopfiles
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          git diff --name-only origin/${{ github.base_ref }}...HEAD \
+            | grep -E '(Loopfile|.*-loop\.yaml)$' \
+            | while read f; do
+                infini diff "origin/${{ github.base_ref }}:$f" "HEAD:$f" > diff.txt || true
+                if [ -s diff.txt ]; then
+                  gh pr comment "$PR_NUMBER" --body "### INFINI diff — \`$f\`
+
+          $(cat diff.txt)" || true
+                fi
+              done

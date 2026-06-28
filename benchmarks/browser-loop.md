@@ -17,7 +17,7 @@ See [`adapters/openclaw/examples/browser-agent-loop.yaml`](../adapters/openclaw/
 
 10 browser tasks (scrape pricing page, fill form, navigate multi-page flow).
 
-Fixtures live in `benchmarks/fixtures/browser-agent-loop/` (planned).
+Fixtures live in `benchmarks/fixtures/browser-loop/` (planned).
 
 ## Engines
 
@@ -51,7 +51,7 @@ We publish whatever we find.
 ```bash
 git clone https://github.com/NickAiNYC/infini
 cd infini
-infini benchmark benchmarks/fixtures/browser-agent-loop/ --engine infini --n 10
+infini benchmark benchmarks/fixtures/browser-loop/ --engine infini --n 10
 ```
 
 Attach your `run.json` traces to a PR to `benchmarks/reports/`.

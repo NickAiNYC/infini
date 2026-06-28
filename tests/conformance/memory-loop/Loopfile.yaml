@@ -1,0 +1,36 @@
+# Conformance test: memory-loop
+# LESSONS block append and recall
+LOOPFILE: "1.0"
+name: memory-loop
+version: 1.0.0
+description: >
+  Conformance test loop: LESSONS block append and recall
+
+OBJECTIVE: >
+  LESSONS block append and recall.
+
+AGENTS:
+  - { name: builder, role: builder, model_tier: sonnet }
+  - { name: verifier, role: verifier, model_tier: haiku }
+  - { name: researcher, role: researcher, model_tier: sonnet }
+  - { name: planner, role: planner, model_tier: sonnet }
+
+STEPS:
+  - { id: s1, name: recall, action: recall_lessons, uses: planner, produces: [recall.json] }
+  - { id: s2, name: execute, action: do_work, uses: builder, depends_on: [s1], produces: [output.txt] }
+  - { id: s3, name: append, action: append_lesson, uses: builder, depends_on: [s2], produces: [lesson.md] }
+
+VERIFY:
+  syntactic:
+    - "output.txt:exists"
+    - "recall.json:exists"
+    - "lesson.md:exists"
+  semantic:
+    []
+  confidence_threshold: 0
+
+BUDGET: { dollars: 5, minutes: 8 }
+
+STOP_WHEN:
+  - all_verify_passed
+  - iterations>=2

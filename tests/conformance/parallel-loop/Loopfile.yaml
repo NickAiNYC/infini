@@ -1,0 +1,36 @@
+# Conformance test: parallel-loop
+# Parallel workers via depends_on DAG
+LOOPFILE: "1.0"
+name: parallel-loop
+version: 1.0.0
+description: >
+  Conformance test loop: Parallel workers via depends_on DAG
+
+OBJECTIVE: >
+  Parallel workers via depends_on DAG.
+
+AGENTS:
+  - { name: builder, role: builder, model_tier: sonnet }
+  - { name: verifier, role: verifier, model_tier: haiku }
+  - { name: researcher, role: researcher, model_tier: sonnet }
+  - { name: planner, role: planner, model_tier: sonnet }
+
+STEPS:
+  - { id: s1, name: input, action: read_input, uses: builder, produces: [input.json] }
+  - { id: s2a, name: worker_a, action: process, uses: builder, depends_on: [s1], produces: [a.json] }
+  - { id: s2b, name: worker_b, action: process, uses: builder, depends_on: [s1], produces: [b.json] }
+  - { id: s2c, name: worker_c, action: process, uses: builder, depends_on: [s1], produces: [c.json] }
+  - { id: s3, name: merge, action: merge_results, uses: builder, depends_on: [s2a, s2b, s2c], produces: [merged.json] }
+
+VERIFY:
+  syntactic:
+    - "merged.json:exists"
+  semantic:
+    - "judge:merge_quality>=80"
+  confidence_threshold: 80
+
+BUDGET: { dollars: 8, minutes: 10 }
+
+STOP_WHEN:
+  - all_verify_passed
+  - iterations>=2

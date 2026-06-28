@@ -1,0 +1,33 @@
+# Conformance test: verification-loop
+# Two-tier verification with confidence threshold
+LOOPFILE: "1.0"
+name: verification-loop
+version: 1.0.0
+description: >
+  Conformance test loop: Two-tier verification with confidence threshold
+
+OBJECTIVE: >
+  Two-tier verification with confidence threshold.
+
+AGENTS:
+  - { name: builder, role: builder, model_tier: sonnet }
+  - { name: verifier, role: verifier, model_tier: haiku }
+  - { name: researcher, role: researcher, model_tier: sonnet }
+  - { name: planner, role: planner, model_tier: sonnet }
+
+STEPS:
+  - { id: s1, name: produce, action: produce, uses: builder, produces: [out.json] }
+  - { id: s2, name: judge, action: judge, uses: verifier, depends_on: [s1], produces: [judgment.json] }
+
+VERIFY:
+  syntactic:
+    - "out.json:valid_json"
+  semantic:
+    - "judge:correctness>=85"
+  confidence_threshold: 85
+
+BUDGET: { dollars: 5, minutes: 8 }
+
+STOP_WHEN:
+  - all_verify_passed
+  - iterations>=3
