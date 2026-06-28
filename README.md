@@ -3,7 +3,7 @@
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="assets/logo-dark.png">
   <source media="(prefers-color-scheme: light)" srcset="assets/logo-light.png">
-  <img alt="INFINI" src="assets/banner.png" width="320">
+  <img alt="INFINI" src="assets/logo.png" width="320">
 </picture>
 
 <br><br>
@@ -166,7 +166,7 @@ When that path works end-to-end, everything else becomes easy. One demo that sho
 
 <br>
 
-## 🛰 The Observatory
+## The Observatory
 
 Every run produces a standardized trace. The Observatory is a local Next.js + React Three Fiber dashboard:
 
@@ -185,7 +185,7 @@ Inspectable agents. No more black boxes.
 
 <br>
 
-## 🔌 Adapters
+## Adapters
 
 Adapters make the spec real for runtimes that already exist. The easiest external contribution is a new adapter.
 
@@ -193,11 +193,11 @@ Adapters make the spec real for runtimes that already exist. The easiest externa
 adapters/
 ├── hermes/        ← Governance brain: policy, memory, escalation, audit
 ├── openclaw/      ← Execution runtime: browser, GitHub, terminal, filesystem
-├── crewai/        ← Community (help wanted)
-├── langgraph/     ← Community (help wanted)
-├── mastra/        ← Community (help wanted)
-├── goose/         ← Community (help wanted)
-└── codex/         ← Community (help wanted)
+├── crewai/        ← Community
+├── langgraph/     ← Community
+├── mastra/        ← Community
+├── goose/         ← Community
+└── codex/         ← Community
 ```
 
 Each adapter must pass the conformance suite: Parse, Run, Verify, Inspect, Replay.
