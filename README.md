@@ -3,7 +3,7 @@
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="assets/logo-dark.png">
   <source media="(prefers-color-scheme: light)" srcset="assets/logo-light.png">
-  <img alt="INFINI" src="assets/banner.png" width="100%" style="max-width:920px">
+  <img alt="INFINI" src="assets/banner.png" width="100%">
 </picture>
 
 # `INFINI`
