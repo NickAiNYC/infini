@@ -47,6 +47,40 @@ as that adapter's maintainer.
 
 ---
 
+## Local Development
+
+```bash
+git clone https://github.com/NickAiNYC/infini
+cd infini
+
+# Create a virtual environment
+python -m venv venv
+source venv/bin/activate  # or `venv\Scripts\activate` on Windows
+
+# Install in development mode
+pip install -e './cli[dev]'
+
+# Initialize the SQLite database and skills directory
+infini setup
+
+# Run conformance tests
+infini conformance tests/conformance/ --engine infini --mock
+
+# Run unit tests
+python -m pytest cli/tests/ -q
+
+# Try an example
+infini run examples/hello-world.yaml --mock
+
+# Or use the Makefile
+make setup    # creates venv + installs
+make test     # runs pytest
+make conformance  # runs conformance suite
+make verify   # runs everything
+```
+
+---
+
 ## Spec changes (RFCs)
 
 Spec changes are the highest-leverage and most carefully reviewed contributions.

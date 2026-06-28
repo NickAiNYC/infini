@@ -1,0 +1,25 @@
+# hello-world.yaml — the simplest possible Loopfile
+# Run: infini run examples/hello-world.yaml --mock
+
+LOOPFILE: "1.0"
+name: hello-world
+version: 1.0.0
+description: >
+  The simplest possible Loopfile. One agent, one step, one artifact.
+  Use this as your starting point.
+
+OBJECTIVE: "Write a greeting message to greeting.txt."
+
+AGENTS:
+  - { name: greeter, role: builder, model_tier: haiku }
+
+STEPS:
+  - { id: s1, name: greet, action: write_greeting, uses: greeter, produces: [greeting.txt] }
+
+VERIFY:
+  syntactic: ["greeting.txt:exists"]
+  semantic: []
+  confidence_threshold: 0
+
+BUDGET: { dollars: 1, minutes: 2 }
+STOP_WHEN: ["all_verify_passed"]

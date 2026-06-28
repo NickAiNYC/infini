@@ -6,6 +6,12 @@ click>=8.1
 [dev]
 pytest>=7.0
 pytest-cov
+build>=1.0
+twine>=4.0
+
+[live]
+anthropic>=0.30.0
+openai>=1.0.0
 
 [ui]
 flask>=3.0

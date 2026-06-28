@@ -1,0 +1,55 @@
+# auth-module.yaml — medium complexity: 3 steps, retry, verification
+# Run: infini run examples/auth-module.yaml --mock
+
+LOOPFILE: "1.0"
+name: auth-module
+version: 1.0.0
+description: >
+  Implement a JWT auth module with refresh tokens. Tests must pass.
+  A medium-complexity Loopfile demonstrating multi-step execution,
+  retry, and two-tier verification.
+
+OBJECTIVE: "Implement JWT auth with refresh tokens. All tests must pass."
+
+AGENTS:
+  - { name: coder, role: builder, model_tier: sonnet, tools: [terminal.run, file_system.write] }
+  - { name: tester, role: verifier, model_tier: haiku, tools: [terminal.run] }
+  - { name: judge, role: verifier, model_tier: sonnet }
+
+STEPS:
+  - id: s1
+    name: implement
+    action: terminal.run
+    uses: coder
+    produces: [src/auth.py, src/tokens.py]
+  - id: s2
+    name: test
+    action: terminal.run
+    uses: tester
+    depends_on: [s1]
+    produces: [test-output.log]
+    retry: { max: 3, backoff: exponential }
+  - id: s3
+    name: review
+    action: code_review
+    uses: judge
+    depends_on: [s2]
+    produces: [review.md]
+
+VERIFY:
+  syntactic:
+    - "src/auth.py:exists"
+    - "src/tokens.py:exists"
+    - "test-output.log:exit_zero"
+    - "review.md:exists"
+  semantic:
+    - "judge:code_quality>=85"
+    - "judge:security_practices>=90"
+  confidence_threshold: 85
+
+BUDGET: { dollars: 5, minutes: 15 }
+STOP_WHEN: ["all_verify_passed", "iterations>=3"]
+
+memory:
+  persist: true
+  context_window: 50

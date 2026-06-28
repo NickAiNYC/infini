@@ -1,5 +1,54 @@
-runs/
+# Python
 __pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+*.whl
+*.tar.gz
+
+# Virtual environments
+venv/
+.venv/
+env/
+
+# Testing
 .pytest_cache/
+.coverage
+htmlcov/
+.tox/
+
+# INFINI runtime artifacts
+runs/
+*.db
+*.sqlite3
+infini.db
+
+# Observatory UI
 .next/
 node_modules/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Environment
+.env
+.env.local
+
+# Temporary
+*.tmp
+*.bak

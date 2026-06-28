@@ -1,0 +1,93 @@
+# rag-pipeline.yaml — advanced: parallel workers, MCP tools, memory
+# Run: infini run examples/rag-pipeline.yaml --mock
+
+LOOPFILE: "1.0"
+name: rag-pipeline
+version: 1.0.0
+description: >
+  An advanced RAG pipeline: fetch documents in parallel, extract and
+  embed chunks, retrieve relevant context, generate an answer, and
+  verify it against the sources. Demonstrates DAG parallelism, MCP
+  tools, memory persistence, and multi-tier verification.
+
+OBJECTIVE: "Answer a research question using RAG. Every claim must cite a source. Response quality >= 85."
+
+AGENTS:
+  - { name: fetcher, role: researcher, model_tier: sonnet, tools: [browser.navigate, browser.scrape] }
+  - { name: chunker, role: builder, model_tier: haiku, tools: [file_system.write] }
+  - { name: retriever, role: researcher, model_tier: sonnet, tools: [memory.recall] }
+  - { name: writer, role: builder, model_tier: sonnet, tools: [file_system.write] }
+  - { name: verifier, role: verifier, model_tier: sonnet }
+
+STEPS:
+  # Phase 1: Parallel document fetch (DAG fan-out)
+  - id: s1a
+    name: fetch_source_a
+    action: browser.navigate
+    uses: fetcher
+    produces: [docs/source-a.json]
+  - id: s1b
+    name: fetch_source_b
+    action: browser.navigate
+    uses: fetcher
+    produces: [docs/source-b.json]
+  - id: s1c
+    name: fetch_source_c
+    action: browser.navigate
+    uses: fetcher
+    produces: [docs/source-c.json]
+
+  # Phase 2: Chunk and store (fan-in)
+  - id: s2
+    name: chunk_documents
+    action: file_system.write
+    uses: chunker
+    depends_on: [s1a, s1b, s1c]
+    produces: [chunks.json]
+
+  # Phase 3: Retrieve relevant context from memory
+  - id: s3
+    name: retrieve_context
+    action: memory.recall
+    uses: retriever
+    depends_on: [s2]
+    produces: [context.json]
+
+  # Phase 4: Generate answer
+  - id: s4
+    name: generate_answer
+    action: file_system.write
+    uses: writer
+    depends_on: [s3]
+    produces: [answer.md]
+
+  # Phase 5: Verify (citation check + quality rubric)
+  - id: s5
+    name: verify_answer
+    action: verify
+    uses: verifier
+    depends_on: [s4]
+    produces: [verification.json]
+
+VERIFY:
+  syntactic:
+    - "chunks.json:valid_json"
+    - "answer.md:exists"
+    - "answer.md:every_claim_has_citation"
+    - "verification.json:valid_json"
+  semantic:
+    - "judge:response_quality>=85"
+    - "judge:citation_accuracy>=90"
+    - "judge:coverage>=80"
+  confidence_threshold: 85
+
+BUDGET: { dollars: 8, minutes: 25, tokens: 500000 }
+STOP_WHEN: ["all_verify_passed", "iterations>=3"]
+
+TOOLS:
+  - mcp: "github.com/modelcontextprotocol/servers/src/postgres"
+  - mcp: "github.com/modelcontextprotocol/servers/src/filesystem"
+
+memory:
+  persist: true
+  context_window: 100
