@@ -1,11 +1,12 @@
 "use client";
 
-import { useState, useCallback, useRef, useEffect } from "react";
+import { useState, useCallback, useRef, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Canvas } from "@react-three/fiber";
-import { OrbitControls, Line, Text, Html, Float } from "@react-three/drei";
+import { Canvas, useFrame } from "@react-three/fiber";
+import { OrbitControls } from "@react-three/drei";
 import * as THREE from "three";
 import {
+  type LucideIcon,
   Shield,
   Lock,
   RefreshCw,
@@ -100,83 +101,83 @@ const SAMPLE_TRACE: Trace = {
 };
 
 // ────────────────────────────────────────────────────────────
-// 3D Trace Graph (React Three Fiber)
+// 3D Galaxy Globe (React Three Fiber)
 // ────────────────────────────────────────────────────────────
-function TraceNode({
+function GalaxyStepNode({
   position,
-  label,
   stepId,
   status,
-  cost,
   isHighlighted,
   onClick,
 }: {
-  position: [number, number, number];
-  label: string;
+  position: THREE.Vector3;
   stepId: string;
   status: string;
-  cost: number;
   isHighlighted: boolean;
   onClick: () => void;
 }) {
   const color = status === "ok" ? "#06b6d4" : status === "failed" ? "#ef4444" : "#f59e0b";
-  const emissive = new THREE.Color(color);
 
   return (
     <group position={position} onClick={(e) => { e.stopPropagation(); onClick(); }}>
-      {/* Glow halo */}
       <mesh>
-        <sphereGeometry args={[0.35, 16, 16]} />
-        <meshBasicMaterial color={color} transparent opacity={0.08} />
+        <sphereGeometry args={[isHighlighted ? 0.16 : 0.11, 24, 24]} />
+        <meshBasicMaterial color={color} transparent opacity={isHighlighted ? 0.95 : 0.78} />
       </mesh>
       <mesh>
-        <sphereGeometry args={[0.22, 16, 16]} />
-        <meshStandardMaterial
-          color={color}
-          emissive={emissive}
-          emissiveIntensity={isHighlighted ? 1.5 : 0.6}
-          metalness={0.4}
-          roughness={0.3}
-        />
+        <sphereGeometry args={[isHighlighted ? 0.34 : 0.25, 24, 24]} />
+        <meshBasicMaterial color={color} transparent opacity={isHighlighted ? 0.18 : 0.09} />
       </mesh>
-      <Text
-        position={[0, 0.55, 0]}
-        fontSize={0.16}
-        color="#67e8f9"
-        anchorX="center"
-        anchorY="middle"
-      >
-        {stepId}
-      </Text>
-      <Text
-        position={[0, 0.38, 0]}
-        fontSize={0.11}
-        color="#94a3b8"
-        anchorX="center"
-        anchorY="middle"
-      >
-        {label}
-      </Text>
-      <Text
-        position={[0, -0.45, 0]}
-        fontSize={0.09}
-        color="#64748b"
-        anchorX="center"
-        anchorY="middle"
-      >
-        ${cost.toFixed(2)}
-      </Text>
-      {isHighlighted && (
-        <mesh>
-          <ringGeometry args={[0.42, 0.48, 32]} />
-          <meshBasicMaterial color={color} transparent opacity={0.6} side={THREE.DoubleSide} />
-        </mesh>
-      )}
+      <sprite scale={[0.46, 0.16, 1]} position={[0, 0.28, 0]}>
+        <spriteMaterial color={color} transparent opacity={isHighlighted ? 0.55 : 0.22} />
+      </sprite>
     </group>
   );
 }
 
-function TraceGraph3D({
+function GalaxyStars({ count = 420 }: { count?: number }) {
+  const { positions, colors } = useMemo(() => {
+    const positionArray = new Float32Array(count * 3);
+    const colorArray = new Float32Array(count * 3);
+    const palette = [
+      new THREE.Color("#7c5cff"),
+      new THREE.Color("#4ea8ff"),
+      new THREE.Color("#3ecf8e"),
+      new THREE.Color("#e6e8ee"),
+    ];
+
+    for (let i = 0; i < count; i += 1) {
+      const radius = 1.65 + ((i * 17) % 100) / 100 * 0.55;
+      const theta = i * 2.399963229728653;
+      const y = 1 - (i / (count - 1)) * 2;
+      const ring = Math.sqrt(1 - y * y);
+      const arm = Math.sin(i * 0.13) * 0.14;
+
+      positionArray[i * 3] = Math.cos(theta) * ring * radius + arm;
+      positionArray[i * 3 + 1] = y * radius;
+      positionArray[i * 3 + 2] = Math.sin(theta) * ring * radius;
+
+      const color = palette[i % palette.length];
+      colorArray[i * 3] = color.r;
+      colorArray[i * 3 + 1] = color.g;
+      colorArray[i * 3 + 2] = color.b;
+    }
+
+    return { positions: positionArray, colors: colorArray };
+  }, [count]);
+
+  return (
+    <points>
+      <bufferGeometry>
+        <bufferAttribute attach="attributes-position" args={[positions, 3]} />
+        <bufferAttribute attach="attributes-color" args={[colors, 3]} />
+      </bufferGeometry>
+      <pointsMaterial size={0.025} vertexColors transparent opacity={0.82} sizeAttenuation depthWrite={false} />
+    </points>
+  );
+}
+
+function TraceGlobe3D({
   trace,
   selectedStep,
   onSelectStep,
@@ -185,84 +186,92 @@ function TraceGraph3D({
   selectedStep: string | null;
   onSelectStep: (id: string) => void;
 }) {
+  return (
+    <Canvas camera={{ position: [0, 0.8, 7], fov: 46 }}>
+      <GalaxyScene trace={trace} selectedStep={selectedStep} onSelectStep={onSelectStep} />
+    </Canvas>
+  );
+}
+
+function GalaxyScene({
+  trace,
+  selectedStep,
+  onSelectStep,
+}: {
+  trace: Trace;
+  selectedStep: string | null;
+  onSelectStep: (id: string) => void;
+}) {
+  const galaxyRef = useRef<THREE.Group>(null);
+  const haloRef = useRef<THREE.Mesh>(null);
   const steps = trace.steps;
-  // Arrange nodes in a curved arc
-  const radius = 3.5;
-  const angleStep = (Math.PI * 1.2) / Math.max(steps.length - 1, 1);
+
+  const nodePositions = useMemo(() => {
+    const radius = 2.35;
+    return steps.map((_, i) => {
+      const t = steps.length === 1 ? 0.5 : i / (steps.length - 1);
+      const y = 1 - t * 2;
+      const ring = Math.sqrt(1 - y * y);
+      const theta = i * 2.399963229728653 + 0.7;
+      return new THREE.Vector3(
+        Math.cos(theta) * ring * radius,
+        y * radius,
+        Math.sin(theta) * ring * radius
+      );
+    });
+  }, [steps]);
+
+  useFrame((_, delta) => {
+    if (galaxyRef.current) galaxyRef.current.rotation.y += delta * 0.08;
+    if (haloRef.current) haloRef.current.rotation.z += delta * 0.05;
+  });
 
   return (
-    <Canvas camera={{ position: [0, 2, 8], fov: 50 }}>
-      <ambientLight intensity={0.2} />
-      <pointLight position={[5, 5, 5]} intensity={0.8} color="#06b6d4" />
-      <pointLight position={[-5, -3, 3]} intensity={0.4} color="#22d3ee" />
-      <pointLight position={[0, 5, -5]} intensity={0.3} color="#0891b2" />
+    <>
+      <color attach="background" args={["#0b0d12"]} />
+      <ambientLight intensity={0.18} />
+      <pointLight position={[4, 3, 5]} intensity={1.1} color="#4ea8ff" />
+      <pointLight position={[-5, -2, -2]} intensity={0.8} color="#7c5cff" />
 
-      {/* Nodes */}
-      {steps.map((step, i) => {
-        const angle = -Math.PI * 0.6 + i * angleStep;
-        const x = Math.cos(angle) * radius;
-        const z = Math.sin(angle) * radius;
-        const y = Math.sin(i * 0.5) * 0.5;
-        return (
-          <TraceNode
+      <group ref={galaxyRef} rotation={[0.22, 0, -0.12]}>
+        <GalaxyStars />
+        <mesh ref={haloRef}>
+          <sphereGeometry args={[2.22, 64, 64]} />
+          <meshBasicMaterial color="#4ea8ff" wireframe transparent opacity={0.055} />
+        </mesh>
+        <mesh rotation={[Math.PI / 2.3, 0, 0]}>
+          <torusGeometry args={[2.55, 0.012, 12, 160]} />
+          <meshBasicMaterial color="#7c5cff" transparent opacity={0.42} />
+        </mesh>
+        <mesh rotation={[Math.PI / 2.8, 0.2, 0.8]}>
+          <torusGeometry args={[2.9, 0.008, 12, 160]} />
+          <meshBasicMaterial color="#3ecf8e" transparent opacity={0.24} />
+        </mesh>
+        <mesh>
+          <sphereGeometry args={[1.05, 48, 48]} />
+          <meshBasicMaterial color="#11141b" transparent opacity={0.38} />
+        </mesh>
+
+        {steps.map((step, i) => (
+          <GalaxyStepNode
             key={`${step.id}-${i}`}
-            position={[x, y, z]}
-            label={step.name}
+            position={nodePositions[i]}
             stepId={step.id}
             status={step.status}
-            cost={step.cost.dollars}
             isHighlighted={selectedStep === step.id}
             onClick={() => onSelectStep(step.id)}
           />
-        );
-      })}
-
-      {/* Edges */}
-      {steps.slice(0, -1).map((step, i) => {
-        const angle1 = -Math.PI * 0.6 + i * angleStep;
-        const angle2 = -Math.PI * 0.6 + (i + 1) * angleStep;
-        const start: [number, number, number] = [Math.cos(angle1) * radius, Math.sin(i * 0.5) * 0.5, Math.sin(angle1) * radius];
-        const end: [number, number, number] = [Math.cos(angle2) * radius, Math.sin((i + 1) * 0.5) * 0.5, Math.sin(angle2) * radius];
-        return (
-          <Line
-            key={`edge-${i}`}
-            points={[start, end]}
-            color="#06b6d4"
-            lineWidth={1.5}
-            transparent
-            opacity={0.4}
-          />
-        );
-      })}
-
-      {/* Center label */}
-      <Text
-        position={[0, -2.5, 0]}
-        fontSize={0.3}
-        color="#67e8f9"
-        anchorX="center"
-        anchorY="middle"
-      >
-        {trace.loopfile.split("@")[0]}
-      </Text>
-      <Text
-        position={[0, -2.9, 0]}
-        fontSize={0.16}
-        color="#64748b"
-        anchorX="center"
-        anchorY="middle"
-      >
-        {trace.outcome.toUpperCase()} · {trace.iterations} ITERATIONS · ${trace.budget.spent_dollars.toFixed(2)}
-      </Text>
+        ))}
+      </group>
 
       <OrbitControls
         enablePan={false}
-        minDistance={5}
-        maxDistance={15}
+        minDistance={4.5}
+        maxDistance={11}
         autoRotate
-        autoRotateSpeed={0.5}
+        autoRotateSpeed={0.28}
       />
-    </Canvas>
+    </>
   );
 }
 
@@ -281,7 +290,7 @@ function StatCard({
   value: string;
   status: string;
   statusType: "cyan" | "green" | "muted";
-  icon: React.ElementType;
+  icon: LucideIcon;
   delay: number;
 }) {
   return (
@@ -289,7 +298,7 @@ function StatCard({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6, delay }}
-      className="glow-card p-5"
+      className="glow-card p-4"
     >
       <div className="flex items-start justify-between mb-3">
         <div className="label-caps flex items-center gap-2">
@@ -299,7 +308,7 @@ function StatCard({
         <span className={`chip chip-${statusType}`}>{status}</span>
       </div>
       <div
-        className={`text-3xl font-bold tracking-tight ${
+        className={`text-[1.35rem] font-semibold tracking-normal ${
           statusType === "green" ? "text-glow-green" : "text-white"
         }`}
       >
@@ -376,28 +385,28 @@ export default function ObservatoryPage() {
         />
       ))}
 
-      <div className="relative z-10 max-w-[1400px] mx-auto px-6 py-8">
+      <div className="relative z-10 max-w-[1440px] mx-auto px-5 py-5">
         {/* ── Header ── */}
         <motion.header
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7 }}
-          className="flex items-start justify-between mb-8"
+          className="topbar-shell flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-4"
         >
-          <div>
+          <div className="min-w-0">
             <div className="label-caps mb-2 flex items-center gap-2">
               <Boxes className="w-3 h-3" />
-              OPEN STANDARD &amp; AGENT PORTABILITY
+              OPEN STANDARD / AGENT PORTABILITY
             </div>
-            <h1 className="text-5xl font-bold tracking-tight text-glow-cyan">
-              INFINI <span className="text-white">— OBSERVATORY UI</span>
+            <h1 className="text-[1.65rem] font-semibold tracking-normal text-white leading-tight">
+              INFINI <span className="text-accent-violet">Observatory</span>
             </h1>
-            <p className="text-sm text-slate-400 mt-2 max-w-2xl">
+            <p className="text-xs text-muted-gem mt-1 max-w-2xl">
               The declarative portability layer for AI agents. Write your logic once;
               execute it on any framework. Visualize execution traces in 3D.
             </p>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="grid w-full grid-cols-2 gap-2 sm:flex sm:w-auto sm:items-center">
             <input
               ref={fileInputRef}
               type="file"
@@ -407,20 +416,20 @@ export default function ObservatoryPage() {
             />
             <button
               onClick={() => fileInputRef.current?.click()}
-              className="flex items-center gap-2 px-4 py-2 rounded-lg border border-cyan-500/30 text-cyan-300 hover:bg-cyan-500/10 transition-all text-sm font-medium"
+              className="btn-ghost flex items-center justify-center gap-2 text-xs"
             >
               <Upload className="w-4 h-4" />
               Upload Trace
             </button>
-            <button className="btn-cyan flex items-center gap-2 text-sm">
+            <button className="btn-cyan flex items-center justify-center gap-2 text-xs">
               <RefreshCw className="w-4 h-4" />
-              RUN AGENT LOOP
+              Run Agent Loop
             </button>
           </div>
         </motion.header>
 
         {/* ── Stat Cards ── */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
           <StatCard
             label="TOTAL AGENT RUNS"
             value="12,501"
@@ -460,9 +469,9 @@ export default function ObservatoryPage() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.6, delay: 0.5 }}
-          className="flex items-center justify-between mb-6 border-b border-cyan-500/10 pb-3"
+          className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between mb-4 border-b border-gem pb-2"
         >
-          <div className="flex items-center gap-1">
+          <div className="flex w-full items-center gap-1 overflow-x-auto">
             {TABS.map((tab) => (
               <button
                 key={tab}
@@ -470,40 +479,40 @@ export default function ObservatoryPage() {
                 className={`px-4 py-2 text-sm font-medium tracking-wide transition-colors ${
                   activeTab === tab
                     ? "tab-active"
-                    : "text-slate-400 hover:text-slate-200"
-                }`}
+                    : "text-muted-gem hover:text-slate-200"
+                } whitespace-nowrap`}
               >
                 {tab}
               </button>
             ))}
           </div>
-          <div className="relative">
+          <div className="relative w-full lg:w-auto">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-cyan-400/60" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Filter logs by task, model..."
-              className="bg-slate-900/60 border border-cyan-500/20 rounded-lg pl-10 pr-4 py-2 text-sm text-slate-200 placeholder:text-slate-500 focus:outline-none focus:border-cyan-500/50 focus:shadow-[0_0_16px_rgba(6,182,212,0.2)] transition-all w-72"
+              className="bg-panel-gem border border-gem rounded-md pl-10 pr-4 py-2 text-xs text-slate-200 placeholder:text-gem-dim focus:outline-none focus:border-violet-400/60 transition-all w-full lg:w-72"
             />
           </div>
         </motion.div>
 
         {/* ── Main Content: 3D Trace + Replay Detail ── */}
-        <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
           {/* Left: 3D Trace Visualizer */}
           <motion.div
             initial={{ opacity: 0, scale: 0.98 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.7, delay: 0.6 }}
-            className="lg:col-span-3 glow-card p-6 h-[560px] relative overflow-hidden"
+            className="lg:col-span-3 glow-card p-4 h-[560px] relative overflow-hidden"
           >
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2">
-                <Boxes className="w-4 h-4 text-cyan-400" />
-                <h2 className="label-caps">3D EXECUTION GRAPH</h2>
+                <Boxes className="w-4 h-4 text-accent-blue" />
+                <h2 className="label-caps">GALAXY TRACE GLOBE</h2>
               </div>
-              <div className="flex items-center gap-3 text-xs text-slate-500">
+              <div className="flex items-center gap-3 text-[11px] text-muted-gem">
                 <span className="flex items-center gap-1.5">
                   <span className="w-2 h-2 rounded-full bg-cyan-400 shadow-[0_0_8px_#06b6d4]" />
                   OK
@@ -518,9 +527,9 @@ export default function ObservatoryPage() {
                 </span>
               </div>
             </div>
-            <div className="h-[460px]">
+            <div className="h-[466px] rounded-lg overflow-hidden border border-gem bg-[#0b0d12]">
               {mounted ? (
-                <TraceGraph3D
+                <TraceGlobe3D
                   trace={trace}
                   selectedStep={selectedStep}
                   onSelectStep={setSelectedStep}
@@ -531,8 +540,8 @@ export default function ObservatoryPage() {
                 </div>
               )}
             </div>
-            <div className="absolute bottom-4 left-6 text-xs text-slate-500 font-mono">
-              Drag to rotate · Scroll to zoom · Click node to inspect
+            <div className="absolute bottom-4 left-5 text-[11px] text-gem-dim font-mono">
+              Drag to rotate / scroll to zoom / click a star node
             </div>
           </motion.div>
 
@@ -541,10 +550,10 @@ export default function ObservatoryPage() {
             initial={{ opacity: 0, scale: 0.98 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.7, delay: 0.7 }}
-            className="lg:col-span-2 glow-card p-6 h-[560px] overflow-y-auto"
+            className="lg:col-span-2 glow-card p-4 h-[560px] overflow-y-auto"
           >
             <div className="flex items-center gap-2 mb-4">
-              <Lock className="w-4 h-4 text-cyan-400" />
+              <Lock className="w-4 h-4 text-accent-blue" />
               <h2 className="label-caps">AGENT REPLAY VISUALIZATION CENTER</h2>
             </div>
 
@@ -560,15 +569,15 @@ export default function ObservatoryPage() {
                   {/* Step header */}
                   <div className="mb-5">
                     <div className="flex items-center gap-2 mb-1">
-                      <span className="text-xs font-mono text-cyan-400">
+                      <span className="text-xs font-mono text-accent-blue">
                         {selectedStepData.id}
                       </span>
-                      <ChevronRight className="w-3 h-3 text-slate-600" />
+                      <ChevronRight className="w-3 h-3 text-gem-dim" />
                       <span className="text-lg font-semibold text-white">
                         {selectedStepData.name}
                       </span>
                     </div>
-                    <div className="text-xs text-slate-500 font-mono">
+                    <div className="text-xs text-muted-gem font-mono">
                       {selectedStepData.action} · agent: {selectedStepData.agent}
                     </div>
                   </div>
@@ -591,21 +600,21 @@ export default function ObservatoryPage() {
 
                   {/* Cost breakdown */}
                   <div className="grid grid-cols-3 gap-2 mb-5">
-                    <div className="bg-slate-900/40 rounded-lg p-3 border border-cyan-500/10">
-                      <div className="text-[10px] text-slate-500 uppercase tracking-wider mb-1">Cost</div>
-                      <div className="text-lg font-bold text-cyan-300">
+                    <div className="bg-panel-gem rounded-lg p-3 border border-gem">
+                      <div className="text-[10px] text-muted-gem uppercase tracking-wider mb-1">Cost</div>
+                      <div className="text-lg font-semibold text-accent-blue">
                         ${selectedStepData.cost.dollars.toFixed(2)}
                       </div>
                     </div>
-                    <div className="bg-slate-900/40 rounded-lg p-3 border border-cyan-500/10">
-                      <div className="text-[10px] text-slate-500 uppercase tracking-wider mb-1">Time</div>
-                      <div className="text-lg font-bold text-white">
+                    <div className="bg-panel-gem rounded-lg p-3 border border-gem">
+                      <div className="text-[10px] text-muted-gem uppercase tracking-wider mb-1">Time</div>
+                      <div className="text-lg font-semibold text-white">
                         {selectedStepData.cost.minutes.toFixed(1)}m
                       </div>
                     </div>
-                    <div className="bg-slate-900/40 rounded-lg p-3 border border-cyan-500/10">
-                      <div className="text-[10px] text-slate-500 uppercase tracking-wider mb-1">Tokens</div>
-                      <div className="text-lg font-bold text-white">
+                    <div className="bg-panel-gem rounded-lg p-3 border border-gem">
+                      <div className="text-[10px] text-muted-gem uppercase tracking-wider mb-1">Tokens</div>
+                      <div className="text-lg font-semibold text-white">
                         {selectedStepData.cost.tokens.total.toLocaleString()}
                       </div>
                     </div>
@@ -621,9 +630,9 @@ export default function ObservatoryPage() {
                       {selectedStepData.artifacts.map((a) => (
                         <div
                           key={a}
-                          className="flex items-center gap-2 px-3 py-2 bg-slate-900/40 rounded-md border border-cyan-500/10 text-xs font-mono text-slate-300"
+                          className="flex items-center gap-2 px-3 py-2 bg-panel-gem rounded-md border border-gem text-xs font-mono text-slate-300"
                         >
-                          <FileJson className="w-3 h-3 text-cyan-400" />
+                          <FileJson className="w-3 h-3 text-accent-violet" />
                           {a}
                         </div>
                       ))}
@@ -639,11 +648,11 @@ export default function ObservatoryPage() {
               </AnimatePresence>
             ) : (
               <div className="flex flex-col items-center justify-center h-[420px] text-center">
-                <div className="w-16 h-16 rounded-full bg-cyan-500/10 flex items-center justify-center mb-4 pulse-cyan">
-                  <Zap className="w-7 h-7 text-cyan-400" />
+                <div className="w-16 h-16 rounded-full bg-violet-500/10 flex items-center justify-center mb-4 pulse-cyan">
+                  <Zap className="w-7 h-7 text-accent-violet" />
                 </div>
-                <div className="text-slate-400 text-sm mb-2">No Replay Selected</div>
-                <div className="text-slate-600 text-xs max-w-xs">
+                <div className="text-muted-gem text-sm mb-2">No Replay Selected</div>
+                <div className="text-gem-dim text-xs max-w-xs">
                   Select any node in the 3D graph to visualize its execution steps,
                   cost accounting, and memory state.
                 </div>
@@ -653,17 +662,17 @@ export default function ObservatoryPage() {
         </div>
 
         {/* ── Bottom: Log Stream + Verification ── */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-4">
           {/* Log Stream */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.8 }}
-            className="glow-card p-6 h-[300px] overflow-y-auto"
+            className="glow-card p-4 h-[300px] overflow-y-auto"
           >
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2">
-                <Shield className="w-4 h-4 text-cyan-400" />
+                <Shield className="w-4 h-4 text-accent-blue" />
                 <h2 className="label-caps">AUDITED AGENT LOOP LOG STREAM</h2>
               </div>
               <span className="chip chip-cyan">{trace.steps.length} ENTRIES</span>
@@ -677,17 +686,17 @@ export default function ObservatoryPage() {
                   transition={{ delay: 0.9 + i * 0.05 }}
                   className={`flex items-center gap-3 px-3 py-2 rounded border-l-2 cursor-pointer transition-colors ${
                     selectedStep === s.id
-                      ? "bg-cyan-500/10 border-cyan-400"
-                      : "border-transparent hover:bg-slate-900/40"
+                      ? "bg-violet-500/10 border-violet-400"
+                      : "border-transparent hover:bg-panel-gem"
                   }`}
                   onClick={() => setSelectedStep(s.id)}
                 >
-                  <span className="text-slate-600 w-16">{s.started_at.split("T")[1]?.split("Z")[0]}</span>
+                  <span className="text-gem-dim w-16">{s.started_at.split("T")[1]?.split("Z")[0]}</span>
                   <span className={`w-2 h-2 rounded-full ${s.status === "ok" ? "bg-cyan-400 shadow-[0_0_6px_#06b6d4]" : "bg-amber-400 shadow-[0_0_6px_#f59e0b]"}`} />
-                  <span className="text-cyan-300 w-8">{s.id}</span>
+                  <span className="text-accent-blue w-8">{s.id}</span>
                   <span className="text-slate-300 flex-1">{s.name}</span>
-                  <span className="text-slate-500">${s.cost.dollars.toFixed(2)}</span>
-                  <span className="text-slate-600">{s.cost.minutes.toFixed(1)}m</span>
+                  <span className="text-muted-gem">${s.cost.dollars.toFixed(2)}</span>
+                  <span className="text-gem-dim">{s.cost.minutes.toFixed(1)}m</span>
                 </motion.div>
               ))}
             </div>
@@ -698,7 +707,7 @@ export default function ObservatoryPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.9 }}
-            className="glow-card p-6 h-[300px] overflow-y-auto"
+            className="glow-card p-4 h-[300px] overflow-y-auto"
           >
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2">
@@ -716,14 +725,14 @@ export default function ObservatoryPage() {
                   initial={{ opacity: 0, x: 10 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 1.0 + i * 0.04 }}
-                  className="flex items-center gap-3 px-3 py-2 rounded bg-slate-900/30 border border-cyan-500/8"
+                  className="flex items-center gap-3 px-3 py-2 rounded bg-panel-gem border border-gem"
                 >
                   <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 flex-shrink-0" />
                   <span className="font-mono text-xs text-slate-300 flex-1 truncate">
                     {v.check}
                   </span>
                   {v.confidence !== null && (
-                    <span className="text-xs font-mono text-cyan-300">
+                    <span className="text-xs font-mono text-accent-blue">
                       {v.confidence.toFixed(0)}
                     </span>
                   )}
@@ -739,11 +748,11 @@ export default function ObservatoryPage() {
         </div>
 
         {/* ── Footer ── */}
-        <div className="mt-8 flex items-center justify-between text-xs text-slate-600 font-mono">
+        <div className="mt-5 flex items-center justify-between text-xs text-gem-dim font-mono">
           <span>COMMAND CENTER</span>
           <span>
             INFINI v1.0.0 · LOOPFILE-1.0 ·{" "}
-            <span className="text-cyan-500">infini.dev</span>
+            <span className="text-accent-violet">infini.dev</span>
           </span>
         </div>
       </div>
