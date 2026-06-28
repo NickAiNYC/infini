@@ -310,9 +310,9 @@ infini setup                        # Initialize everything
 
 ---
 
-## 🤝 Join the integration
+## 🤝 Join the Project
 
-INFINI is open source. We adapted the best ideas from Squad, MemPalace, Anthropic Skills, Superpowers, and FastMCP. Now we're building something bigger.
+INFINI is open source. We synthesized proven patterns from Squad, MemPalace, Anthropic Skills, Superpowers, and FastMCP. Now we're building something bigger.
 
 **Ways to contribute:**
 - **Adapters** → Help us build for LangGraph, CrewAI, Mastra, Goose, Codex
@@ -336,7 +336,7 @@ infini conformance tests/conformance/ --mock
 
 ## 📖 The Story
 
-INFINI was built by adapting the best architectural ideas from 5 groundbreaking open-source projects:
+INFINI synthesizes proven architectural patterns from 5 groundbreaking open-source projects:
 
 - **[Squad](https://github.com/mco-org/squad)** → SQLite task/message bus and slash-command installer
 - **[MemPalace](https://github.com/mempalace/mempalace)** → Verbatim storage with FTS5 retrieval

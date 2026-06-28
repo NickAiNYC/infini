@@ -409,7 +409,7 @@ def benchmark(loopfile: str):
 
 
 # ════════════════════════════════════════════════════════════
-# Phase 1: Task management (Squad integration)
+# Phase 1: Task management (adapted from Squad)
 # ════════════════════════════════════════════════════════════
 
 @cli.group()
@@ -492,7 +492,7 @@ def task_wait(task_id: str, timeout: int):
 
 
 # ════════════════════════════════════════════════════════════
-# Phase 3: Skill management (Anthropic Skills integration)
+# Phase 3: Skill management (adapted from Anthropic Skills)
 # ════════════════════════════════════════════════════════════
 
 @cli.group()
@@ -538,7 +538,7 @@ def skill_install(git_url: str):
 
 
 # ════════════════════════════════════════════════════════════
-# Phase 5: Setup (Squad installer integration)
+# Phase 5: Setup (adapted from Squad installer)
 # ════════════════════════════════════════════════════════════
 
 @cli.command()
