@@ -1,9 +1,9 @@
 """SQLite coordination bus.
 
-Architecture stolen from Squad (https://github.com/mco-org/squad):
+Architecture adapted from Squad (https://github.com/mco-org/squad):
 - tasks table: manager assigns, workers claim
 - messages table: agent-to-agent communication
-- lessons table: verbatim memory (stolen from MemPalace)
+- lessons table: verbatim memory (adapted from MemPalace)
 
 No ORM. No Redis. Just sqlite3 and the filesystem.
 """

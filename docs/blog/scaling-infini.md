@@ -13,9 +13,9 @@ I had a simpler question: **can three AI agents collaborate using nothing but a 
 
 The answer turned out to be yes. This is how we built INFINI.
 
-## The Heist
+## The integration
 
-We didn't invent the architecture. We stole it from five open-source projects that already solved pieces of the problem:
+We didn't invent the architecture. We adapted it from five open-source projects that already solved pieces of the problem:
 
 1. **Squad** gave us the SQLite task/message bus. Tasks go in a table. Workers claim them. Results come back as messages. No Redis, no RabbitMQ, just `sqlite3`.
 
@@ -62,7 +62,7 @@ The core is 680 lines. The full CLI (including all commands, the engine, the liv
 
 4. **Standards win over features.** INFINI's value isn't the CLI — it's the Loopfile spec. The same YAML runs on any conforming engine. That's the Docker move: own the format, not the runtime.
 
-5. **Attribution is free marketing.** We credited Squad, MemPalace, Anthropic, Superpowers, and FastMCP in every file we stole from. Those projects' communities noticed. Open source is a conversation, not a monologue.
+5. **Attribution is free marketing.** We credited Squad, MemPalace, Anthropic, Superpowers, and FastMCP in every file we adapted from. Those projects' communities noticed. Open source is a conversation, not a monologue.
 
 ## What's Next
 
@@ -86,4 +86,4 @@ No API key needed. No Redis. No Kafka. Just SQLite and Python.
 
 ---
 
-*INFINI is open source (MIT + CC-BY-4.0). We stole from the best. We credit them all. [Star the repo](https://github.com/NickAiNYC/infini) if you want agents to be portable and inspectable.*
+*INFINI is open source (MIT + CC-BY-4.0). We adapted from the best. We credit them all. [Star the repo](https://github.com/NickAiNYC/infini) if you want agents to be portable and inspectable.*
