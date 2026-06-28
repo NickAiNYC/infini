@@ -1,0 +1,175 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #0a0e14;
+    font-family: "SF Mono", "JetBrains Mono", "Fira Code", Menlo, Consolas, monospace;
+    padding: 0;
+  }
+  .terminal {
+    width: 1000px;
+    background: #0d1117;
+    border: 1px solid #1f242f;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5), 0 0 80px rgba(6,182,212,0.08);
+  }
+  .titlebar {
+    background: #161c28;
+    padding: 10px 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border-bottom: 1px solid #1f242f;
+  }
+  .dot { width: 12px; height: 12px; border-radius: 50%; }
+  .dot.red { background: #ef4444; }
+  .dot.yellow { background: #f59e0b; }
+  .dot.green { background: #10b981; }
+  .title {
+    color: #64748b;
+    font-size: 12px;
+    margin-left: 8px;
+    font-weight: 500;
+  }
+  .body {
+    padding: 20px 24px;
+    color: #c9d1d9;
+    font-size: 13px;
+    line-height: 1.6;
+    min-height: 560px;
+    max-height: 560px;
+    overflow: hidden;
+  }
+  .cmd-block {
+    margin-bottom: 16px;
+    opacity: 0;
+    animation: fadeIn 0.4s ease forwards;
+  }
+  .cmd-block:nth-child(1) { animation-delay: 0.2s; }
+  .cmd-block:nth-child(2) { animation-delay: 2.0s; }
+  .cmd-block:nth-child(3) { animation-delay: 4.5s; }
+  .cmd-block:nth-child(4) { animation-delay: 7.0s; }
+  .cmd-block:nth-child(5) { animation-delay: 9.5s; }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .cmd-line {
+    color: #e6e8ee;
+    margin-bottom: 6px;
+    font-weight: 600;
+  }
+  .prompt { color: #06b6d4; margin-right: 6px; }
+  .cmd-text { color: #67e8f9; }
+  .output {
+    color: #94a3b8;
+    font-size: 12px;
+    line-height: 1.5;
+    white-space: pre-wrap;
+    word-break: break-word;
+    margin-left: 16px;
+    max-height: 200px;
+    overflow: hidden;
+  }
+  /* Highlight specific output tokens */
+  .output { position: relative; }
+  .footer {
+    background: #0a0e14;
+    padding: 8px 16px;
+    border-top: 1px solid #1f242f;
+    text-align: center;
+    color: #475569;
+    font-size: 11px;
+  }
+  .footer a { color: #06b6d4; text-decoration: none; }
+</style>
+</head>
+<body>
+<div class="terminal">
+  <div class="titlebar">
+    <div class="dot red"></div>
+    <div class="dot yellow"></div>
+    <div class="dot green"></div>
+    <div class="title">infini — Observatory Demo</div>
+  </div>
+  <div class="body">
+    
+        <div class="cmd-block" data-frame="0">
+          <div class="cmd-line">
+            <span class="prompt">$</span> <span class="cmd-text">infini validate examples/golden-research-assistant/research-loop.yaml</span>
+          </div>
+          <pre class="output">✓ valid  golden-research-assistant@1.0.0  (LOOPFILE-1.0)
+  objective: Answer the research question using at least three primary sources, 
+with every claim cited and citations verified. Produce a research brief that a 
+human reviewer would accept as well-sourced.
+
+  agents: 3  steps: 4  verify: 5 syntactic + 3 semantic
+  budget: $6 / 20m</pre>
+        </div>
+
+        <div class="cmd-block" data-frame="1">
+          <div class="cmd-line">
+            <span class="prompt">$</span> <span class="cmd-text">infini run ... --engine=infini --mock</span>
+          </div>
+          <pre class="output">✓ shipped. trace: /tmp/demo-run-1/run.json</pre>
+        </div>
+
+        <div class="cmd-block" data-frame="2">
+          <div class="cmd-line">
+            <span class="prompt">$</span> <span class="cmd-text">infini run ... --engine=hermes --mock</span>
+          </div>
+          <pre class="output">✓ shipped. trace: /tmp/demo-run-2/run.json</pre>
+        </div>
+
+        <div class="cmd-block" data-frame="3">
+          <div class="cmd-line">
+            <span class="prompt">$</span> <span class="cmd-text">infini inspect runs/latest/</span>
+          </div>
+          <pre class="output">╭──────────────────────────────────────────────────────────────────╮
+│ golden-research-assistant                                        │
+│ engine: infini-reference  ·  outcome: verified  ·  iterations: 2 │
+╰──────────────────────────────────────────────────────────────────╯
+
+Budget
+  dollars: $0.11
+  minutes: 8.6m
+                                                                         
+                                  Steps                                  
+┏━━━━┳━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━┳━━━━━━━┳━━━━━━┳━━━━━━━━━━━━━━━━━━━━━┓
+┃ ID ┃ Name             ┃ Status   ┃  Cost ┃ Time ┃ Artifacts           ┃
+┡━━━━╇━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━╇━━━━━━━╇━━━━━━╇━━━━━━━━━━━━━━━━━━━━━┩
+│ s1 │ find_sources     │ ✓ ok     │ $0.02 │ 0.5m │ sources.json        │
+│ s2 │ extract_claims   │ ✓ ok     │ $0.02 │ 0.9m │ claims.json         │
+│ s3 │ verify_citations │ ✓ ok     │ $0.02 │ 1.4m │ citation-check.json │
+│ s4 │ write_brief      │ ⚠ failed │ $0.00 │ 0.5m │ research_brief.md   │
+│ s1 │ find_sources     │ ✓ ok     │ $0.01 │ 1.7m │ sources.json        │
+│ s2 │ extract_claims   │ ✓ ok     │ $0.01 │ 1.0m │ claims.json         │
+│ s3 │ verify_citations │ ✓ ok     │ $0.03 │ 1.0m │ citation-check.json │</pre>
+        </div>
+
+        <div class="cmd-block" data-frame="4">
+          <div class="cmd-line">
+            <span class="prompt">$</span> <span class="cmd-text">infini engines</span>
+          </div>
+          <pre class="output">──────────────────────── Engines / Adapters (detected) ─────────────────────────
+                                                                                
+  Adapter    Version   Type         Capabilities                                
+ ────────────────────────────────────────────────────────────────────────────── 
+  hermes     1.0.0     governance   parse_loopfile, run_loop, verify,           
+                                    inspect_trace, replay                       
+  openclaw   1.0.0     execution    parse_loopfile, run_loop, verify,           
+                                    inspect_trace                               
+                                                                                
+
+Full compatibility matrix: spec/compatibility.md
+Adapters without adapter.yaml are not listed.</pre>
+        </div>
+  </div>
+  <div class="footer">
+    github.com/NickAiNYC/infini — the open standard for agent portability
+  </div>
+</div>
+</body>
+</html>

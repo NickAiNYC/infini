@@ -24,6 +24,29 @@ Be excellent to each other. Disagree about ideas, not about people. Reject contr
 
 ---
 
+## Help Wanted: Community Adapters
+
+The easiest high-impact contribution is a new adapter. Each adapter makes
+the portability claim real for one more runtime. These are scaffolded but
+not yet implemented — pick one and become its maintainer:
+
+| Adapter | Runtime | Status |
+| --- | --- | --- |
+| [`adapters/crewai/`](adapters/crewai/) | CrewAI | help wanted |
+| [`adapters/langgraph/`](adapters/langgraph/) | LangGraph | help wanted |
+| [`adapters/mastra/`](adapters/mastra/) | Mastra | help wanted |
+| [`adapters/goose/`](adapters/goose/) | Goose (Block) | help wanted |
+| [`adapters/codex/`](adapters/codex/) | Codex (OpenAI) | help wanted |
+
+Each placeholder has a `README.md` with the exact steps to get started.
+The [Adapter SDK](sdk/) gives you the base class; you implement the six
+capabilities. Run `infini conformance` to verify.
+
+If you build one, your name goes in [`CONTRIBUTORS.md`](CONTRIBUTORS.md)
+as that adapter's maintainer.
+
+---
+
 ## Spec changes (RFCs)
 
 Spec changes are the highest-leverage and most carefully reviewed contributions.

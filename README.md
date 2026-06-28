@@ -1,32 +1,83 @@
-# INFINI
+<div align="center">
 
-**The Open Standard for Agent Portability**
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="assets/logo-dark.png">
+  <source media="(prefers-color-scheme: light)" srcset="assets/logo-light.png">
+  <img alt="INFINI" src="assets/banner.png" width="320">
+</picture>
 
-Write your agent logic **once**. Execute it on **any** framework. Verify it actually worked.
+<br><br>
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/)
-![Version](https://img.shields.io/badge/version-0.1.0-blue)
-[![Stars](https://img.shields.io/github/stars/NickAiNYC/infini?style=social)](https://github.com/NickAiNYC/infini)
+# `INFINI`
+
+### The Open Standard for Agent Portability
+
+Write your agent logic **once**. Execute it on **any** framework.<br>Verify it actually worked. Replay it when it didn't.
+
+<br>
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](https://opensource.org/licenses/MIT)
+[![Python 3.10+](https://img.shields.io/badge/python-3.10+-3776AB.svg?style=flat-square&logo=python&logoColor=white)](https://www.python.org/)
+[![Version](https://img.shields.io/badge/milestone-Reference_Runtime-blueviolet?style=flat-square)](#the-reference-runtime)
+[![Spec](https://img.shields.io/badge/spec-v1.0-00C853?style=flat-square)](#the-loopfile)
+[![Stars](https://img.shields.io/github/stars/NickAiNYC/infini?style=flat-square&color=orange)](https://github.com/NickAiNYC/infini)
+[![Discord](https://img.shields.io/badge/Discord-join-5865F2?style=flat-square&logo=discord&logoColor=white)](#community)
+
+<br>
 
 > **Agents just got their Docker moment.**
-> Stop rewriting your workflows every time you change runtimes.
 
-[Install](#install) · [Quickstart](#quickstart) · [Observatory](#the-local-observatory) · [Manifesto](MANIFESTO.md) · [Spec](spec/loopfile-v1.md) · [Roadmap](ROADMAP.md)
+[Install](#install) · [Quickstart](#quickstart) · [Observatory](#-the-observatory) · [Adapters](#-adapters) · [Manifesto](MANIFESTO.md) · [Spec](spec/loopfile-v1.md) · [Roadmap](ROADMAP.md)
 
-![INFINI Demo](assets/demo.gif)
+<br>
+
+<img src="assets/demo.gif" alt="INFINI Demo" width="700">
+
+</div>
+
+<br>
 
 ---
 
+<br>
+
+<div align="center">
+
+```
+                    ┌─────────────┐
+                    │  Loopfile   │    ← Portable. Declarative. Yours.
+                    └──────┬──────┘
+                           │
+                    ┌──────▼──────┐
+                    │   Engine    │    ← Reference, Hermes, OpenClaw, yours
+                    └──────┬──────┘
+                           │
+              ┌────────────┼────────────┐
+              │            │            │
+        ┌─────▼─────┐ ┌───▼───┐ ┌──────▼──────┐
+        │  Adapter   │ │ Trace │ │  Verifier   │
+        └─────┬─────┘ └───┬───┘ └──────┬──────┘
+              │            │            │
+              └────────────┼────────────┘
+                           │
+                    ┌──────▼──────┐
+                    │ Observatory │    ← See everything. Replay anything.
+                    └─────────────┘
+```
+
+</div>
+
+<br>
+
 ## The Problem
 
-Current agent frameworks create **massive vendor lock-in**.
-
-Your core logic gets entangled with LangChain, CrewAI, AutoGen, OpenAI Agents SDK, etc. Switching runtimes means rewriting everything. Traces are opaque. Verification is an afterthought. Migration debt compounds.
+Current agent frameworks create **massive vendor lock-in**. Your core logic gets entangled with LangChain, CrewAI, AutoGen, OpenAI Agents SDK — switching runtimes means rewriting everything. Traces are opaque. Verification is an afterthought. Migration debt compounds silently.
 
 **INFINI is the escape hatch.**
 
-## The Solution: The Loopfile
+<br>
+
+## The Loopfile
 
 A declarative `loop.yaml` that defines *what* your agent should do — not *how* one specific framework does it.
 
@@ -53,53 +104,134 @@ STOP_WHEN: ["all_verify_passed"]
 
 Same file. Any engine. Full traceability.
 
-## Quickstart (under 60 seconds)
+<br>
+
+## Quickstart
 
 ```bash
 pip install infini-cli
 
-# Clone and try a golden example (no API key needed)
+# Run a loop end-to-end
+infini run research-loop.yaml
+```
+
+```
+✓ Loaded Loopfile
+✓ Loaded adapter
+✓ Executing...
+✓ Verification passed
+✓ Trace saved
+✓ Observatory updated
+```
+
+```bash
+# Or try mock mode (no API key needed)
 infini run examples/golden-research-assistant/research-loop.yaml --mock
 
-# Launch the 3D Observatory
+# Launch the Observatory
 infini ui runs/latest/run.json
 ```
 
-## The Local Observatory
+<br>
 
-Every run produces a standardized trace. The Observatory is a beautiful local Next.js + React Three Fiber dashboard:
+## The Reference Runtime
 
-- Drop in a `.trace` file
-- Interactive 3D execution graph (rotate, zoom, click)
+> **Current Milestone** — this is what we're building right now.
+
+The next release is not a patch. It's a named milestone: **The Reference Runtime**.
+
+<div align="center">
+
+```
+Loopfile → Engine → Adapter → Execution → Trace → Replay → Observatory
+```
+
+</div>
+
+When that path works end-to-end, everything else becomes easy. One demo that shows a Loopfile executing for real, generating a trace, and lighting up the Observatory communicates the entire value of the project.
+
+<details>
+<summary><b>Milestone breakdown</b></summary>
+
+<br>
+
+| Milestone | What ships | Status |
+|-----------|-----------|--------|
+| **1 — Reference Runtime** | Execute Loopfiles for real. Generate structured traces. Support replay from traces. | `in-progress` |
+| **2 — Adapter Ecosystem** | Stable adapter SDK. Hermes adapter. OpenClaw adapter. Community adapter examples. | `next` |
+| **3 — Observatory** | Live execution timeline. Trace visualization. Verification reports. Cost/runtime metrics. | `next` |
+| **4 — Registry** | Publish loops. Search loops. Version loops. Rate and review loops. | `planned` |
+
+</details>
+
+<br>
+
+## 🛰 The Observatory
+
+Every run produces a standardized trace. The Observatory is a local Next.js + React Three Fiber dashboard:
+
+<div align="center">
+  <img src="assets/observatory-ui.png" alt="INFINI Observatory — 3D execution graph" width="700">
+</div>
+
+<br>
+
+- Drop in a `.trace` file — interactive 3D execution graph
 - See cost, tokens, artifacts, decisions, and failures per step
-- Replay from any node
-
-<p align="center">
-  <img src="assets/observatory-ui.png" alt="INFINI Observatory — 3D execution graph" />
-</p>
+- Replay from any node — time-travel debugging for agents
+- Compare runs side-by-side with `infini diff`
 
 Inspectable agents. No more black boxes.
 
+<br>
+
+## 🔌 Adapters
+
+Adapters make the spec real for runtimes that already exist. The easiest external contribution is a new adapter.
+
+```
+adapters/
+├── hermes/        ← Governance brain: policy, memory, escalation, audit
+├── openclaw/      ← Execution runtime: browser, GitHub, terminal, filesystem
+├── crewai/        ← Community (help wanted)
+├── langgraph/     ← Community (help wanted)
+├── mastra/        ← Community (help wanted)
+├── goose/         ← Community (help wanted)
+└── codex/         ← Community (help wanted)
+```
+
+Each adapter must pass the conformance suite: Parse, Run, Verify, Inspect, Replay.
+
+Build one using the [Adapter SDK](sdk/).
+
+<br>
+
 ## Key Features
 
-- **Mock mode** — run loops without API keys (perfect for CI & demos)
-- **CLI tools** — `validate`, `run`, `inspect`, `replay`, `diff`, `ui`, `engines`, `init`, `new`, `graph`, `benchmark`
-- **Conformance suite** — adapters must pass strict tests
-- **12 Canonical Loops** — production-grade patterns
-- **Adapter SDK** — easy to add new engines
-- **Zero-downtime adoption** — works as a read-only overlay
+```
+ Mock mode        Run loops without API keys (CI & demos)
+ CLI tools        validate · run · inspect · replay · diff · ui · benchmark
+ Conformance      Adapters must pass strict tests
+ 12 Loops         Production-grade canonical patterns
+ Adapter SDK      Add new engines in hours
+ Zero-downtime    Works as a read-only overlay on existing systems
+```
+
+<br>
 
 ## Philosophy
 
 ```
-Loops > Chains
-Specs > Frameworks
-Traceability > Magic
-Portability > Lock-in
-Correctness > Raw speed
+Loops    >  Chains
+Specs    >  Frameworks
+Traces   >  Logs
+Portable >  Lock-in
+Correct  >  Fast
 ```
 
 Read the full [Manifesto](MANIFESTO.md).
+
+<br>
 
 ## Install
 
@@ -114,15 +246,91 @@ git clone https://github.com/NickAiNYC/infini
 cd infini/cli && pip install -e .
 ```
 
+<br>
+
+## CLI Reference
+
+```bash
+infini validate loop.yaml     # Check a Loopfile against the spec
+infini run loop.yaml           # Execute a loop
+infini run loop.yaml --mock    # Execute with mock adapter (no API key)
+infini inspect run.json        # Open trace in terminal
+infini ui run.json             # Launch Observatory UI
+infini replay run.json         # Time-travel replay
+infini diff v1.yaml v2.yaml    # Semantic diff between Loopfiles
+infini benchmark loop.yaml     # Run standardized benchmarks
+infini engines                 # List available adapters
+infini init                    # Scaffold a new Loopfile
+```
+
+<br>
+
+## Project Structure
+
+```
+infini/
+├── spec/              Loopfile specification, grammar, JSON schema, RFCs
+├── cli/               Reference CLI implementation
+├── sdk/               Adapter SDK for third-party engines
+├── adapters/          Hermes, OpenClaw, and community adapters
+├── loops/             12 canonical loop patterns
+├── examples/          Golden examples with traces
+├── observatory-ui/    Next.js + React Three Fiber dashboard
+├── docs/              Handbook, patterns, anti-patterns
+├── benchmarks/        Standardized benchmark suite
+├── registry/          Local registry and protocol
+├── marketplace/       Category browser (preview)
+├── prompts/           Loop Engineer prompt
+└── ci/                GitHub Action for CI integration
+```
+
+<br>
+
+## The Lineage
+
+<div align="center">
+
+```
+Docker      standardized   containers
+Terraform   standardized   infrastructure
+OpenAPI     standardized   APIs
+Markdown    standardized   documents
+INFINI      standardizes   autonomous work
+```
+
+</div>
+
+<br>
+
+## Community
+
+- [Discussions](https://github.com/NickAiNYC/infini/discussions) — questions, ideas, show & tell
+- [RFCs](spec/rfcs/) — propose spec changes
+- [Contributing](CONTRIBUTING.md) — how to get involved
+- [Code of Conduct](CODE_OF_CONDUCT.md) — Contributor Covenant 2.1
+
+<br>
+
 ## Next Steps
 
-- Try the [golden examples](examples/)
-- Explore the [12 canonical loops](loops/)
-- Read the [spec](spec/loopfile-v1.md) and [RFCs](spec/rfcs/)
+- Run a [golden example](examples/) in mock mode
+- Read the [12 canonical loops](loops/)
+- Explore the [spec](spec/loopfile-v1.md) and [RFCs](spec/rfcs/)
 - Build an adapter using the [SDK](sdk/)
+- Read the [Handbook](docs/handbook/)
+
+<br>
 
 ---
 
+<div align="center">
+
 **Star if you want agents to be portable and inspectable.**
 
-Built for the agent ecosystem.
+Built for the agent ecosystem. Spec is [CC-BY-4.0](https://creativecommons.org/licenses/by/4.0/). Code is [MIT](LICENSE).
+
+<br>
+
+<sub>Loops that don't end. Loops that improve.</sub>
+
+</div>
