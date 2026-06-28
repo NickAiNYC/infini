@@ -1,0 +1,144 @@
+{
+  "loopfile": "infini/coding-loop@1.0.0",
+  "loopfile_hash": "sha256:9f3ab7c1b7c1b7c1b7c1b7c1b7c1b7c1b7c1",
+  "engine": {
+    "type": "infini-reference",
+    "version": "1.0.0"
+  },
+  "started_at": "2026-06-28T10:42:00Z",
+  "ended_at": "2026-06-28T10:45:30Z",
+  "iterations": 1,
+  "steps": [
+    {
+      "id": "s1",
+      "name": "plan",
+      "status": "ok",
+      "started_at": "2026-06-28T10:40:00Z",
+      "ended_at": "2026-06-28T10:40:30Z",
+      "cost": {
+        "dollars": 0.24,
+        "minutes": 0.82,
+        "tokens": {
+          "input": 1200,
+          "output": 300,
+          "total": 1500
+        }
+      },
+      "artifacts": [
+        "plan.md"
+      ],
+      "agent": "builder",
+      "action": "plan",
+      "retry_attempt": null
+    },
+    {
+      "id": "s2",
+      "name": "edit",
+      "status": "ok",
+      "started_at": "2026-06-28T10:41:00Z",
+      "ended_at": "2026-06-28T10:41:30Z",
+      "cost": {
+        "dollars": 0.26,
+        "minutes": 0.82,
+        "tokens": {
+          "input": 1600,
+          "output": 500,
+          "total": 2100
+        }
+      },
+      "artifacts": [
+        "src/"
+      ],
+      "agent": "verifier",
+      "action": "edit",
+      "retry_attempt": null
+    },
+    {
+      "id": "s3",
+      "name": "test",
+      "status": "ok",
+      "started_at": "2026-06-28T10:42:00Z",
+      "ended_at": "2026-06-28T10:42:30Z",
+      "cost": {
+        "dollars": 0.28,
+        "minutes": 0.82,
+        "tokens": {
+          "input": 2000,
+          "output": 700,
+          "total": 2700
+        }
+      },
+      "artifacts": [
+        "test-output.log"
+      ],
+      "agent": "builder",
+      "action": "test",
+      "retry_attempt": null
+    },
+    {
+      "id": "s4",
+      "name": "open_pr",
+      "status": "ok",
+      "started_at": "2026-06-28T10:43:00Z",
+      "ended_at": "2026-06-28T10:43:30Z",
+      "cost": {
+        "dollars": 0.31,
+        "minutes": 0.82,
+        "tokens": {
+          "input": 2400,
+          "output": 900,
+          "total": 3300
+        }
+      },
+      "artifacts": [
+        "pr-url.txt"
+      ],
+      "agent": "verifier",
+      "action": "open_pr",
+      "retry_attempt": null
+    }
+  ],
+  "verifications": [
+    {
+      "check": "tests:pass",
+      "status": "pass",
+      "confidence": null,
+      "detail": null
+    },
+    {
+      "check": "pr-url.txt:valid_url",
+      "status": "pass",
+      "confidence": null,
+      "detail": null
+    },
+    {
+      "check": "judge:feature_completeness>=90",
+      "status": "pass",
+      "confidence": 88,
+      "detail": null
+    },
+    {
+      "check": "judge:test_coverage>=85",
+      "status": "pass",
+      "confidence": 88,
+      "detail": null
+    }
+  ],
+  "budget": {
+    "spent_dollars": 0.95,
+    "spent_minutes": 3.3
+  },
+  "outcome": "verified",
+  "lessons": [
+    "coding-loop shipped after 1 iteration(s) at $0.95."
+  ],
+  "provenance": {
+    "engine_signature": "ed25519:2b4f... (placeholder)",
+    "artifact_hashes": {
+      "plan.md": "sha256:placeholder-0",
+      "src/": "sha256:placeholder-1",
+      "test-output.log": "sha256:placeholder-2",
+      "pr-url.txt": "sha256:placeholder-3"
+    }
+  }
+}

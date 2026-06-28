@@ -1,0 +1,138 @@
+{
+  "loopfile": "infini/migration-loop@1.0.0",
+  "loopfile_hash": "sha256:9f3ab7c1b7c1b7c1b7c1b7c1b7c1b7c1b7c1",
+  "engine": {
+    "type": "infini-reference",
+    "version": "1.0.0"
+  },
+  "started_at": "2026-06-28T10:42:00Z",
+  "ended_at": "2026-06-28T10:51:30Z",
+  "iterations": 3,
+  "steps": [
+    {
+      "id": "s1",
+      "name": "diff_versions",
+      "status": "ok",
+      "started_at": "2026-06-28T10:40:00Z",
+      "ended_at": "2026-06-28T10:40:30Z",
+      "cost": {
+        "dollars": 0.7,
+        "minutes": 2.3,
+        "tokens": {
+          "input": 1200,
+          "output": 300,
+          "total": 1500
+        }
+      },
+      "artifacts": [
+        "version-diff.json"
+      ],
+      "agent": "builder",
+      "action": "diff_versions",
+      "retry_attempt": null
+    },
+    {
+      "id": "s2",
+      "name": "apply",
+      "status": "ok",
+      "started_at": "2026-06-28T10:41:00Z",
+      "ended_at": "2026-06-28T10:41:30Z",
+      "cost": {
+        "dollars": 0.77,
+        "minutes": 2.3,
+        "tokens": {
+          "input": 1600,
+          "output": 500,
+          "total": 2100
+        }
+      },
+      "artifacts": [
+        "src/"
+      ],
+      "agent": "verifier",
+      "action": "apply",
+      "retry_attempt": null
+    },
+    {
+      "id": "s3",
+      "name": "test",
+      "status": "ok",
+      "started_at": "2026-06-28T10:42:00Z",
+      "ended_at": "2026-06-28T10:42:30Z",
+      "cost": {
+        "dollars": 0.84,
+        "minutes": 2.3,
+        "tokens": {
+          "input": 2000,
+          "output": 700,
+          "total": 2700
+        }
+      },
+      "artifacts": [
+        "test-output.log"
+      ],
+      "agent": "builder",
+      "action": "test",
+      "retry_attempt": null
+    },
+    {
+      "id": "s4",
+      "name": "verify",
+      "status": "ok",
+      "started_at": "2026-06-28T10:43:00Z",
+      "ended_at": "2026-06-28T10:43:30Z",
+      "cost": {
+        "dollars": 0.91,
+        "minutes": 2.3,
+        "tokens": {
+          "input": 2400,
+          "output": 900,
+          "total": 3300
+        }
+      },
+      "artifacts": [
+        "behavior-diff.json"
+      ],
+      "agent": "verifier",
+      "action": "verify",
+      "retry_attempt": null
+    }
+  ],
+  "verifications": [
+    {
+      "check": "test-output.log:exit_zero",
+      "status": "pass",
+      "confidence": null,
+      "detail": null
+    },
+    {
+      "check": "behavior-diff.json:no_regressions",
+      "status": "pass",
+      "confidence": null,
+      "detail": null
+    },
+    {
+      "check": "judge:migration_completeness>=90",
+      "status": "pass",
+      "confidence": 88,
+      "detail": null
+    }
+  ],
+  "budget": {
+    "spent_dollars": 2.81,
+    "spent_minutes": 9.2
+  },
+  "outcome": "verified",
+  "lessons": [
+    "migration-loop shipped after 3 iteration(s) at $2.81."
+  ],
+  "provenance": {
+    "engine_signature": "ed25519:2b4f... (placeholder)",
+    "artifact_hashes": {
+      "version-diff.json": "sha256:placeholder-0",
+      "src/": "sha256:placeholder-1",
+      "test-output.log": "sha256:placeholder-2",
+      "behavior-diff.json": "sha256:placeholder-3"
+    }
+  }
+}

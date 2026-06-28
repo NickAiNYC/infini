@@ -1,0 +1,161 @@
+{
+  "loopfile": "infini/doc-sync-loop@1.0.0",
+  "loopfile_hash": "sha256:9f3ab7c1b7c1b7c1b7c1b7c1b7c1b7c1b7c1",
+  "engine": {
+    "type": "infini-reference",
+    "version": "1.0.0"
+  },
+  "started_at": "2026-06-28T10:42:00Z",
+  "ended_at": "2026-06-28T10:45:30Z",
+  "iterations": 1,
+  "steps": [
+    {
+      "id": "s1",
+      "name": "diff_code",
+      "status": "ok",
+      "started_at": "2026-06-28T10:40:00Z",
+      "ended_at": "2026-06-28T10:40:30Z",
+      "cost": {
+        "dollars": 0.18,
+        "minutes": 0.62,
+        "tokens": {
+          "input": 1200,
+          "output": 300,
+          "total": 1500
+        }
+      },
+      "artifacts": [
+        "code-changes.json"
+      ],
+      "agent": "builder",
+      "action": "diff_code",
+      "retry_attempt": null
+    },
+    {
+      "id": "s2",
+      "name": "diff_docs",
+      "status": "ok",
+      "started_at": "2026-06-28T10:41:00Z",
+      "ended_at": "2026-06-28T10:41:30Z",
+      "cost": {
+        "dollars": 0.2,
+        "minutes": 0.62,
+        "tokens": {
+          "input": 1600,
+          "output": 500,
+          "total": 2100
+        }
+      },
+      "artifacts": [
+        "doc-changes.json"
+      ],
+      "agent": "verifier",
+      "action": "diff_docs",
+      "retry_attempt": null
+    },
+    {
+      "id": "s3",
+      "name": "find_gaps",
+      "status": "ok",
+      "started_at": "2026-06-28T10:42:00Z",
+      "ended_at": "2026-06-28T10:42:30Z",
+      "cost": {
+        "dollars": 0.21,
+        "minutes": 0.62,
+        "tokens": {
+          "input": 2000,
+          "output": 700,
+          "total": 2700
+        }
+      },
+      "artifacts": [
+        "doc-gaps.json"
+      ],
+      "agent": "builder",
+      "action": "find_gaps",
+      "retry_attempt": null
+    },
+    {
+      "id": "s4",
+      "name": "sync",
+      "status": "ok",
+      "started_at": "2026-06-28T10:43:00Z",
+      "ended_at": "2026-06-28T10:43:30Z",
+      "cost": {
+        "dollars": 0.23,
+        "minutes": 0.62,
+        "tokens": {
+          "input": 2400,
+          "output": 900,
+          "total": 3300
+        }
+      },
+      "artifacts": [
+        "docs/"
+      ],
+      "agent": "verifier",
+      "action": "sync",
+      "retry_attempt": null
+    },
+    {
+      "id": "s5",
+      "name": "verify",
+      "status": "ok",
+      "started_at": "2026-06-28T10:44:00Z",
+      "ended_at": "2026-06-28T10:44:30Z",
+      "cost": {
+        "dollars": 0.25,
+        "minutes": 0.62,
+        "tokens": {
+          "input": 2800,
+          "output": 1100,
+          "total": 3900
+        }
+      },
+      "artifacts": [
+        "sync-check.json"
+      ],
+      "agent": "builder",
+      "action": "verify",
+      "retry_attempt": null
+    }
+  ],
+  "verifications": [
+    {
+      "check": "doc-gaps.json:empty_after_sync",
+      "status": "pass",
+      "confidence": null,
+      "detail": null
+    },
+    {
+      "check": "sync-check.json:all_synced",
+      "status": "pass",
+      "confidence": null,
+      "detail": null
+    },
+    {
+      "check": "judge:doc_accuracy>=85",
+      "status": "pass",
+      "confidence": 88,
+      "detail": null
+    }
+  ],
+  "budget": {
+    "spent_dollars": 0.89,
+    "spent_minutes": 3.1
+  },
+  "outcome": "verified",
+  "lessons": [
+    "doc-sync-loop shipped after 1 iteration(s) at $0.89."
+  ],
+  "provenance": {
+    "engine_signature": "ed25519:2b4f... (placeholder)",
+    "artifact_hashes": {
+      "code-changes.json": "sha256:placeholder-0",
+      "doc-changes.json": "sha256:placeholder-1",
+      "doc-gaps.json": "sha256:placeholder-2",
+      "docs/": "sha256:placeholder-3",
+      "sync-check.json": "sha256:placeholder-4"
+    }
+  }
+}

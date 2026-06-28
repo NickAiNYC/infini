@@ -1,0 +1,14 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Spec question
+    url: https://github.com/NickAiNYC/infini/discussions/categories/spec
+    about: Questions about what a Loopfile can express. Use Discussions, not Issues.
+  - name: Loop design help
+    url: https://github.com/NickAiNYC/infini/discussions/categories/loop-design
+    about: Help writing or debugging a Loopfile. Use Discussions, not Issues.
+  - name: Adapter authoring help
+    url: https://github.com/NickAiNYC/infini/discussions/categories/adapters
+    about: Help implementing an engine adapter. Use Discussions, not Issues.
+  - name: Security disclosure
+    url: https://github.com/NickAiNYC/infini/security/policy
+    about: Do not open public issues for security disclosures. See SECURITY.md.

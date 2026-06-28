@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="160" viewBox="0 0 760 160">
+<rect width="760" height="160" fill="#0b0d12"/>
+<text x="40" y="30" fill="#e6e8ee" font-family="SF Mono, monospace" font-size="13" font-weight="600">refactor-loop</text>
+<rect x="40" y="70" width="140" height="50" rx="8" fill="#161a23" stroke="#2a3140" stroke-width="1"/>
+<text x="50" y="88" fill="#5b6477" font-family="SF Mono, monospace" font-size="10">s1</text>
+<text x="50" y="108" fill="#e6e8ee" font-family="SF Mono, monospace" font-size="13">map_calls</text>
+<line x1="180" y1="95.0" x2="214" y2="95.0" stroke="#5b6477" stroke-width="1.5"/>
+<polygon points="214,91.0 220,95.0 214,99.0" fill="#5b6477"/>
+<rect x="220" y="70" width="140" height="50" rx="8" fill="#161a23" stroke="#2a3140" stroke-width="1"/>
+<text x="230" y="88" fill="#5b6477" font-family="SF Mono, monospace" font-size="10">s2</text>
+<text x="230" y="108" fill="#e6e8ee" font-family="SF Mono, monospace" font-size="13">refactor</text>
+<line x1="360" y1="95.0" x2="394" y2="95.0" stroke="#5b6477" stroke-width="1.5"/>
+<polygon points="394,91.0 400,95.0 394,99.0" fill="#5b6477"/>
+<rect x="400" y="70" width="140" height="50" rx="8" fill="#161a23" stroke="#2a3140" stroke-width="1"/>
+<text x="410" y="88" fill="#5b6477" font-family="SF Mono, monospace" font-size="10">s3</text>
+<text x="410" y="108" fill="#e6e8ee" font-family="SF Mono, monospace" font-size="13">test</text>
+<line x1="540" y1="95.0" x2="574" y2="95.0" stroke="#5b6477" stroke-width="1.5"/>
+<polygon points="574,91.0 580,95.0 574,99.0" fill="#5b6477"/>
+<rect x="580" y="70" width="140" height="50" rx="8" fill="#161a23" stroke="#2a3140" stroke-width="1"/>
+<text x="590" y="88" fill="#5b6477" font-family="SF Mono, monospace" font-size="10">s4</text>
+<text x="590" y="108" fill="#e6e8ee" font-family="SF Mono, monospace" font-size="13">diff_behavior</text>
+</svg>

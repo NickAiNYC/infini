@@ -1,0 +1,156 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>INFINI Replay Timeline — mockup</title>
+<style>
+  :root{--bg:#0b0d12;--panel:#11141b;--panel2:#161a23;--line:#1f242f;--line2:#2a3140;--text:#e6e8ee;--muted:#8b93a4;--dim:#5b6477;--accent:#7c5cff;--good:#3ecf8e;--warn:#f5a623;--hermes:#6aa6ff;--openclaw:#f59e7a}
+  *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:13px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",Inter,sans-serif;-webkit-font-smoothing:antialiased}
+  .mono{font-family:"SF Mono","JetBrains Mono",Menlo,Consolas,monospace}
+  .topbar{display:flex;align-items:center;gap:14px;padding:10px 18px;border-bottom:1px solid var(--line);background:linear-gradient(180deg,#0e1118,#0b0d12)}
+  .brand{display:flex;align-items:center;gap:9px;font-weight:600}.brand .mark{width:22px;height:22px;border-radius:6px;background:linear-gradient(135deg,#7c5cff,#4ea8ff);display:grid;place-items:center;font-size:13px;box-shadow:0 0 12px rgba(124,92,255,.4)}
+  .crumbs{color:var(--muted);font-size:12px}.crumbs b{color:var(--text);font-weight:500}
+  .spacer{flex:1}.pill{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;background:var(--panel2);border:1px solid var(--line2);font-size:11px;color:var(--muted)}
+  .wrap{padding:28px 32px 60px}
+  h1{margin:0 0 4px;font-size:20px;font-weight:600}
+  .sub{color:var(--muted);margin:0 0 20px;font-size:13px}
+  .legend{display:flex;gap:18px;font-size:11px;color:var(--muted);margin-bottom:24px;align-items:center}
+  .sw{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px;vertical-align:-1px}
+  .timeline{background:var(--panel);border:1px solid var(--line2);border-radius:12px;padding:24px 28px;margin-bottom:24px}
+  .row{display:grid;grid-template-columns:140px 1fr 100px;gap:16px;align-items:center;padding:12px 0;border-bottom:1px solid var(--line)}
+  .row:last-child{border:0}
+  .row .label{font-size:11px;color:var(--muted);font-family:"SF Mono",monospace;text-align:right}
+  .row .label .id{color:var(--dim);font-size:10px;display:block}
+  .bar{height:28px;position:relative;background:transparent}
+  .bar .fill{position:absolute;height:100%;border-radius:4px;display:flex;align-items:center;padding:0 10px;font-size:11px;color:#fff;font-family:"SF Mono",monospace;white-space:nowrap}
+  .bar .fill.hermes{background:linear-gradient(90deg,#6aa6ff,#4a86df)}
+  .bar .fill.openclaw{background:linear-gradient(90deg,#f59e7a,#d9785a)}
+  .bar .fill.retried{background:linear-gradient(90deg,#f5a623,#d18610)}
+  .row .cost{font-size:11px;color:var(--muted);font-family:"SF Mono",monospace;text-align:right}
+  .scrubber{margin:20px 0;padding:18px 20px;background:var(--panel2);border:1px solid var(--line2);border-radius:10px}
+  .scrubber .head{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:10px;font-family:"SF Mono",monospace}
+  .track{height:8px;background:var(--line);border-radius:4px;position:relative;margin-bottom:14px}
+  .track .progress{position:absolute;height:100%;background:linear-gradient(90deg,var(--accent),#5d3fdf);border-radius:4px;width:62%}
+  .track .handle{position:absolute;top:-4px;width:16px;height:16px;border-radius:50%;background:#fff;box-shadow:0 0 0 4px rgba(124,92,255,.3);left:62%;transform:translateX(-50%);cursor:pointer}
+  .track .marker{position:absolute;top:-2px;width:2px;height:12px;background:var(--good);border-radius:1px}
+  .controls{display:flex;gap:8px;align-items:center;justify-content:center}
+  .btn{background:var(--accent);color:#fff;border:0;padding:8px 16px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer}
+  .btn.ghost{background:var(--panel2);color:var(--text);border:1px solid var(--line2)}
+  .btn.ghost:hover{border-color:var(--accent)}
+  .mutations{background:var(--panel);border:1px solid var(--line2);border-radius:10px;padding:18px 20px}
+  .mutations h3{margin:0 0 12px;font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--dim)}
+  .mut{display:grid;grid-template-columns:200px 1fr 1fr;gap:12px;padding:8px 0;border-bottom:1px solid var(--line);font-size:12px;font-family:"SF Mono",monospace}
+  .mut:last-child{border:0}
+  .mut .field{color:var(--muted)}.mut .from{color:var(--warn)}.mut .to{color:var(--good)}
+  .foot{margin-top:24px;text-align:center;font-size:11px;color:var(--dim)}
+</style></head><body>
+
+<div class="topbar">
+  <div class="brand"><span class="mark">∞</span> INFINI</div>
+  <div class="crumbs">replay · <b>runs/2026-06-28-1042-governed-coding</b> · from s5</div>
+  <div class="spacer"></div>
+  <span class="pill">view: replay timeline</span>
+  <span class="pill">original → replay diff</span>
+</div>
+
+<div class="wrap">
+  <h1>Replay timeline — governed-coding-loop</h1>
+  <p class="sub">Time-travel to any step. Inspect state. Mutate inputs. Re-run from there. The original run is untouched; the replay produces a new trace.</p>
+
+  <div class="legend">
+    <span><span class="sw" style="background:var(--hermes)"></span>Hermes</span>
+    <span><span class="sw" style="background:var(--openclaw)"></span>OpenClaw</span>
+    <span><span class="sw" style="background:var(--warn)"></span>retried</span>
+    <span><span class="sw" style="background:var(--accent)"></span>replay point</span>
+  </div>
+
+  <div class="timeline">
+    <div class="row">
+      <div class="label">s1 plan<span class="id">hermes</span></div>
+      <div class="bar"><div class="fill hermes" style="left:0%;width:8%">$0.18 · 0m42s ✓</div></div>
+      <div class="cost">$0.18</div>
+    </div>
+    <div class="row">
+      <div class="label">s2 policy_check<span class="id">hermes</span></div>
+      <div class="bar"><div class="fill hermes" style="left:8%;width:11%">$0.31 · 0m54s ✓</div></div>
+      <div class="cost">$0.31</div>
+    </div>
+    <div class="row">
+      <div class="label">s3 audit_pre<span class="id">hermes</span></div>
+      <div class="bar"><div class="fill hermes" style="left:19%;width:4%">$0.12 ✓</div></div>
+      <div class="cost">$0.12</div>
+    </div>
+    <div class="row">
+      <div class="label">s4 edit_files<span class="id">openclaw</span></div>
+      <div class="bar"><div class="fill openclaw" style="left:23%;width:14%">$0.34 · 1m12s ✓</div></div>
+      <div class="cost">$0.34</div>
+    </div>
+    <div class="row">
+      <div class="label">s5 run_tests ◀ replay<span class="id">openclaw</span></div>
+      <div class="bar">
+        <div class="fill retried" style="left:37%;width:9%">$0.21 · ⚠ retry</div>
+        <div class="track" style="position:absolute;left:37%;top:-4px;width:2px;height:36px;background:var(--accent);box-shadow:0 0 8px var(--accent)"></div>
+      </div>
+      <div class="cost" style="color:var(--accent)">$0.21 ←</div>
+    </div>
+    <div class="row" style="opacity:.5">
+      <div class="label">s6 open_pr<span class="id">openclaw</span></div>
+      <div class="bar"><div class="fill openclaw" style="left:46%;width:9%">$0.22 · 0m36s ✓</div></div>
+      <div class="cost">$0.22</div>
+    </div>
+    <div class="row" style="opacity:.5">
+      <div class="label">s7 audit_post<span class="id">hermes</span></div>
+      <div class="bar"><div class="fill hermes" style="left:55%;width:6%">$0.14 ✓</div></div>
+      <div class="cost">$0.14</div>
+    </div>
+    <div class="row" style="opacity:.5">
+      <div class="label">s8 verify_governed<span class="id">hermes</span></div>
+      <div class="bar"><div class="fill hermes" style="left:61%;width:7%">$0.18 · conf 91 ✓</div></div>
+      <div class="cost">$0.18</div>
+    </div>
+  </div>
+
+  <div class="scrubber">
+    <div class="head">
+      <span>replay point: <b style="color:var(--accent)">s5 · run_tests</b></span>
+      <span>budget remaining: <b style="color:var(--good)">$4.30 of $6.00</b></span>
+    </div>
+    <div class="track">
+      <div class="progress"></div>
+      <div class="handle"></div>
+      <div class="marker" style="left:8%"></div>
+      <div class="marker" style="left:19%"></div>
+      <div class="marker" style="left:23%"></div>
+      <div class="marker" style="left:37%"></div>
+      <div class="marker" style="left:46%"></div>
+      <div class="marker" style="left:55%"></div>
+      <div class="marker" style="left:61%"></div>
+    </div>
+    <div class="controls">
+      <button class="btn ghost">◀ step back</button>
+      <button class="btn ghost">▶ step forward</button>
+      <button class="btn">▶ resume from s5</button>
+      <button class="btn ghost">--freeze-model-calls</button>
+    </div>
+  </div>
+
+  <div class="mutations">
+    <h3>Input mutations at s5</h3>
+    <div class="mut">
+      <span class="field">params.command</span>
+      <span class="from">pytest -q</span>
+      <span class="to">pytest -q tests/auth/</span>
+    </div>
+    <div class="mut">
+      <span class="field">params.model_tier</span>
+      <span class="from">haiku</span>
+      <span class="to">sonnet</span>
+    </div>
+    <div class="mut">
+      <span class="field">state.test_output.log</span>
+      <span class="from" style="color:var(--dim)">(unchanged)</span>
+      <span class="to" style="color:var(--dim)">(unchanged)</span>
+    </div>
+  </div>
+
+  <div class="foot">Original run preserved at runs/2026-06-28-1042-governed-coding/ · Replay writes to runs/&lt;new-id&gt;/ with replay_of pointing back</div>
+</div>
+
+</body></html>

@@ -1,0 +1,167 @@
+{
+  "loopfile": "infini/sre-loop@1.0.0",
+  "loopfile_hash": "sha256:9f3ab7c1b7c1b7c1b7c1b7c1b7c1b7c1b7c1",
+  "engine": {
+    "type": "infini-reference",
+    "version": "1.0.0"
+  },
+  "started_at": "2026-06-28T10:42:00Z",
+  "ended_at": "2026-06-28T10:54:30Z",
+  "iterations": 3,
+  "steps": [
+    {
+      "id": "s1",
+      "name": "investigate",
+      "status": "ok",
+      "started_at": "2026-06-28T10:40:00Z",
+      "ended_at": "2026-06-28T10:40:30Z",
+      "cost": {
+        "dollars": 0.79,
+        "minutes": 2.56,
+        "tokens": {
+          "input": 1200,
+          "output": 300,
+          "total": 1500
+        }
+      },
+      "artifacts": [
+        "investigation.md"
+      ],
+      "agent": "builder",
+      "action": "investigate",
+      "retry_attempt": null
+    },
+    {
+      "id": "s2",
+      "name": "root_cause",
+      "status": "ok",
+      "started_at": "2026-06-28T10:41:00Z",
+      "ended_at": "2026-06-28T10:41:30Z",
+      "cost": {
+        "dollars": 0.87,
+        "minutes": 2.56,
+        "tokens": {
+          "input": 1600,
+          "output": 500,
+          "total": 2100
+        }
+      },
+      "artifacts": [
+        "root-cause.md"
+      ],
+      "agent": "verifier",
+      "action": "root_cause",
+      "retry_attempt": null
+    },
+    {
+      "id": "s3",
+      "name": "propose_fix",
+      "status": "ok",
+      "started_at": "2026-06-28T10:42:00Z",
+      "ended_at": "2026-06-28T10:42:30Z",
+      "cost": {
+        "dollars": 0.95,
+        "minutes": 2.56,
+        "tokens": {
+          "input": 2000,
+          "output": 700,
+          "total": 2700
+        }
+      },
+      "artifacts": [
+        "fix-proposal.md"
+      ],
+      "agent": "builder",
+      "action": "propose_fix",
+      "retry_attempt": null
+    },
+    {
+      "id": "s4",
+      "name": "postmortem",
+      "status": "ok",
+      "started_at": "2026-06-28T10:43:00Z",
+      "ended_at": "2026-06-28T10:43:30Z",
+      "cost": {
+        "dollars": 1.02,
+        "minutes": 2.56,
+        "tokens": {
+          "input": 2400,
+          "output": 900,
+          "total": 3300
+        }
+      },
+      "artifacts": [
+        "postmortem.md"
+      ],
+      "agent": "verifier",
+      "action": "postmortem",
+      "retry_attempt": null
+    },
+    {
+      "id": "s5",
+      "name": "audit_sign",
+      "status": "ok",
+      "started_at": "2026-06-28T10:44:00Z",
+      "ended_at": "2026-06-28T10:44:30Z",
+      "cost": {
+        "dollars": 1.1,
+        "minutes": 2.56,
+        "tokens": {
+          "input": 2800,
+          "output": 1100,
+          "total": 3900
+        }
+      },
+      "artifacts": [
+        "postmortem.signed.md"
+      ],
+      "agent": "builder",
+      "action": "audit_sign",
+      "retry_attempt": null
+    }
+  ],
+  "verifications": [
+    {
+      "check": "root-cause.md:exists",
+      "status": "pass",
+      "confidence": null,
+      "detail": null
+    },
+    {
+      "check": "postmortem.signed.md:exists",
+      "status": "pass",
+      "confidence": null,
+      "detail": null
+    },
+    {
+      "check": "judge:root_citation>=85",
+      "status": "pass",
+      "confidence": 88,
+      "detail": null
+    },
+    {
+      "check": "judge:references_prior_incidents>=1",
+      "status": "pass",
+      "confidence": 88,
+      "detail": null
+    }
+  ],
+  "budget": {
+    "spent_dollars": 3.94,
+    "spent_minutes": 12.8
+  },
+  "outcome": "verified",
+  "lessons": [
+    "sre-loop shipped after 3 iteration(s) at $3.94."
+  ],
+  "provenance": {
+    "engine_signature": "ed25519:2b4f... (placeholder)",
+    "artifact_hashes": {
+      "investigation.md": "sha256:placeholder-0",
+      "root-cause.md": "sha256:placeholder-1",
+      "fix-proposal.md": "sha256:placeholder-2",
+      "postmortem.md": "sha256:placeholder-3",
+      "postmortem.signed.md": "sha256:placeholder-4"
+    }
+  }
+}

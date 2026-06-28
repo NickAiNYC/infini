@@ -1,0 +1,144 @@
+{
+  "loopfile": "infini/test-gen-loop@1.0.0",
+  "loopfile_hash": "sha256:9f3ab7c1b7c1b7c1b7c1b7c1b7c1b7c1b7c1",
+  "engine": {
+    "type": "infini-reference",
+    "version": "1.0.0"
+  },
+  "started_at": "2026-06-28T10:42:00Z",
+  "ended_at": "2026-06-28T10:46:30Z",
+  "iterations": 2,
+  "steps": [
+    {
+      "id": "s1",
+      "name": "discover",
+      "status": "ok",
+      "started_at": "2026-06-28T10:40:00Z",
+      "ended_at": "2026-06-28T10:40:30Z",
+      "cost": {
+        "dollars": 0.29,
+        "minutes": 1.05,
+        "tokens": {
+          "input": 1200,
+          "output": 300,
+          "total": 1500
+        }
+      },
+      "artifacts": [
+        "existing.json"
+      ],
+      "agent": "builder",
+      "action": "discover",
+      "retry_attempt": null
+    },
+    {
+      "id": "s2",
+      "name": "generate",
+      "status": "ok",
+      "started_at": "2026-06-28T10:41:00Z",
+      "ended_at": "2026-06-28T10:41:30Z",
+      "cost": {
+        "dollars": 0.32,
+        "minutes": 1.05,
+        "tokens": {
+          "input": 1600,
+          "output": 500,
+          "total": 2100
+        }
+      },
+      "artifacts": [
+        "tests/new/"
+      ],
+      "agent": "verifier",
+      "action": "generate",
+      "retry_attempt": null
+    },
+    {
+      "id": "s3",
+      "name": "run",
+      "status": "ok",
+      "started_at": "2026-06-28T10:42:00Z",
+      "ended_at": "2026-06-28T10:42:30Z",
+      "cost": {
+        "dollars": 0.35,
+        "minutes": 1.05,
+        "tokens": {
+          "input": 2000,
+          "output": 700,
+          "total": 2700
+        }
+      },
+      "artifacts": [
+        "test-output.log"
+      ],
+      "agent": "builder",
+      "action": "run",
+      "retry_attempt": null
+    },
+    {
+      "id": "s4",
+      "name": "measure",
+      "status": "ok",
+      "started_at": "2026-06-28T10:43:00Z",
+      "ended_at": "2026-06-28T10:43:30Z",
+      "cost": {
+        "dollars": 0.38,
+        "minutes": 1.05,
+        "tokens": {
+          "input": 2400,
+          "output": 900,
+          "total": 3300
+        }
+      },
+      "artifacts": [
+        "coverage.json"
+      ],
+      "agent": "verifier",
+      "action": "measure",
+      "retry_attempt": null
+    }
+  ],
+  "verifications": [
+    {
+      "check": "tests/new/:non_empty",
+      "status": "pass",
+      "confidence": null,
+      "detail": null
+    },
+    {
+      "check": "test-output.log:exit_zero",
+      "status": "pass",
+      "confidence": null,
+      "detail": null
+    },
+    {
+      "check": "coverage.json:target_reached",
+      "status": "pass",
+      "confidence": null,
+      "detail": null
+    },
+    {
+      "check": "judge:test_quality>=85",
+      "status": "pass",
+      "confidence": 88,
+      "detail": null
+    }
+  ],
+  "budget": {
+    "spent_dollars": 1.18,
+    "spent_minutes": 4.2
+  },
+  "outcome": "verified",
+  "lessons": [
+    "test-gen-loop shipped after 2 iteration(s) at $1.18."
+  ],
+  "provenance": {
+    "engine_signature": "ed25519:2b4f... (placeholder)",
+    "artifact_hashes": {
+      "existing.json": "sha256:placeholder-0",
+      "tests/new/": "sha256:placeholder-1",
+      "test-output.log": "sha256:placeholder-2",
+      "coverage.json": "sha256:placeholder-3"
+    }
+  }
+}

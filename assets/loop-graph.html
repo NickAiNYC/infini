@@ -1,0 +1,157 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>INFINI Loop Graph — mockup</title>
+<style>
+  :root{--bg:#0b0d12;--panel:#11141b;--panel2:#161a23;--line:#1f242f;--line2:#2a3140;--text:#e6e8ee;--muted:#8b93a4;--dim:#5b6477;--accent:#7c5cff;--good:#3ecf8e;--warn:#f5a623;--hermes:#6aa6ff;--openclaw:#f59e7a}
+  *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:13px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",Inter,sans-serif;-webkit-font-smoothing:antialiased}
+  .topbar{display:flex;align-items:center;gap:14px;padding:10px 18px;border-bottom:1px solid var(--line);background:linear-gradient(180deg,#0e1118,#0b0d12)}
+  .brand{display:flex;align-items:center;gap:9px;font-weight:600}.brand .mark{width:22px;height:22px;border-radius:6px;background:linear-gradient(135deg,#7c5cff,#4ea8ff);display:grid;place-items:center;font-size:13px;box-shadow:0 0 12px rgba(124,92,255,.4)}
+  .crumbs{color:var(--muted);font-size:12px}.crumbs b{color:var(--text);font-weight:500}
+  .spacer{flex:1}.pill{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;background:var(--panel2);border:1px solid var(--line2);font-size:11px;color:var(--muted)}.pill .dot{width:7px;height:7px;border-radius:50%;background:var(--good)}
+  .wrap{padding:28px 32px 60px}
+  h1{margin:0 0 4px;font-size:20px;font-weight:600}
+  .sub{color:var(--muted);margin:0 0 20px;font-size:13px}
+  .legend{display:flex;gap:18px;font-size:11px;color:var(--muted);margin-bottom:18px;align-items:center}
+  .sw{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px;vertical-align:-1px}
+  svg.graph{display:block;margin:0 auto;background:var(--panel);border:1px solid var(--line2);border-radius:12px}
+  .panel{margin-top:24px;display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .card{background:var(--panel);border:1px solid var(--line2);border-radius:10px;padding:14px 16px}
+  .card h3{margin:0 0 8px;font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--dim)}
+  .card .row{display:flex;justify-content:space-between;padding:5px 0;font-size:12px;border-bottom:1px solid var(--line)}.card .row:last-child{border:0}
+  .card .row .k{color:var(--muted)}.card .row .v{font-family:"SF Mono",monospace}
+</style></head><body>
+
+<div class="topbar">
+  <div class="brand"><span class="mark">∞</span> INFINI</div>
+  <div class="crumbs">runs / <b>2026-06-28-1042-governed-coding</b> / graph</div>
+  <div class="spacer"></div>
+  <span class="pill"><span class="dot"></span>verified</span>
+  <span class="pill">view: decision graph</span>
+</div>
+
+<div class="wrap">
+  <h1>Decision graph — governed-coding-loop</h1>
+  <p class="sub">DAG view of the loop's STEPS. Edges show <span class="mono">depends_on</span>. Cycles render as curved arrows.</p>
+
+  <div class="legend">
+    <span><span class="sw" style="background:var(--hermes)"></span>Hermes · governance</span>
+    <span><span class="sw" style="background:var(--openclaw)"></span>OpenClaw · execution</span>
+    <span><span class="sw" style="background:var(--good)"></span>passed</span>
+    <span><span class="sw" style="background:var(--warn)"></span>retried</span>
+  </div>
+
+  <svg class="graph" width="900" height="380" viewBox="0 0 900 380">
+    <defs>
+      <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+        <path d="M0,0 L10,5 L0,10 z" fill="#5b6477"/>
+      </marker>
+      <marker id="arrow-good" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+        <path d="M0,0 L10,5 L0,10 z" fill="#3ecf8e"/>
+      </marker>
+    </defs>
+
+    <!-- s1 plan -->
+    <rect x="40" y="40" width="130" height="56" rx="8" fill="#161a23" stroke="#6aa6ff" stroke-width="2"/>
+    <text x="55" y="62" fill="#5b6477" font-family="SF Mono,monospace" font-size="10">s1</text>
+    <text x="55" y="82" fill="#e6e8ee" font-family="SF Mono,monospace" font-size="13">plan</text>
+    <text x="55" y="95" fill="#3ecf8e" font-family="SF Mono,monospace" font-size="9">✓ $0.18</text>
+
+    <!-- s2 policy_check -->
+    <rect x="220" y="40" width="130" height="56" rx="8" fill="#161a23" stroke="#6aa6ff" stroke-width="2"/>
+    <text x="235" y="62" fill="#5b6477" font-family="SF Mono,monospace" font-size="10">s2</text>
+    <text x="235" y="82" fill="#e6e8ee" font-family="SF Mono,monospace" font-size="13">policy_check</text>
+    <text x="235" y="95" fill="#3ecf8e" font-family="SF Mono,monospace" font-size="9">✓ $0.31</text>
+
+    <!-- s3 audit_pre -->
+    <rect x="400" y="40" width="130" height="56" rx="8" fill="#161a23" stroke="#6aa6ff" stroke-width="2"/>
+    <text x="415" y="62" fill="#5b6477" font-family="SF Mono,monospace" font-size="10">s3</text>
+    <text x="415" y="82" fill="#e6e8ee" font-family="SF Mono,monospace" font-size="13">audit_pre</text>
+    <text x="415" y="95" fill="#3ecf8e" font-family="SF Mono,monospace" font-size="9">✓ $0.12</text>
+
+    <!-- delegation marker -->
+    <text x="540" y="105" fill="#5b6477" font-family="SF Mono,monospace" font-size="10" text-anchor="middle">── delegating to openclaw ──</text>
+    <line x1="530" y1="68" x2="570" y2="68" stroke="#5b6477" stroke-width="1" stroke-dasharray="4,3"/>
+
+    <!-- s4 edit_files -->
+    <rect x="580" y="40" width="130" height="56" rx="8" fill="#161a23" stroke="#f59e7a" stroke-width="2"/>
+    <text x="595" y="62" fill="#5b6477" font-family="SF Mono,monospace" font-size="10">s4</text>
+    <text x="595" y="82" fill="#e6e8ee" font-family="SF Mono,monospace" font-size="13">edit_files</text>
+    <text x="595" y="95" fill="#3ecf8e" font-family="SF Mono,monospace" font-size="9">✓ $0.34</text>
+
+    <!-- s5 run_tests (retried) -->
+    <rect x="730" y="40" width="130" height="56" rx="8" fill="#161a23" stroke="#f5a623" stroke-width="2"/>
+    <text x="745" y="62" fill="#5b6477" font-family="SF Mono,monospace" font-size="10">s5</text>
+    <text x="745" y="82" fill="#e6e8ee" font-family="SF Mono,monospace" font-size="13">run_tests</text>
+    <text x="745" y="95" fill="#f5a623" font-family="SF Mono,monospace" font-size="9">⚠ retry 1/2</text>
+
+    <!-- s6 open_pr -->
+    <rect x="730" y="160" width="130" height="56" rx="8" fill="#161a23" stroke="#f59e7a" stroke-width="2"/>
+    <text x="745" y="182" fill="#5b6477" font-family="SF Mono,monospace" font-size="10">s6</text>
+    <text x="745" y="202" fill="#e6e8ee" font-family="SF Mono,monospace" font-size="13">open_pr</text>
+    <text x="745" y="215" fill="#3ecf8e" font-family="SF Mono,monospace" font-size="9">✓ $0.22</text>
+
+    <!-- delegation back -->
+    <text x="660" y="225" fill="#5b6477" font-family="SF Mono,monospace" font-size="10" text-anchor="middle">── returning to hermes ──</text>
+    <line x1="600" y1="188" x2="560" y2="188" stroke="#5b6477" stroke-width="1" stroke-dasharray="4,3"/>
+
+    <!-- s7 audit_post -->
+    <rect x="430" y="160" width="130" height="56" rx="8" fill="#161a23" stroke="#6aa6ff" stroke-width="2"/>
+    <text x="445" y="182" fill="#5b6477" font-family="SF Mono,monospace" font-size="10">s7</text>
+    <text x="445" y="202" fill="#e6e8ee" font-family="SF Mono,monospace" font-size="13">audit_post</text>
+    <text x="445" y="215" fill="#3ecf8e" font-family="SF Mono,monospace" font-size="9">✓ $0.14</text>
+
+    <!-- s8 verify_governed -->
+    <rect x="220" y="160" width="130" height="56" rx="8" fill="#161a23" stroke="#6aa6ff" stroke-width="2"/>
+    <text x="235" y="182" fill="#5b6477" font-family="SF Mono,monospace" font-size="10">s8</text>
+    <text x="235" y="202" fill="#e6e8ee" font-family="SF Mono,monospace" font-size="13">verify_governed</text>
+    <text x="235" y="215" fill="#3ecf8e" font-family="SF Mono,monospace" font-size="9">✓ conf 91</text>
+
+    <!-- iteration cycle arrow (s8 -> s1) -->
+    <path d="M 220 188 Q 100 188 100 130 Q 100 68 175 68" fill="none" stroke="#7c5cff" stroke-width="1.5" stroke-dasharray="6,4" marker-end="url(#arrow)"/>
+    <text x="80" y="150" fill="#7c5cff" font-family="SF Mono,monospace" font-size="10" transform="rotate(-90 80 150)">iteration 2</text>
+
+    <!-- edges -->
+    <line x1="170" y1="68" x2="215" y2="68" stroke="#3ecf8e" stroke-width="1.5" marker-end="url(#arrow-good)"/>
+    <line x1="350" y1="68" x2="395" y2="68" stroke="#3ecf8e" stroke-width="1.5" marker-end="url(#arrow-good)"/>
+    <line x1="530" y1="68" x2="575" y2="68" stroke="#3ecf8e" stroke-width="1.5" marker-end="url(#arrow-good)"/>
+    <line x1="710" y1="68" x2="725" y2="68" stroke="#f5a623" stroke-width="1.5" marker-end="url(#arrow)"/>
+    <line x1="795" y1="96" x2="795" y2="155" stroke="#3ecf8e" stroke-width="1.5" marker-end="url(#arrow-good)"/>
+    <line x1="730" y1="188" x2="565" y2="188" stroke="#3ecf8e" stroke-width="1.5" marker-end="url(#arrow-good)"/>
+    <line x1="430" y1="188" x2="355" y2="188" stroke="#3ecf8e" stroke-width="1.5" marker-end="url(#arrow-good)"/>
+
+    <!-- verify endpoint -->
+    <circle cx="180" cy="320" r="22" fill="#161a23" stroke="#3ecf8e" stroke-width="2"/>
+    <text x="180" y="325" fill="#3ecf8e" font-family="SF Mono,monospace" font-size="11" text-anchor="middle">VERIFY</text>
+    <line x1="220" y1="216" x2="195" y2="298" stroke="#3ecf8e" stroke-width="1.5" marker-end="url(#arrow-good)"/>
+
+    <!-- budget endpoint -->
+    <circle cx="430" cy="320" r="22" fill="#161a23" stroke="#5b6477" stroke-width="2"/>
+    <text x="430" y="325" fill="#5b6477" font-family="SF Mono,monospace" font-size="11" text-anchor="middle">BUDGET</text>
+    <line x1="495" y1="216" x2="445" y2="298" stroke="#5b6477" stroke-width="1" stroke-dasharray="3,3" marker-end="url(#arrow)"/>
+
+    <!-- artifacts endpoint -->
+    <circle cx="680" cy="320" r="22" fill="#161a23" stroke="#5b6477" stroke-width="2"/>
+    <text x="680" y="325" fill="#5b6477" font-family="SF Mono,monospace" font-size="11" text-anchor="middle">ARTIFACTS</text>
+    <line x1="795" y1="216" x2="700" y2="298" stroke="#5b6477" stroke-width="1" stroke-dasharray="3,3" marker-end="url(#arrow)"/>
+  </svg>
+
+  <div class="panel">
+    <div class="card">
+      <h3>Graph stats</h3>
+      <div class="row"><span class="k">Nodes</span><span class="v">8 steps</span></div>
+      <div class="row"><span class="k">Edges</span><span class="v">7 + 1 cycle</span></div>
+      <div class="row"><span class="k">Iterations</span><span class="v">2</span></div>
+      <div class="row"><span class="k">Cycle</span><span class="v">s8 → s1 (loop)</span></div>
+      <div class="row"><span class="k">Critical path</span><span class="v">s1 → s2 → s3 → s4 → s5 → s6 → s7 → s8</span></div>
+    </div>
+    <div class="card">
+      <h3>Click any node to inspect</h3>
+      <div class="row"><span class="k">Selected</span><span class="v">s5 · run_tests</span></div>
+      <div class="row"><span class="k">Engine lane</span><span class="v" style="color:var(--openclaw)">openclaw</span></div>
+      <div class="row"><span class="k">Cost</span><span class="v">$0.21 · 0m48s</span></div>
+      <div class="row"><span class="k">Retries</span><span class="v" style="color:var(--warn)">1 of 2 (succeeded)</span></div>
+      <div class="row"><span class="k">Action</span><span class="v">terminal.run</span></div>
+    </div>
+  </div>
+</div>
+
+</body></html>

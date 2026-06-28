@@ -1,0 +1,28 @@
+# Funding
+
+INFINI is an open standard maintained by contributors. We are not currently
+accepting sponsorship.
+
+Once the project reaches 1.0 and has a formal governance model, funding
+options will be listed here. Until then:
+
+- **Do not** send money to anyone claiming to maintain INFINI on behalf of the project.
+- **Do not** subscribe to "INFINI Pro" or "INFINI Enterprise" offerings — none exist.
+- If you want to support the project, contribute RFCs, adapters, loops, or
+  essays. Code is more useful than cash right now.
+
+## Fiscal hosting
+
+When the project moves to a foundation (planned post-1.0), donations will be
+accepted through the foundation, not through individual maintainers.
+
+## Corporate support
+
+If your company uses INFINI in production and wants to support development,
+the most useful thing you can do is:
+
+1. List yourself in [`docs/adopters.md`](docs/adopters.md).
+2. Allocate engineer time to maintain an adapter or canonical loop.
+3. Publish benchmarks comparing your usage across engines.
+
+Cash sponsorship will be accepted once governance is in place.

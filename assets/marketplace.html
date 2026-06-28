@@ -1,0 +1,125 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>INFINI Marketplace — mockup</title>
+<style>
+  :root{--bg:#0b0d12;--panel:#11141b;--panel2:#161a23;--line:#1f242f;--line2:#2a3140;--text:#e6e8ee;--muted:#8b93a4;--dim:#5b6477;--accent:#7c5cff;--good:#3ecf8e;--warn:#f5a623;--hermes:#6aa6ff;--openclaw:#f59e7a}
+  *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:13px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",Inter,sans-serif;-webkit-font-smoothing:antialiased}
+  .mono{font-family:"SF Mono","JetBrains Mono",Menlo,Consolas,monospace}
+  .topbar{display:flex;align-items:center;gap:14px;padding:10px 18px;border-bottom:1px solid var(--line);background:linear-gradient(180deg,#0e1118,#0b0d12)}
+  .brand{display:flex;align-items:center;gap:9px;font-weight:600}.brand .mark{width:22px;height:22px;border-radius:6px;background:linear-gradient(135deg,#7c5cff,#4ea8ff);display:grid;place-items:center;font-size:13px;box-shadow:0 0 12px rgba(124,92,255,.4)}
+  .crumbs{color:var(--muted);font-size:12px}.crumbs b{color:var(--text);font-weight:500}
+  .spacer{flex:1}.pill{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;background:var(--panel2);border:1px solid var(--line2);font-size:11px;color:var(--muted)}.pill .dot{width:7px;height:7px;border-radius:50%;background:var(--warn)}
+  .wrap{max-width:1280px;margin:0 auto;padding:28px 32px 60px}
+  h1{margin:0 0 6px;font-size:28px;font-weight:600;letter-spacing:-.5px}
+  .sub{color:var(--muted);margin:0 0 28px;font-size:14px}
+  .cats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:32px}
+  .cat{background:var(--panel2);border:1px solid var(--line2);border-radius:12px;padding:16px 18px;transition:border-color .15s;cursor:pointer}.cat:hover{border-color:var(--accent)}
+  .cat .ico{width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,rgba(124,92,255,.2),rgba(78,168,255,.2));display:grid;place-items:center;font-size:16px;margin-bottom:10px}
+  .cat .name{font-size:14px;font-weight:600;margin-bottom:3px}
+  .cat .count{font-size:11px;color:var(--dim);font-family:"SF Mono",monospace}
+  .cat .stars{margin-top:8px;display:flex;gap:2px;font-size:11px;color:var(--warn)}
+  .section{margin-bottom:32px}
+  .section h2{margin:0 0 14px;font-size:14px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--dim)}
+  .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+  .card{background:var(--panel);border:1px solid var(--line2);border-radius:12px;padding:16px;cursor:pointer;transition:transform .15s,border-color .15s}.card:hover{transform:translateY(-2px);border-color:var(--accent)}
+  .card .badge{display:inline-block;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:600;margin-bottom:8px}
+  .badge.verified{background:rgba(62,207,142,.15);color:var(--good)}
+  .badge.preview{background:rgba(245,166,35,.15);color:var(--warn)}
+  .card h3{margin:0 0 4px;font-size:14px;font-weight:600}
+  .card .meta{font-size:11px;color:var(--muted);font-family:"SF Mono",monospace;margin-bottom:8px}
+  .card .desc{font-size:12px;color:var(--muted);margin-bottom:10px;line-height:1.5}
+  .card .row{display:flex;justify-content:space-between;font-size:11px;color:var(--dim);font-family:"SF Mono",monospace;padding-top:8px;border-top:1px solid var(--line)}
+  .engines{display:flex;gap:4px;margin-top:8px}.eng{font-size:9px;padding:2px 6px;border-radius:3px;font-family:"SF Mono",monospace}.eng.hermes{background:rgba(106,166,255,.12);color:var(--hermes)}.eng.openclaw{background:rgba(245,158,122,.12);color:var(--openclaw)}.eng.infini{background:rgba(124,92,255,.12);color:var(--accent)}
+  .foot{margin-top:40px;padding:16px 0;border-top:1px solid var(--line);text-align:center;font-size:11px;color:var(--dim)}
+</style></head><body>
+
+<div class="topbar">
+  <div class="brand"><span class="mark">∞</span> INFINI</div>
+  <div class="crumbs">marketplace · <b>preview</b></div>
+  <div class="spacer"></div>
+  <span class="pill"><span class="dot"></span>preview · registry not yet live</span>
+  <span class="pill">spec: LOOPFILE-1.0</span>
+</div>
+
+<div class="wrap">
+  <h1>Marketplace</h1>
+  <p class="sub">Browse the registry by use case. Every loop shows a real verification badge, real download count, and real engine support — no fake numbers.</p>
+
+  <div class="cats">
+    <div class="cat"><div class="ico">🔬</div><div class="name">Research</div><div class="count">0 loops</div><div class="stars">☆☆☆☆☆</div></div>
+    <div class="cat"><div class="ico">💻</div><div class="name">Coding</div><div class="count">0 loops</div><div class="stars">☆☆☆☆☆</div></div>
+    <div class="cat"><div class="ico">📋</div><div class="name">Compliance</div><div class="count">0 loops</div><div class="stars">☆☆☆☆☆</div></div>
+    <div class="cat"><div class="ico">🔒</div><div class="name">Security</div><div class="count">0 loops</div><div class="stars">☆☆☆☆☆</div></div>
+    <div class="cat"><div class="ico">📈</div><div class="name">Sales</div><div class="count">0 loops</div><div class="stars">☆☆☆☆☆</div></div>
+    <div class="cat"><div class="ico">🔍</div><div class="name">SEO</div><div class="count">0 loops</div><div class="stars">☆☆☆☆☆</div></div>
+    <div class="cat"><div class="ico">📣</div><div class="name">Marketing</div><div class="count">0 loops</div><div class="stars">☆☆☆☆☆</div></div>
+    <div class="cat"><div class="ico">🏥</div><div class="name">Healthcare</div><div class="count">0 loops</div><div class="stars">☆☆☆☆☆</div></div>
+    <div class="cat"><div class="ico">💰</div><div class="name">Finance</div><div class="count">0 loops</div><div class="stars">☆☆☆☆☆</div></div>
+    <div class="cat"><div class="ico">⚖️</div><div class="name">Legal</div><div class="count">0 loops</div><div class="stars">☆☆☆☆☆</div></div>
+    <div class="cat"><div class="ico">🎓</div><div class="name">Education</div><div class="count">0 loops</div><div class="stars">☆☆☆☆☆</div></div>
+    <div class="cat"><div class="ico">⚙️</div><div class="name">Infrastructure</div><div class="count">0 loops</div><div class="stars">☆☆☆☆☆</div></div>
+  </div>
+
+  <div class="section">
+    <h2>Featured loops</h2>
+    <div class="grid3">
+      <div class="card">
+        <span class="badge verified">✓ verified</span>
+        <h3>coding-loop</h3>
+        <div class="meta">infini/coding-loop@1.0.0 · MIT</div>
+        <div class="desc">Implement a feature, preserve tests, open a PR. The canonical coding loop — plan, edit, test, ship.</div>
+        <div class="engines"><span class="eng infini">infini ✅</span><span class="eng hermes">hermes ✅</span><span class="eng openclaw">openclaw ✅</span></div>
+        <div class="row"><span>runtime 3.3m</span><span>$0.95</span><span>★★★★★</span></div>
+      </div>
+      <div class="card">
+        <span class="badge verified">✓ verified</span>
+        <h3>research-loop</h3>
+        <div class="meta">infini/research-loop@1.0.0 · MIT</div>
+        <div class="desc">Multi-source research with citations. Every claim cited; citations verified.</div>
+        <div class="engines"><span class="eng infini">infini ✅</span><span class="eng openclaw">openclaw ✅</span></div>
+        <div class="row"><span>runtime 6.3m</span><span>$1.87</span><span>★★★★★</span></div>
+      </div>
+      <div class="card">
+        <span class="badge verified">✓ verified</span>
+        <h3>claim-audit-loop</h3>
+        <div class="meta">infini/claim-audit-loop@1.0.0 · MIT</div>
+        <div class="desc">Audit insurance claims against policy, with escalation and signed audit trail.</div>
+        <div class="engines"><span class="eng hermes">hermes ✅</span></div>
+        <div class="row"><span>runtime 6.9m</span><span>$2.08</span><span>★★★★★</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>New loops</h2>
+    <div class="grid3">
+      <div class="card">
+        <span class="badge preview">preview</span>
+        <h3>governed-coding-loop</h3>
+        <div class="meta">infini/governed-coding-loop@1.0.0 · MIT</div>
+        <div class="desc">Hybrid demo: Hermes governs, OpenClaw executes, INFINI records and replays.</div>
+        <div class="engines"><span class="eng hermes">hermes ✅</span><span class="eng openclaw">openclaw ✅</span></div>
+        <div class="row"><span>runtime 4.4m</span><span>$1.70</span><span>★★★★★</span></div>
+      </div>
+      <div class="card">
+        <span class="badge verified">✓ verified</span>
+        <h3>sre-loop</h3>
+        <div class="meta">infini/sre-loop@1.0.0 · MIT</div>
+        <div class="desc">Investigate, mitigate, postmortem. Signed postmortem with prior-incident references.</div>
+        <div class="engines"><span class="eng hermes">hermes ✅</span></div>
+        <div class="row"><span>runtime 12.8m</span><span>$3.94</span><span>★★★★☆</span></div>
+      </div>
+      <div class="card">
+        <span class="badge verified">✓ verified</span>
+        <h3>debug-loop</h3>
+        <div class="meta">infini/debug-loop@1.0.0 · MIT</div>
+        <div class="desc">Reproduce, isolate, fix, verify a bug. Root-cause citation mandatory.</div>
+        <div class="engines"><span class="eng infini">infini ✅</span><span class="eng openclaw">openclaw ✅</span></div>
+        <div class="row"><span>runtime 8.4m</span><span>$2.34</span><span>★★★★★</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="foot">Loop Observatory · marketplace preview · numbers shown are representative benchmarks from loops/coding-loop, not live registry data</div>
+</div>
+
+</body></html>

@@ -1,0 +1,170 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>INFINI Verification Dashboard — mockup</title>
+<style>
+  :root{--bg:#0b0d12;--panel:#11141b;--panel2:#161a23;--line:#1f242f;--line2:#2a3140;--text:#e6e8ee;--muted:#8b93a4;--dim:#5b6477;--accent:#7c5cff;--good:#3ecf8e;--warn:#f5a623;--bad:#ef4565}
+  *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:13px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",Inter,sans-serif;-webkit-font-smoothing:antialiased}
+  .mono{font-family:"SF Mono","JetBrains Mono",Menlo,Consolas,monospace}
+  .topbar{display:flex;align-items:center;gap:14px;padding:10px 18px;border-bottom:1px solid var(--line);background:linear-gradient(180deg,#0e1118,#0b0d12)}
+  .brand{display:flex;align-items:center;gap:9px;font-weight:600}.brand .mark{width:22px;height:22px;border-radius:6px;background:linear-gradient(135deg,#7c5cff,#4ea8ff);display:grid;place-items:center;font-size:13px;box-shadow:0 0 12px rgba(124,92,255,.4)}
+  .crumbs{color:var(--muted);font-size:12px}.crumbs b{color:var(--text);font-weight:500}
+  .spacer{flex:1}.pill{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;background:var(--panel2);border:1px solid var(--line2);font-size:11px;color:var(--muted)}.pill .dot{width:7px;height:7px;border-radius:50%;background:var(--good)}
+  .wrap{padding:28px 32px 60px}
+  h1{margin:0 0 4px;font-size:20px;font-weight:600}
+  .sub{color:var(--muted);margin:0 0 24px;font-size:13px}
+  .topgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:28px}
+  .stat{background:var(--panel2);border:1px solid var(--line2);border-radius:12px;padding:18px 20px}
+  .stat .k{font-size:10px;color:var(--dim);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px}
+  .stat .v{font-size:24px;font-weight:600}
+  .stat .v.good{color:var(--good)}.stat .v.warn{color:var(--warn)}
+  .stat .d{font-size:11px;color:var(--muted);margin-top:4px;font-family:"SF Mono",monospace}
+  .cols{display:grid;grid-template-columns:1.4fr 1fr;gap:18px;margin-bottom:24px}
+  .card{background:var(--panel);border:1px solid var(--line2);border-radius:12px;padding:20px 22px}
+  .card h2{margin:0 0 16px;font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--dim)}
+  .vrow{display:grid;grid-template-columns:1fr 70px 90px 70px;gap:12px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line);font-size:12px}
+  .vrow:last-child{border:0}
+  .vrow .check{font-family:"SF Mono",monospace;color:var(--text)}
+  .vrow .kind{font-size:10px;color:var(--dim);text-transform:uppercase;letter-spacing:.6px;text-align:center}
+  .vrow .status{font-size:11px;font-weight:600;text-align:center}
+  .vrow .status.pass{color:var(--good)}.vrow .status.fail{color:var(--bad)}
+  .vrow .conf{font-family:"SF Mono",monospace;color:var(--muted);text-align:right}
+  .bar-mini{height:4px;background:var(--line);border-radius:2px;margin-top:4px;overflow:hidden}.bar-mini>div{height:100%;background:var(--good)}
+  .gauge{display:flex;flex-direction:column;align-items:center;padding:10px 0}
+  .gauge .ring{width:140px;height:140px;border-radius:50%;background:conic-gradient(var(--good) 0% 91%, var(--line) 91% 100%);display:grid;place-items:center;position:relative}
+  .gauge .ring::before{content:'';position:absolute;width:108px;height:108px;border-radius:50%;background:var(--panel)}
+  .gauge .num{position:relative;font-size:32px;font-weight:600;color:var(--good)}
+  .gauge .lbl{font-size:11px;color:var(--muted);margin-top:8px}
+  .iter{display:grid;grid-template-columns:60px 1fr 80px;gap:12px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line);font-size:12px}
+  .iter:last-child{border:0}
+  .iter .n{font-family:"SF Mono",monospace;color:var(--dim);font-size:11px}
+  .iter .delta{font-size:11px;color:var(--muted)}
+  .iter .conf{font-family:"SF Mono",monospace;color:var(--good);text-align:right}
+  .iter .conf.warn{color:var(--warn)}
+  .foot{margin-top:24px;text-align:center;font-size:11px;color:var(--dim)}
+</style></head><body>
+
+<div class="topbar">
+  <div class="brand"><span class="mark">∞</span> INFINI</div>
+  <div class="crumbs">runs / <b>2026-06-28-1042-governed-coding</b> / verification</div>
+  <div class="spacer"></div>
+  <span class="pill"><span class="dot"></span>verified</span>
+  <span class="pill">view: verification</span>
+</div>
+
+<div class="wrap">
+  <h1>Verification — governed-coding-loop</h1>
+  <p class="sub">Every check in the <span class="mono">VERIFY</span> block, with status, confidence score, and threshold. Failed checks expand to show why.</p>
+
+  <div class="topgrid">
+    <div class="stat">
+      <div class="k">Outcome</div>
+      <div class="v good">verified</div>
+      <div class="d">all checks passed</div>
+    </div>
+    <div class="stat">
+      <div class="k">Mean confidence</div>
+      <div class="v good">91.3</div>
+      <div class="d">threshold: 85</div>
+    </div>
+    <div class="stat">
+      <div class="k">Checks</div>
+      <div class="v">8 / 8</div>
+      <div class="d">3 syntactic · 3 semantic</div>
+    </div>
+    <div class="stat">
+      <div class="k">Iterations</div>
+      <div class="v">2</div>
+      <div class="d">iter 1: 78 · iter 2: 91</div>
+    </div>
+  </div>
+
+  <div class="cols">
+    <div class="card">
+      <h2>Checks</h2>
+      <div class="vrow">
+        <span class="check">plan.md:exists</span>
+        <span class="kind">syntactic</span>
+        <span class="status pass">PASS</span>
+        <span class="conf">—</span>
+      </div>
+      <div class="vrow">
+        <span class="check">policy_check.json:status_pass</span>
+        <span class="kind">syntactic</span>
+        <span class="status pass">PASS</span>
+        <span class="conf">—</span>
+      </div>
+      <div class="vrow">
+        <span class="check">audit/post.jsonl:non_empty</span>
+        <span class="kind">syntactic</span>
+        <span class="status pass">PASS</span>
+        <span class="conf">12 lines</span>
+      </div>
+      <div class="vrow">
+        <span class="check">src/dark-mode.tsx:exists</span>
+        <span class="kind">syntactic</span>
+        <span class="status pass">PASS</span>
+        <span class="conf">—</span>
+      </div>
+      <div class="vrow">
+        <span class="check">test-output.log:exit_zero</span>
+        <span class="kind">syntactic</span>
+        <span class="status pass">PASS</span>
+        <span class="conf">exit 0</span>
+      </div>
+      <div class="vrow">
+        <span class="check">pr-url.txt:valid_url</span>
+        <span class="kind">syntactic</span>
+        <span class="status pass">PASS</span>
+        <span class="conf">PR #4130</span>
+      </div>
+      <div class="vrow">
+        <span class="check">judge:policy_citation&gt;=90</span>
+        <span class="kind">semantic</span>
+        <span class="status pass">PASS</span>
+        <span class="conf">95 <div class="bar-mini"><div style="width:95%"></div></div></span>
+      </div>
+      <div class="vrow">
+        <span class="check">judge:feature_completeness&gt;=90</span>
+        <span class="kind">semantic</span>
+        <span class="status pass">PASS</span>
+        <span class="conf">92 <div class="bar-mini"><div style="width:92%"></div></div></span>
+      </div>
+      <div class="vrow">
+        <span class="check">judge:test_coverage&gt;=85</span>
+        <span class="kind">semantic</span>
+        <span class="status pass">PASS</span>
+        <span class="conf">87 <div class="bar-mini"><div style="width:87%"></div></div></span>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Confidence gauge</h2>
+      <div class="gauge">
+        <div class="ring"><div class="num">91</div></div>
+        <div class="lbl">mean · threshold 85</div>
+      </div>
+      <h2 style="margin-top:24px">Iterations</h2>
+      <div class="iter">
+        <span class="n">iter 1</span>
+        <span class="delta">semantic mean 78 — below threshold, retry</span>
+        <span class="conf warn">78</span>
+      </div>
+      <div class="iter">
+        <span class="n">iter 2</span>
+        <span class="delta">fixed critique; all checks passed</span>
+        <span class="conf">91</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-bottom:0">
+    <h2>What would have failed verification</h2>
+    <div style="font-size:12px;color:var(--muted);line-height:1.7">
+      <p style="margin:0 0 8px">If <span class="mono">judge:test_coverage</span> had scored 84 instead of 87, the loop would have <b style="color:var(--bad)">not shipped</b>. The verifier would have written a one-sentence critique, the loop would have iterated, and the next attempt would have either improved coverage or hit the <span class="mono">iterations&gt;=4</span> cap.</p>
+      <p style="margin:0">This is the discipline. A loop that ships at 84 — below its declared threshold — is a loop that doesn't have a verifier. It has a rubber stamp.</p>
+    </div>
+  </div>
+
+  <div class="foot">Loop Observatory · verification view · all checks passed at iteration 2</div>
+</div>
+
+</body></html>

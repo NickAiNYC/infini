@@ -1,0 +1,79 @@
+---
+name: Bug report
+about: Something in INFINI is broken or behaves incorrectly
+title: "[bug] "
+labels: bug, needs-triage
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to file a bug. Please fill out the sections below.
+        The more reproducible your report, the faster we can fix it.
+
+  - type: input
+    id: infini-version
+    attributes:
+      label: INFINI version
+      placeholder: "infini 1.0.3 (or commit sha)"
+    validations:
+      required: true
+
+  - type: input
+    id: engine
+    attributes:
+      label: Engine + adapter
+      placeholder: "hermes 1.4 / openclaw 0.9 / reference"
+    validations:
+      required: true
+
+  - type: input
+    id: os
+    attributes:
+      label: Operating system
+      placeholder: "macOS 14.4 / Ubuntu 22.04 / Windows 11"
+    validations:
+      required: true
+
+  - type: textarea
+    id: loopfile
+    attributes:
+      label: Minimal Loopfile that reproduces the bug
+      description: Strip everything that isn't required to reproduce. Redact secrets.
+      render: yaml
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+      description: Include the relevant excerpt from `run.json` or `infini inspect` output if you can.
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Reproduction steps
+      description: Numbered list. Someone who has never used INFINI should be able to follow it.
+    validations:
+      required: true
+
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Severity
+      options:
+        - "P0 — spec conformance broken / data loss"
+        - "P1 — loop cannot ship / verifier cannot run"
+        - "P2 — works but wrong / surprising"
+        - "P3 — cosmetic / docs"
+    validations:
+      required: true

@@ -1,0 +1,115 @@
+{
+  "loopfile": "infini/outreach-loop@1.0.0",
+  "loopfile_hash": "sha256:9f3ab7c1b7c1b7c1b7c1b7c1b7c1b7c1b7c1",
+  "engine": {
+    "type": "infini-reference",
+    "version": "1.0.0"
+  },
+  "started_at": "2026-06-28T10:42:00Z",
+  "ended_at": "2026-06-28T10:46:30Z",
+  "iterations": 2,
+  "steps": [
+    {
+      "id": "s1",
+      "name": "research_recipient",
+      "status": "ok",
+      "started_at": "2026-06-28T10:40:00Z",
+      "ended_at": "2026-06-28T10:40:30Z",
+      "cost": {
+        "dollars": 0.45,
+        "minutes": 1.5,
+        "tokens": {
+          "input": 1200,
+          "output": 300,
+          "total": 1500
+        }
+      },
+      "artifacts": [
+        "recipient-profiles.json"
+      ],
+      "agent": "builder",
+      "action": "research_recipient",
+      "retry_attempt": null
+    },
+    {
+      "id": "s2",
+      "name": "draft_outreach",
+      "status": "ok",
+      "started_at": "2026-06-28T10:41:00Z",
+      "ended_at": "2026-06-28T10:41:30Z",
+      "cost": {
+        "dollars": 0.49,
+        "minutes": 1.5,
+        "tokens": {
+          "input": 1600,
+          "output": 500,
+          "total": 2100
+        }
+      },
+      "artifacts": [
+        "outreach-drafts/"
+      ],
+      "agent": "verifier",
+      "action": "draft_outreach",
+      "retry_attempt": null
+    },
+    {
+      "id": "s3",
+      "name": "verify_personal",
+      "status": "ok",
+      "started_at": "2026-06-28T10:42:00Z",
+      "ended_at": "2026-06-28T10:42:30Z",
+      "cost": {
+        "dollars": 0.54,
+        "minutes": 1.5,
+        "tokens": {
+          "input": 2000,
+          "output": 700,
+          "total": 2700
+        }
+      },
+      "artifacts": [
+        "personalization-check.json"
+      ],
+      "agent": "builder",
+      "action": "verify_personal",
+      "retry_attempt": null
+    }
+  ],
+  "verifications": [
+    {
+      "check": "outreach-drafts/:non_empty",
+      "status": "pass",
+      "confidence": null,
+      "detail": null
+    },
+    {
+      "check": "personalization-check.json:all_personalized",
+      "status": "pass",
+      "confidence": null,
+      "detail": null
+    },
+    {
+      "check": "judge:personalization>=85",
+      "status": "pass",
+      "confidence": 88,
+      "detail": null
+    }
+  ],
+  "budget": {
+    "spent_dollars": 1.34,
+    "spent_minutes": 4.5
+  },
+  "outcome": "verified",
+  "lessons": [
+    "outreach-loop shipped after 2 iteration(s) at $1.34."
+  ],
+  "provenance": {
+    "engine_signature": "ed25519:2b4f... (placeholder)",
+    "artifact_hashes": {
+      "recipient-profiles.json": "sha256:placeholder-0",
+      "outreach-drafts/": "sha256:placeholder-1",
+      "personalization-check.json": "sha256:placeholder-2"
+    }
+  }
+}

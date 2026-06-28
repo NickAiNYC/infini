@@ -1,0 +1,138 @@
+{
+  "loopfile": "infini/content-loop@1.0.0",
+  "loopfile_hash": "sha256:9f3ab7c1b7c1b7c1b7c1b7c1b7c1b7c1b7c1",
+  "engine": {
+    "type": "infini-reference",
+    "version": "1.0.0"
+  },
+  "started_at": "2026-06-28T10:42:00Z",
+  "ended_at": "2026-06-28T10:44:30Z",
+  "iterations": 2,
+  "steps": [
+    {
+      "id": "s1",
+      "name": "draft",
+      "status": "ok",
+      "started_at": "2026-06-28T10:40:00Z",
+      "ended_at": "2026-06-28T10:40:30Z",
+      "cost": {
+        "dollars": 0.16,
+        "minutes": 0.53,
+        "tokens": {
+          "input": 1200,
+          "output": 300,
+          "total": 1500
+        }
+      },
+      "artifacts": [
+        "draft.md"
+      ],
+      "agent": "builder",
+      "action": "draft",
+      "retry_attempt": null
+    },
+    {
+      "id": "s2",
+      "name": "critique",
+      "status": "ok",
+      "started_at": "2026-06-28T10:41:00Z",
+      "ended_at": "2026-06-28T10:41:30Z",
+      "cost": {
+        "dollars": 0.18,
+        "minutes": 0.53,
+        "tokens": {
+          "input": 1600,
+          "output": 500,
+          "total": 2100
+        }
+      },
+      "artifacts": [
+        "critique.md"
+      ],
+      "agent": "verifier",
+      "action": "critique",
+      "retry_attempt": null
+    },
+    {
+      "id": "s3",
+      "name": "revise",
+      "status": "ok",
+      "started_at": "2026-06-28T10:42:00Z",
+      "ended_at": "2026-06-28T10:42:30Z",
+      "cost": {
+        "dollars": 0.19,
+        "minutes": 0.53,
+        "tokens": {
+          "input": 2000,
+          "output": 700,
+          "total": 2700
+        }
+      },
+      "artifacts": [
+        "revised.md"
+      ],
+      "agent": "builder",
+      "action": "revise",
+      "retry_attempt": null
+    },
+    {
+      "id": "s4",
+      "name": "polish",
+      "status": "ok",
+      "started_at": "2026-06-28T10:43:00Z",
+      "ended_at": "2026-06-28T10:43:30Z",
+      "cost": {
+        "dollars": 0.21,
+        "minutes": 0.53,
+        "tokens": {
+          "input": 2400,
+          "output": 900,
+          "total": 3300
+        }
+      },
+      "artifacts": [
+        "final.md"
+      ],
+      "agent": "verifier",
+      "action": "polish",
+      "retry_attempt": null
+    }
+  ],
+  "verifications": [
+    {
+      "check": "final.md:exists",
+      "status": "pass",
+      "confidence": null,
+      "detail": null
+    },
+    {
+      "check": "judge:brand_tone>=85",
+      "status": "pass",
+      "confidence": 88,
+      "detail": null
+    },
+    {
+      "check": "judge:quality>=85",
+      "status": "pass",
+      "confidence": 88,
+      "detail": null
+    }
+  ],
+  "budget": {
+    "spent_dollars": 0.64,
+    "spent_minutes": 2.1
+  },
+  "outcome": "verified",
+  "lessons": [
+    "content-loop shipped after 2 iteration(s) at $0.64."
+  ],
+  "provenance": {
+    "engine_signature": "ed25519:2b4f... (placeholder)",
+    "artifact_hashes": {
+      "draft.md": "sha256:placeholder-0",
+      "critique.md": "sha256:placeholder-1",
+      "revised.md": "sha256:placeholder-2",
+      "final.md": "sha256:placeholder-3"
+    }
+  }
+}

@@ -1,0 +1,82 @@
+---
+name: RFC proposal
+about: Propose a change to the Loopfile spec, registry protocol, or adapter interface
+title: "[RFC] "
+labels: rfc, spec
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Spec changes are the highest-leverage and most carefully reviewed
+        contributions. Read `spec/rfcs/README.md` before opening this issue.
+
+  - type: input
+    id: rfc-number
+    attributes:
+      label: Suggested RFC number
+      description: Leave blank if you don't know; a maintainer will assign one.
+      placeholder: "RFC-0011"
+
+  - type: input
+    id: title
+    attributes:
+      label: RFC title
+      placeholder: "First-class composition (CALLS: block)"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: rfc-type
+    attributes:
+      label: RFC type
+      options:
+        - "New spec feature (additive, minor version bump)"
+        - "Breaking spec change (major version bump)"
+        - "Registry protocol change"
+        - "Adapter interface change"
+        - "Process change (RFC process itself, release process, etc.)"
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What can't a Loopfile express today? What conformance gap exists?
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed change
+      description: |
+        Concrete. Show the YAML, the grammar change, the schema delta, and a
+        worked example. If you don't have all of these yet, say so — the RFC
+        is for working through those details in the open.
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Including "do nothing" — why is the status quo not acceptable?
+    validations:
+      required: true
+
+  - type: textarea
+    id: compatibility
+    attributes:
+      label: Backwards compatibility
+      description: Does a 1.0 Loopfile still parse under this change? If not, what's the migration path?
+    validations:
+      required: true
+
+  - type: textarea
+    id: conformance
+    attributes:
+      label: Conformance impact
+      description: Which of the six conformance capabilities (Parse / Run / Verify / Inspect / Replay / Diff) does this affect?
+    validations:
+      required: true

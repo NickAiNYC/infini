@@ -1,0 +1,58 @@
+---
+name: Feature request
+about: Propose a new feature, capability, or CLI command
+title: "[feat] "
+labels: feature, needs-triage
+body:
+  - type: markdown
+    attributes:
+      value: |
+        For spec-level changes (anything that touches what a Loopfile can say
+        or what conformance means), open an **RFC proposal** instead.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What can't you do today? What makes your current workaround painful?
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+      description: Concrete. Show a Loopfile snippet, CLI invocation, or trace shape if you can.
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+    validations:
+      required: true
+
+  - type: dropdown
+    id: scope
+    attributes:
+      label: Scope
+      options:
+        - "CLI (infini command)"
+        - "Adapter (hermes / openclaw / other)"
+        - "Inspector / Observatory UI"
+        - "Registry"
+        - "Docs / patterns"
+        - "Other"
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Confirmation
+      options:
+        - label: I have read CONTRIBUTING.md
+          required: true
+        - label: This is not a spec change (if it is, open an RFC proposal instead)
+          required: true
