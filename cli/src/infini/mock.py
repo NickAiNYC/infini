@@ -83,13 +83,25 @@ def mock_verify(
     loopfile_name: str,
     iteration: int,
     confidence_threshold: int,
+    deterministic: bool = False,
 ) -> tuple[bool, float | None]:
     """Mock a verification check. Returns (passed, confidence).
 
     Syntactic checks (no 'judge:' prefix) mostly pass.
     Semantic checks return a confidence score; iteration 1 is usually
     below threshold, iteration 2+ usually passes.
+
+    When deterministic=True (used by conformance suite), all checks pass
+    on iteration 1 with confidence at threshold+5. This makes conformance
+    reproducible — no random failures, no budget exhaustion from retries.
     """
+    if deterministic:
+        if check.startswith("judge:") or check.startswith("rubric:"):
+            conf = min(100, confidence_threshold + 5)
+            return True, float(conf)
+        else:
+            return True, None
+
     rng = random.Random(_seed_from(loopfile_name, check, iteration))
 
     if check.startswith("judge:") or check.startswith("rubric:"):

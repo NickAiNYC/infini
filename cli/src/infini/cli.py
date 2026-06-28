@@ -33,6 +33,7 @@ from .replay import replay as replay_trace
 from .diff import diff as diff_cmd
 from .ui import launch_ui
 from .adapters import detect_adapters
+from .conformance import run_conformance
 
 console = Console()
 
@@ -166,6 +167,17 @@ def engines():
     console.print(table)
     console.print("\n[dim]Full compatibility matrix: spec/compatibility.md[/dim]")
     console.print("[dim]Adapters without adapter.yaml are not listed.[/dim]")
+
+
+@cli.command()
+@click.argument("conformance_dir", type=click.Path(exists=True))
+@click.option("--engine", default="infini", help="Engine to test against.")
+@click.option("--mock/--live", default=True, help="Use mock mode (default).")
+def conformance(conformance_dir: str, engine: str, mock: bool):
+    """Run the conformance test suite against an engine."""
+    exit_code = run_conformance(conformance_dir, engine=engine, mock=mock)
+    if exit_code != 0:
+        sys.exit(exit_code)
 
 
 @cli.command()

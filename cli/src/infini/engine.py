@@ -23,6 +23,7 @@ def run(
     mock: bool = True,
     max_iterations: int = 5,
     verbose: bool = True,
+    deterministic: bool = False,
 ) -> Trace:
     """Execute a Loopfile. Returns the completed Trace.
 
@@ -32,8 +33,19 @@ def run(
         mock: If True, use mock LLM (no API key needed).
         max_iterations: Hard cap on iterations (overrides STOP_WHEN if lower).
         verbose: Print progress to stdout.
+        deterministic: If True, all verifiers pass on iteration 1 (for conformance).
     """
     trace = new_trace(loopfile.name, _serialize(loopfile))
+
+    # Parse iterations>=N from STOP_WHEN to use as the run cap
+    stop_when_cap = max_iterations
+    for pred in loopfile.stop_when:
+        if pred.startswith("iterations>="):
+            try:
+                stop_when_cap = min(stop_when_cap, int(pred.split(">=")[1]))
+            except (ValueError, IndexError):
+                pass
+    effective_max = min(max_iterations, stop_when_cap)
 
     if verbose:
         _log(f"▶ engine: infini-reference {'(mock)' if mock else '(live)'}")
@@ -44,7 +56,7 @@ def run(
     outcome = "unverified"
     lessons: list[str] = []
 
-    for iteration in range(1, max_iterations + 1):
+    for iteration in range(1, effective_max + 1):
         trace.iterations = iteration
         if verbose:
             _log(f"▶ iteration {iteration}")
@@ -102,7 +114,7 @@ def run(
         confidences: list[float] = []
 
         for check in loopfile.verify.syntactic:
-            passed, _ = mock_verify(check, loopfile.name, iteration, loopfile.verify.confidence_threshold) if mock else (True, None)
+            passed, _ = mock_verify(check, loopfile.name, iteration, loopfile.verify.confidence_threshold, deterministic=deterministic) if mock else (True, None)
             add_verification(trace, check, passed, confidence=None)
             if verbose:
                 _log(f"  {'✓' if passed else '✗'} {check}")
@@ -110,7 +122,7 @@ def run(
                 all_passed = False
 
         for check in loopfile.verify.semantic:
-            passed, conf = mock_verify(check, loopfile.name, iteration, loopfile.verify.confidence_threshold) if mock else (True, 90.0)
+            passed, conf = mock_verify(check, loopfile.name, iteration, loopfile.verify.confidence_threshold, deterministic=deterministic) if mock else (True, 90.0)
             add_verification(trace, check, passed, confidence=conf)
             if conf is not None:
                 confidences.append(conf)
@@ -135,10 +147,8 @@ def run(
                 _log(f"✓ shipped. state saved. lessons appended.")
             break
 
-        # Check stop conditions
-        if "iterations>=" + str(max_iterations) in loopfile.stop_when:
-            break
-        if iteration >= max_iterations:
+        # Check stop conditions — effective_max already accounts for STOP_WHEN iterations>=N
+        if iteration >= effective_max:
             break
 
     finalize_trace(trace, outcome, lessons)

@@ -20,7 +20,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with: { python-version: '3.11' }
-      - run: pip install infini-cli
+      - run: pip install -e './cli[dev]'
       - name: Validate every Loopfile in the repo
         run: |
           find . -name 'Loopfile' -o -name 'Loopfile.yaml' -o -name '*-loop.yaml' | while read f; do
@@ -36,14 +36,10 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with: { python-version: '3.11' }
-      - run: pip install infini-cli
+      - run: pip install -e './cli[dev]'
       - name: Run conformance suite (mock mode)
         run: |
-          for loop in tests/conformance/*/Loopfile.yaml; do
-            echo "::group::Conformance: $loop"
-            infini run "$loop" --mock -o "runs/$(dirname "$loop" | tr / -)" || exit 1
-            echo "::endgroup::"
-          done
+          infini conformance tests/conformance/ --engine infini --mock
 
   golden-examples:
     name: Golden examples
@@ -57,7 +53,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with: { python-version: '3.11' }
-      - run: pip install infini-cli
+      - run: pip install -e './cli[dev]'
       - name: Run golden example in mock mode
         run: |
           infini run "${{ matrix.example }}" --mock -o runs/golden/
@@ -76,7 +72,7 @@ jobs:
           fetch-depth: 0
       - uses: actions/setup-python@v5
         with: { python-version: '3.11' }
-      - run: pip install infini-cli
+      - run: pip install -e './cli[dev]'
       - name: Diff changed Loopfiles
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -16,7 +16,11 @@ AGENTS:
   - { name: planner, role: planner, model_tier: sonnet }
 
 STEPS:
-  - { id: s1, name: flaky, action: flaky_action, uses: builder, produces: [output.txt] }
+  - id: s1
+    name: flaky
+    action: flaky_action
+    uses: builder
+    produces: [output.txt]
     retry: { max: 3, backoff: exponential }
 
 VERIFY:
