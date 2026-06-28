@@ -1,0 +1,66 @@
+# governed-growth-loop.yaml
+# A growth-marketing loop run under Hermes governance.
+# Demonstrates: strict budget policy, audit logging, memory across runs.
+
+LOOPFILE: "1.0"
+name: governed-growth-loop
+version: 1.0.0
+description: >
+  Generate a weekly growth experiment brief, score it against last week's
+  memory, escalate if confidence is low, and ship only when audit-signed.
+
+ENGINE:
+  type: hermes
+  adapter: adapters/hermes
+  governance:
+    memory: true
+    audit_log: true
+    budget_policy: strict
+    escalation_policy: enabled
+
+OBJECTIVE: >
+  Produce one growth experiment brief that aligns with the active business
+  objective, fits the weekly budget, and is signed off by an auditor agent.
+
+AGENTS:
+  - { name: planner,  role: planner,    model_tier: sonnet, tools: [read, memory] }
+  - { name: builder,  role: builder,    model_tier: sonnet, tools: [read, write, memory] }
+  - { name: auditor,  role: verifier,   model_tier: opus,   tools: [read, memory, audit] }
+
+STEPS:
+  - id: s1
+    name: recall_last_week
+    action: memory.recall
+    uses: planner
+    produces: [memory/last-week.json]
+  - id: s2
+    name: draft_brief
+    action: growth.draft_brief
+    uses: builder
+    depends_on: [s1]
+    produces: [brief.md]
+    retry: { max: 2, backoff: exponential }
+  - id: s3
+    name: audit_sign
+    action: audit.sign
+    uses: auditor
+    depends_on: [s2]
+    produces: [brief.signed.md, audit/log.jsonl]
+
+VERIFY:
+  syntactic:
+    - "brief.signed.md:exists"
+    - "audit/log.jsonl:non_empty"
+  semantic:
+    - "judge:business_objective_alignment>=85"
+    - "judge:experiment_quality>=80"
+  confidence_threshold: 85
+
+BUDGET: { dollars: 8, minutes: 25 }
+
+STOP_WHEN:
+  - all_verify_passed
+  - iterations>=3
+
+LESSONS: { path: memory/governed-growth.md, append: true }
+STATE:   { path: state/governed-growth/, resume: true }

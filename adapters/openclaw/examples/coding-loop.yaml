@@ -1,0 +1,70 @@
+# coding-loop.yaml
+# A coding loop run through OpenClaw.
+# Demonstrates: file edits, terminal test runs, GitHub PR creation, verification.
+
+LOOPFILE: "1.0"
+name: coding-loop
+version: 1.0.0
+description: >
+  Implement a small feature: edit files, run tests, push a branch, open a PR.
+
+ENGINE:
+  type: openclaw
+  adapter: adapters/openclaw
+  tools:
+    - file_system
+    - terminal
+    - github
+
+OBJECTIVE: >
+  Implement the dark-mode toggle feature, preserve all existing tests,
+  and open a pull request on GitHub.
+
+AGENTS:
+  - { name: coder,  role: builder,  model_tier: sonnet, tools: [file_system, terminal, github] }
+  - { name: tester, role: verifier, model_tier: haiku,  tools: [terminal] }
+
+STEPS:
+  - id: s1
+    name: plan
+    action: coding.plan
+    uses: coder
+    produces: [plan.md]
+  - id: s2
+    name: edit
+    action: file_system.write
+    uses: coder
+    depends_on: [s1]
+    produces: [src/dark-mode.tsx, src/dark-mode.css]
+  - id: s3
+    name: test
+    action: terminal.run
+    uses: tester
+    depends_on: [s2]
+    produces: [test-output.log]
+    retry: { max: 2, backoff: exponential }
+  - id: s4
+    name: push_pr
+    action: github.open_pr
+    uses: coder
+    depends_on: [s3]
+    produces: [pr-url.txt]
+
+VERIFY:
+  syntactic:
+    - "src/dark-mode.tsx:exists"
+    - "src/dark-mode.css:exists"
+    - "test-output.log:exit_zero"
+    - "pr-url.txt:valid_url"
+  semantic:
+    - "judge:feature_completeness>=90"
+    - "judge:test_coverage>=85"
+  confidence_threshold: 85
+
+BUDGET: { dollars: 5, minutes: 15 }
+
+STOP_WHEN:
+  - all_verify_passed
+  - iterations>=4
+
+STATE: { path: state/coding-loop/, resume: true }

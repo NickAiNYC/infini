@@ -1,0 +1,72 @@
+# claim-audit-loop.yaml — Demo copy
+# Pinned version of adapters/hermes/examples/claim-audit-loop.yaml.
+# Used by examples/hermes-governed-growth/ so the demo is reproducible.
+
+LOOPFILE: "1.0"
+name: claim-audit-loop
+version: 1.0.0
+description: >
+  Demo: Hermes governance. Audit an insurance claim with policy, budget,
+  escalation, and audit trail.
+
+ENGINE:
+  type: hermes
+  adapter: adapters/hermes
+  governance:
+    memory: true
+    audit_log: true
+    budget_policy: strict
+    escalation_policy: enabled
+
+OBJECTIVE: >
+  Produce a signed claim audit decision: approve, deny, or escalate.
+  Every decision must cite policy and include a signed audit trail.
+
+AGENTS:
+  - { name: investigator, role: researcher, model_tier: sonnet, tools: [read, memory, db] }
+  - { name: underwriter,  role: builder,    model_tier: opus,   tools: [read, write, db] }
+  - { name: auditor,      role: verifier,   model_tier: opus,   tools: [read, audit] }
+
+STEPS:
+  - id: s1
+    name: gather_evidence
+    action: claims.gather_evidence
+    uses: investigator
+    produces: [evidence.json]
+  - id: s2
+    name: cross_check_policy
+    action: policy.cross_check
+    uses: underwriter
+    depends_on: [s1]
+    produces: [policy_check.json]
+  - id: s3
+    name: decide
+    action: claims.decide
+    uses: underwriter
+    depends_on: [s2]
+    produces: [decision.md]
+  - id: s4
+    name: audit_sign
+    action: audit.sign
+    uses: auditor
+    depends_on: [s3]
+    produces: [decision.signed.md, audit/log.jsonl]
+
+VERIFY:
+  syntactic:
+    - "decision.signed.md:exists"
+    - "audit/log.jsonl:non_empty"
+    - "decision.md:contains_valid_outcome"
+  semantic:
+    - "judge:policy_citation>=90"
+    - "judge:evidence_quality>=85"
+  confidence_threshold: 80
+
+BUDGET: { dollars: 4, minutes: 12 }
+
+STOP_WHEN:
+  - all_verify_passed
+  - iterations>=2
+
+LESSONS: { path: memory/claim-audit.md, append: true }
+STATE:   { path: state/claim-audit-demo/, resume: true }

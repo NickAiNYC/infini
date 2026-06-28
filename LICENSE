@@ -1,6 +1,6 @@
 MIT License
 
-Copyright (c) 2026 loom-spec contributors
+Copyright (c) 2026 NickAiNYC and the INFINI contributors
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -19,3 +19,25 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
+---
+
+## Repository licensing note
+
+This repository is multi-licensed by directory:
+
+| Path                    | License      |
+| ----------------------- | ------------ |
+| `spec/`                 | CC-BY-4.0    |
+| `docs/`, `MANIFESTO.md` | CC-BY-4.0    |
+| `cli/`, `ci/`           | MIT          |
+| `adapters/`             | MIT          |
+| `loops/`, `examples/`   | MIT          |
+| `prompts/`              | MIT          |
+| `registry/`             | MIT          |
+| `assets/`               | MIT          |
+
+The spec is licensed under CC-BY-4.0 to make it maximally reusable by any
+engine, including commercial ones. The reference code is MIT. Loopfiles
+published to the registry remain the property of their authors; the registry
+only mirrors and signs them.

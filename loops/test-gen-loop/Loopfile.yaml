@@ -1,0 +1,38 @@
+# loops/test-gen-loop/Loopfile.yaml — canonical loop (draft)
+LOOPFILE: "1.0"
+name: test-gen-loop
+version: 0.1.0
+description: >
+  Canonical test-gen-loop. Curated, versioned, benchmarked.
+  See essay.md for when to use and when not to use this loop.
+
+OBJECTIVE: >
+  Generate tests for a named module until coverage reaches the declared target and all new tests pass.
+
+AGENTS:
+  - { name: writer, role: builder, model_tier: sonnet, tools: [file_system, terminal] }
+  - { name: auditor, role: verifier, model_tier: haiku, tools: [terminal] }
+
+STEPS:
+  - { id: s1, name: discover, action: test.discover_existing, uses: auditor, produces: [existing.json] }
+  - { id: s2, name: generate, action: test.generate, uses: writer, depends_on: [s1], produces: [tests/new/] }
+  - { id: s3, name: run, action: terminal.run, uses: auditor, depends_on: [s2], produces: [test-output.log] }
+  - { id: s4, name: measure, action: test.measure_coverage, uses: auditor, depends_on: [s3], produces: [coverage.json] }
+
+VERIFY:
+  syntactic:
+    - "tests/new/:non_empty"
+    - "test-output.log:exit_zero"
+    - "coverage.json:target_reached"
+  semantic:
+    - "judge:test_quality>=85"
+  confidence_threshold: 85
+
+BUDGET: { dollars: 5, minutes: 20 }
+
+STOP_WHEN:
+  - all_verify_passed
+  - iterations>=3
+
+LESSONS: { path: memory/test-gen-loop.md, append: true }
+STATE:   { path: state/test-gen-loop/, resume: true }

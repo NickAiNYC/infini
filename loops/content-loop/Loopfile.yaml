@@ -1,0 +1,39 @@
+# loops/content-loop/Loopfile.yaml — canonical loop (draft)
+LOOPFILE: "1.0"
+name: content-loop
+version: 0.1.0
+description: >
+  Canonical content-loop. Curated, versioned, benchmarked.
+  See essay.md for when to use and when not to use this loop.
+
+OBJECTIVE: >
+  Draft a piece of content, critique it against a brand rubric, revise, and verify it passes both quality and tone checks.
+
+AGENTS:
+  - { name: drafter, role: builder, model_tier: sonnet, tools: [file_system] }
+  - { name: critic, role: critic, model_tier: sonnet, tools: [file_system] }
+  - { name: editor, role: builder, model_tier: haiku, tools: [file_system] }
+
+STEPS:
+  - { id: s1, name: draft, action: content.draft, uses: drafter, produces: [draft.md] }
+  - { id: s2, name: critique, action: content.critique, uses: critic, depends_on: [s1], produces: [critique.md] }
+  - { id: s3, name: revise, action: content.revise, uses: drafter, depends_on: [s2], produces: [revised.md] }
+  - { id: s4, name: polish, action: content.polish, uses: editor, depends_on: [s3], produces: [final.md] }
+
+VERIFY:
+  syntactic:
+    - "final.md:exists"
+    - "final.md:word_count_in_range"
+  semantic:
+    - "judge:brand_tone>=85"
+    - "judge:quality>=85"
+  confidence_threshold: 85
+
+BUDGET: { dollars: 5, minutes: 20 }
+
+STOP_WHEN:
+  - all_verify_passed
+  - iterations>=3
+
+LESSONS: { path: memory/content-loop.md, append: true }
+STATE:   { path: state/content-loop/, resume: true }

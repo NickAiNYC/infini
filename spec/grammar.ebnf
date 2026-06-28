@@ -1,0 +1,103 @@
+(* Loopfile Specification v1.0 — formal grammar (EBNF)
+   Normative companion to loopfile-v1.md.
+   INFINI runs Loopfiles. *)
+
+loopfile        = version, name, version_str, [description],
+                  objective, agents, steps, verify, budget,
+                  stop_when, [lessons], [state];
+
+(* ---- top-level keys ---- *)
+version         = 'LOOPFILE', ':', '"1.0"';
+name            = 'name', ':', slug;
+version_str     = 'version', ':', semver;
+description     = 'description', ':', string;
+objective       = 'OBJECTIVE', ':', string;
+agents          = 'AGENTS', ':', agent, { agent };
+steps           = 'STEPS',  ':', step,  { step  };
+verify          = 'VERIFY', ':', verify_block;
+budget          = 'BUDGET', ':', budget_block;
+stop_when       = 'STOP_WHEN', ':', '[', predicate, { ',', predicate }, ']';
+lessons         = 'LESSONS', ':', lessons_block;
+state           = 'STATE',   ':', state_block;
+
+(* ---- agents ---- *)
+agent           = '{',
+                  'name', ':', identifier, ',',
+                  'role', ':', role, ',',
+                  'model_tier', ':', model_tier,
+                  [ ',', 'tools', ':', '[', identifier, { ',', identifier }, ']' ],
+                  '}';
+role            = 'builder' | 'verifier' | 'critic' | 'researcher' | 'planner';
+
+(* ---- steps ---- *)
+step            = '{',
+                  'id', ':', identifier, ',',
+                  'name', ':', identifier, ',',
+                  'action', ':', identifier, ',',
+                  'uses', ':', identifier,
+                  [ ',', 'produces', ':', '[', filename, { ',', filename }, ']' ],
+                  [ ',', 'depends_on', ':', '[', identifier, { ',', identifier }, ']' ],
+                  [ ',', 'retry', ':', retry_block ],
+                  '}';
+retry_block     = '{', 'max', ':', integer, ',',
+                       'backoff', ':', backoff, '}';
+
+(* ---- verify ---- *)
+verify_block    = 'syntactic', ':', '[', check, { ',', check }, ']', ',',
+                  'semantic',  ':', '[', check, { ',', check }, ']', ',',
+                  'confidence_threshold', ':', integer;
+check           = string;   (* e.g. "tests:pass", "judge:correctness>=90" *)
+
+(* ---- budget ---- *)
+budget_block    = '{',
+                  'dollars', ':', number, ',',
+                  'minutes', ':', number,
+                  [ ',', 'tokens', ':', integer ],
+                  '}';
+
+(* ---- predicates ---- *)
+predicate       = 'all_verify_passed'
+                | 'budget_remaining<10%'
+                | 'iterations>=', integer
+                | 'confidence>=', integer
+                | 'predicate:', identifier;
+
+(* ---- lessons / state ---- *)
+lessons_block   = '{', 'path', ':', filename, ',',
+                       'append', ':', boolean, '}';
+state_block     = '{', 'path', ':', filename, ',',
+                       'resume', ':', boolean, '}';
+
+(* ---- primitives ---- *)
+slug            = lowercase, { lowercase | digit | '-' };
+identifier      = letter, { letter | digit | '_' };
+filename        = identifier, { '.', identifier }, '/', { identifier };
+string          = '"', { character }, '"';
+semver          = integer, '.', integer, '.', integer;
+integer         = digit, { digit };
+number          = digit, { digit }, [ '.', digit, { digit } ];
+backoff         = 'constant' | 'linear' | 'exponential';
+
+lowercase       = 'a' | 'b' | 'c' | 'd' | 'e' | 'f' | 'g' | 'h' | 'i' | 'j'
+                | 'k' | 'l' | 'm' | 'n' | 'o' | 'p' | 'q' | 'r' | 's' | 't'
+                | 'u' | 'v' | 'w' | 'x' | 'y' | 'z';
+letter          = lowercase | uppercase;
+uppercase       = 'A' | 'B' | 'C' | 'D' | 'E' | 'F' | 'G' | 'H' | 'I' | 'J'
+                | 'K' | 'L' | 'M' | 'N' | 'O' | 'P' | 'Q' | 'R' | 'S' | 'T'
+                | 'U' | 'V' | 'W' | 'X' | 'Y' | 'Z';
+digit           = '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9';
+character       = letter | digit | symbol | space;
+symbol          = '!' | '#' | '$' | '%' | '&'' | '(' | ')' | '*' | '+'
+                | ',' | '-' | '.' | '/' | ':' | ';' | '<' | '=' | '>'
+                | '?' | '@' | '[' | ']' | '_' | '{' | '}' | '~';
+space           = ' ';
+boolean         = 'true' | 'false';
+
+(* ---- notes ----
+   1. Order of top-level keys is recommended but not normative;
+      conforming parsers MUST accept any order.
+   2. Comments begin with '#'.
+   3. Strings use double quotes. Single quotes are not permitted.
+   4. The grammar permits step cycles (enabling loops); engines MUST
+      detect and bound them via STOP_WHEN and BUDGET.
+   ---- end notes ---- *)

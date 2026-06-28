@@ -1,0 +1,167 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://infini.dev/spec/loopfile-v1.schema.json",
+  "title": "Loopfile v1.0",
+  "description": "JSON Schema for Loopfile v1.0. Used by `infini validate`. INFINI runs Loopfiles.",
+  "type": "object",
+  "required": [
+    "LOOPFILE",
+    "name",
+    "version",
+    "OBJECTIVE",
+    "AGENTS",
+    "STEPS",
+    "VERIFY",
+    "BUDGET",
+    "STOP_WHEN"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "LOOPFILE": {
+      "type": "string",
+      "const": "1.0",
+      "description": "Spec version. Must be exactly '1.0' for v1.0 Loopfiles."
+    },
+    "name": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9-]{0,62}$",
+      "description": "Slug identifier. Lowercase, digits, hyphens. Unique within a registry namespace."
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)$",
+      "description": "Semver version of this Loopfile, independent of spec version."
+    },
+    "description": {
+      "type": "string",
+      "maxLength": 280
+    },
+    "OBJECTIVE": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 1000,
+      "description": "Single sentence the loop is trying to satisfy."
+    },
+    "AGENTS": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/agent" }
+    },
+    "STEPS": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/step" }
+    },
+    "VERIFY": { "$ref": "#/$defs/verify" },
+    "BUDGET": { "$ref": "#/$defs/budget" },
+    "STOP_WHEN": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "LESSONS": { "$ref": "#/$defs/lessons" },
+    "STATE":   { "$ref": "#/$defs/state" }
+  },
+
+  "$defs": {
+    "agent": {
+      "type": "object",
+      "required": ["name", "role", "model_tier"],
+      "additionalProperties": false,
+      "properties": {
+        "name":       { "type": "string", "pattern": "^[a-zA-Z_][a-zA-Z0-9_]*$" },
+        "role": {
+          "type": "string",
+          "enum": ["builder", "verifier", "critic", "researcher", "planner"]
+        },
+        "model_tier": {
+          "type": "string",
+          "description": "Engine-resolved model tier. Common values: haiku, sonnet, opus, gpt-4o, but engines may define their own."
+        },
+        "tools": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    },
+
+    "step": {
+      "type": "object",
+      "required": ["id", "name", "action", "uses"],
+      "additionalProperties": false,
+      "properties": {
+        "id":         { "type": "string", "pattern": "^[a-zA-Z_][a-zA-Z0-9_]*$" },
+        "name":       { "type": "string" },
+        "action":     { "type": "string" },
+        "uses":       { "type": "string" },
+        "produces":   { "type": "array", "items": { "type": "string" } },
+        "depends_on": { "type": "array", "items": { "type": "string" } },
+        "retry":      { "$ref": "#/$defs/retry" }
+      }
+    },
+
+    "retry": {
+      "type": "object",
+      "required": ["max", "backoff"],
+      "additionalProperties": false,
+      "properties": {
+        "max":     { "type": "integer", "minimum": 0, "maximum": 10 },
+        "backoff": { "type": "string", "enum": ["constant", "linear", "exponential"] }
+      }
+    },
+
+    "verify": {
+      "type": "object",
+      "required": ["syntactic", "semantic", "confidence_threshold"],
+      "additionalProperties": false,
+      "properties": {
+        "syntactic": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Deterministic checks (exit code, schema, linter)."
+        },
+        "semantic": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Model-judged checks producing a 0-100 confidence."
+        },
+        "confidence_threshold": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100
+        }
+      }
+    },
+
+    "budget": {
+      "type": "object",
+      "required": ["dollars", "minutes"],
+      "additionalProperties": false,
+      "properties": {
+        "dollars": { "type": "number", "exclusiveMinimum": 0 },
+        "minutes": { "type": "number", "exclusiveMinimum": 0 },
+        "tokens":  { "type": "integer", "minimum": 1 }
+      }
+    },
+
+    "lessons": {
+      "type": "object",
+      "required": ["path", "append"],
+      "additionalProperties": false,
+      "properties": {
+        "path":   { "type": "string" },
+        "append": { "type": "boolean" }
+      }
+    },
+
+    "state": {
+      "type": "object",
+      "required": ["path", "resume"],
+      "additionalProperties": false,
+      "properties": {
+        "path":   { "type": "string" },
+        "resume": { "type": "boolean" }
+      }
+    }
+  }
+}

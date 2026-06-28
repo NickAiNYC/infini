@@ -1,108 +1,134 @@
-# Loom Registry — RFC
+# INFINI Registry
 
-> Status: draft. Not live. We are designing in the open.
+> The public registry for Loopfiles. Versions are immutable and signed.
 
-The registry is the npm-for-loops layer of Loom. It is the thing that turns Loopfiles from one-off scripts into versioned, signed, installable packages.
-
----
-
-## Why a registry
-
-A spec without a registry is just a document. A registry without a spec is just a database. Together they create network effects: every published loop makes every other loop more valuable, because every published loop is a reusable starting point.
-
-The Docker parallel is exact: Dockerfile + Docker Hub. Loom has the Loopfile; the registry is Hub.
+`infini publish` pushes a Loopfile to the registry. `infini install` pulls. Every version is content-addressed and signed; once a version is published, it cannot be republished or replaced.
 
 ---
 
-## Operations
+## Status
+
+- **Local registry operations** — shipped. You can `infini publish` to a local path and `infini install` from one.
+- **Public registry at `https://registry.infini.dev`** — coming soon. The protocol below is final; the hosted endpoint is being stood up.
+
+Until the public registry is live, use the local registry for testing:
 
 ```bash
-loom install loom/coding-loop@1.2      # pull a loop
-loom publish ./Loopfile                # push a loop
-loom search "research with citations"  # search
-loom info   loom/coding-loop           # metadata, versions, downloads
-loom unpublish loom/coding-loop@1.0    # remove (only unlisted versions, never latest)
+infini publish ./Loopfile --registry ./local-registry/
+infini install infini/coding-loop@1.0 --registry ./local-registry/
 ```
 
 ---
 
-## Loop reference
+## Addressing
+
+A Loopfile is addressed by namespace, name, and version:
 
 ```
-<owner>/<name>@<semver>
+infini/coding-loop@1.0
+└──┬─┘ └────┬────┘ └┘
+  ns        name   version
 ```
 
-- `owner`: a user or org (e.g. `loom`, `acme`, `jane`)
-- `name`: lowercase-kebab, matches `name:` in Loopfile
-- `semver`: standard semver, immutable once published
+- `ns` is the publisher's namespace (a GitHub user/org, or `infini` for canonical loops).
+- `name` is the Loopfile's `name` field (a slug).
+- `version` is a semver version. `@1.0` resolves to the latest `1.0.x`. `@1.0.2` is exact.
 
 ---
 
-## Trust
+## Publishing
 
-- Every published version is **content-addressed** (SHA-256 of the Loopfile body)
-- Every published version is **signed** by the publisher's key (Sigstore)
-- Every published version is **immutable** — you can unpublish a version only if it has zero installs and is < 30 days old
-
----
-
-## Discovery
-
-- `loom search` ranks by: relevance, downloads, stars, verification tier count
-- Loops with <2 verification tiers are marked `UNVERIFIED` and down-ranked
-- Loops with no README are down-ranked
-- Loops with no fixtures cannot be in the "official" namespace
-
----
-
-## Namespaces
-
-- `loom/*` — official, curated, requires RFC + review
-- `<org>/*` — org-owned, requires org verification
-- `<user>/*` — personal, open to anyone
-
----
-
-## Storage (planned)
-
-- Backend: S3-compatible object store for Loopfile bodies
-- Index: Postgres for metadata, search, install counts
-- CDN: edge-cached for fast `loom install`
-
----
-
-## Trust signals shown to users
-
-```
-loom/coding-loop  v1.2.0  ★ 2.1k  ↓ 18k  ✓ verified (3 tiers)  signed
+```bash
+infini publish ./Loopfile
 ```
 
-| signal | meaning |
-|--------|---------|
-| ★ | stars (GitHub-style) |
-| ↓ | install count |
-| ✓ verified | has ≥2 verification tiers and they pass on the published fixtures |
-| signed | publisher signature valid |
+What this does:
+
+1. Runs `infini validate` against [`spec/schema.json`](../spec/schema.json). Invalid Loopfiles are rejected.
+2. Computes the content hash of the Loopfile.
+3. Signs the hash with your configured signing key (Ed25519).
+4. Uploads the Loopfile + signature + manifest to the registry.
+5. Returns the immutable address: `infini/<name>@<version>`.
+
+A published version is permanent. To fix a bug, publish a new version. To deprecate, mark the version deprecated (the registry keeps serving it but flags it).
 
 ---
 
-## Open questions
+## Installing
 
-- Should the registry run loops against fixtures on publish (gate)? Or only on `loom ci` (signal)?
-- Should we support paid loops? (Probably no for v1.)
-- Should we support loop dependencies (`FROM: loom/other-loop`) with automatic resolution?
+```bash
+infini install infini/coding-loop@1.0
+```
 
-These are deferred. Ship v1, learn, iterate.
+What this does:
+
+1. Resolves `@1.0` to the latest `1.0.x` in the registry.
+2. Downloads the Loopfile + signature.
+3. Verifies the signature against the publisher's public key.
+4. Writes the Loopfile to `./infini-cache/<ns>/<name>@<version>.yaml`.
+5. Returns the local path.
+
+You can then `infini run` the cached Loopfile or copy it into your repo.
 
 ---
 
-## Timeline
+## Searching
 
-- **Q1**: spec final, CLI ships `validate`, `inspect`, `replay`, `diff`, `ci`
-- **Q2**: registry alpha — read-only mirror of GitHub repos under `loom/*`
-- **Q3**: registry beta — `publish` and `install` live, signing required
-- **Q4**: registry GA — full search, namespaces, trust signals
+```bash
+infini search "research loop with citations"
+```
+
+Returns matching Loopfiles with: name, version, description, publisher, star count (community), and last-updated timestamp.
 
 ---
 
-We are building this in the open. If you want to help, open an RFC in `spec/rfcs/`.
+## Signing
+
+Every publisher generates an Ed25519 keypair:
+
+```bash
+infini keys generate
+# writes ~/.infini/keys/ed25519.pub and ~/.infini/keys/ed25519.sec
+```
+
+The public key is registered with your namespace. The private key signs every published version. The registry refuses unsigned or wrongly-signed uploads.
+
+If your private key is compromised, rotate it (`infini keys rotate`) and re-publish a new version under a new key. Old versions remain signed with the old key and are still verifiable.
+
+---
+
+## Mirroring
+
+Anyone can mirror the registry. The registry is a content-addressed store; mirrors simply copy `(hash, signature, manifest)` triples. Mirrors are listed in `registry/mirrors.json` (to be added when the public registry ships).
+
+---
+
+## Protocol
+
+The registry speaks HTTPS + JSON. The full protocol is documented in [`registry/protocol.md`](protocol.md) (planned). Endpoints:
+
+| Method | Path | Description |
+| --- | --- | --- |
+| `GET`  | `/v1/resolve/<ns>/<name>@<version>` | Resolve a version to a content hash. |
+| `GET`  | `/v1/fetch/<hash>` | Fetch a Loopfile by content hash. |
+| `GET`  | `/v1/manifest/<ns>/<name>@<version>` | Fetch the signed manifest. |
+| `POST` | `/v1/publish` | Publish a new version. Requires auth + signature. |
+| `GET`  | `/v1/search?q=<query>` | Search Loopfiles. |
+
+---
+
+## Roadmap
+
+- [ ] Public registry at `registry.infini.dev`
+- [ ] Web UI for browsing
+- [ ] Per-namespace signing key registration
+- [ ] Mirror protocol spec
+- [ ] Star / fork / PR-to-publish workflow
+
+Until these ship, use the local registry for everything.
+
+---
+
+## License
+
+MIT. See [repository LICENSE](../LICENSE).

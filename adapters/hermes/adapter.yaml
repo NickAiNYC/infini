@@ -1,0 +1,58 @@
+# INFINI Hermes Adapter Manifest
+# Declares how the INFINI runtime talks to Hermes as a governed engine.
+
+adapter:
+  name: hermes
+  version: 1.0.0
+  spec: LOOPFILE-1.0
+  type: governance
+  description: >
+    Hermes is the governed operating system for agent operations.
+    This adapter runs a Loopfile as a governed Hermes operation:
+    policy, memory, escalation, audit trails, business-objective alignment.
+
+engine:
+  type: hermes
+  runtime: hermes-os
+  min_version: 1.4.0
+
+capabilities:
+  parse_loopfile: true
+  run_loop: true
+  verify: true
+  inspect_trace: true
+  replay: true
+  diff: false              # planned for 1.1
+
+governance:
+  memory: true
+  audit_log: true
+  budget_policy: [strict, advisory, off]
+  escalation_policy: [enabled, disabled]
+  business_objective_alignment: true
+
+agent_roles:
+  # Loopfile roles mapped to Hermes-native agent types.
+  builder:   hermes.runtime.ExecutorAgent
+  verifier:  hermes.runtime.AuditorAgent
+  critic:    hermes.runtime.CriticAgent
+  researcher: hermes.runtime.ResearchAgent
+  planner:   hermes.runtime.PlannerAgent
+
+trace_extensions:
+  # Extra fields this adapter writes into run.json beyond the spec minimum.
+  governance:
+    policy_violations: array
+    escalations:       array
+    audit_hash:        string
+    memory_refs:       array
+
+compatibility:
+  # Hybrid mode: this adapter can hand execution to the OpenClaw adapter.
+  delegates_to:
+    - openclaw
+
+install:
+  pip: infini-cli[hermes]
+
+repo: https://github.com/NickAiNYC/infini/tree/main/adapters/hermes

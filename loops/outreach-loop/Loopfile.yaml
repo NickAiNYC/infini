@@ -1,0 +1,37 @@
+# loops/outreach-loop/Loopfile.yaml — canonical loop (draft)
+LOOPFILE: "1.0"
+name: outreach-loop
+version: 0.1.0
+description: >
+  Canonical outreach-loop. Curated, versioned, benchmarked.
+  See essay.md for when to use and when not to use this loop.
+
+OBJECTIVE: >
+  Generate personalized outreach for a list of recipients, verify each is non-generic, and produce sendable drafts.
+
+AGENTS:
+  - { name: researcher, role: researcher, model_tier: sonnet, tools: [browser] }
+  - { name: writer, role: builder, model_tier: sonnet, tools: [file_system] }
+  - { name: verifier, role: verifier, model_tier: haiku, tools: [file_system] }
+
+STEPS:
+  - { id: s1, name: research_recipient, action: browser.research_recipient, uses: researcher, produces: [recipient-profiles.json] }
+  - { id: s2, name: draft_outreach, action: content.draft_personalized, uses: writer, depends_on: [s1], produces: [outreach-drafts/] }
+  - { id: s3, name: verify_personal, action: content.check_personalization, uses: verifier, depends_on: [s2], produces: [personalization-check.json] }
+
+VERIFY:
+  syntactic:
+    - "outreach-drafts/:non_empty"
+    - "personalization-check.json:all_personalized"
+  semantic:
+    - "judge:personalization>=85"
+  confidence_threshold: 85
+
+BUDGET: { dollars: 5, minutes: 20 }
+
+STOP_WHEN:
+  - all_verify_passed
+  - iterations>=3
+
+LESSONS: { path: memory/outreach-loop.md, append: true }
+STATE:   { path: state/outreach-loop/, resume: true }

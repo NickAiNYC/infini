@@ -1,0 +1,38 @@
+# loops/doc-sync-loop/Loopfile.yaml — canonical loop (draft)
+LOOPFILE: "1.0"
+name: doc-sync-loop
+version: 0.1.0
+description: >
+  Canonical doc-sync-loop. Curated, versioned, benchmarked.
+  See essay.md for when to use and when not to use this loop.
+
+OBJECTIVE: >
+  Synchronize documentation with code changes in a named module, verifying every code change is reflected in docs.
+
+AGENTS:
+  - { name: auditor, role: verifier, model_tier: sonnet, tools: [file_system] }
+  - { name: writer, role: builder, model_tier: haiku, tools: [file_system] }
+
+STEPS:
+  - { id: s1, name: diff_code, action: doc.diff_code, uses: auditor, produces: [code-changes.json] }
+  - { id: s2, name: diff_docs, action: doc.diff_docs, uses: auditor, produces: [doc-changes.json] }
+  - { id: s3, name: find_gaps, action: doc.find_gaps, uses: auditor, depends_on: [s1, s2], produces: [doc-gaps.json] }
+  - { id: s4, name: sync, action: file_system.write, uses: writer, depends_on: [s3], produces: [docs/] }
+  - { id: s5, name: verify, action: doc.verify_sync, uses: auditor, depends_on: [s4], produces: [sync-check.json] }
+
+VERIFY:
+  syntactic:
+    - "doc-gaps.json:empty_after_sync"
+    - "sync-check.json:all_synced"
+  semantic:
+    - "judge:doc_accuracy>=85"
+  confidence_threshold: 85
+
+BUDGET: { dollars: 5, minutes: 20 }
+
+STOP_WHEN:
+  - all_verify_passed
+  - iterations>=3
+
+LESSONS: { path: memory/doc-sync-loop.md, append: true }
+STATE:   { path: state/doc-sync-loop/, resume: true }

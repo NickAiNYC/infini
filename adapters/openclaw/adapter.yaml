@@ -1,0 +1,66 @@
+# INFINI OpenClaw Adapter Manifest
+# Declares how the INFINI runtime talks to OpenClaw as an execution engine.
+
+adapter:
+  name: openclaw
+  version: 1.0.0
+  spec: LOOPFILE-1.0
+  type: execution
+  description: >
+    OpenClaw is the agent/runtime layer.
+    This adapter runs a Loopfile through OpenClaw agents with access to
+    browser, GitHub, terminal, and filesystem tools.
+
+engine:
+  type: openclaw
+  runtime: openclaw-agent
+  min_version: 0.9.0
+
+capabilities:
+  parse_loopfile: true
+  run_loop: true
+  verify: true
+  inspect_trace: true
+  replay: false             # planned for 1.1
+  diff: false               # planned for 1.1
+
+tools:
+  # Tool registry the adapter is allowed to invoke on OpenClaw's behalf.
+  # The Loopfile's ENGINE.tools list filters this set further per-loop.
+  browser:
+    actions: [navigate, click, type, scrape, screenshot]
+  github:
+    actions: [branch, commit, push, open_pr, comment, merge]
+  terminal:
+    actions: [run, sudo_run]
+    allowlist_required: true
+  file_system:
+    actions: [read, write, mkdir, rm]
+  db:
+    actions: [query, execute]
+  deploy:
+    actions: [ship, rollback]
+
+agent_roles:
+  # Loopfile roles mapped to OpenClaw-native agent profiles.
+  builder:    openclaw.coder.CoderAgent
+  verifier:   openclaw.tester.TesterAgent
+  critic:     openclaw.reviewer.ReviewerAgent
+  researcher: openclaw.scraper.ScraperAgent
+  planner:    openclaw.planner.PlannerAgent
+
+trace_extensions:
+  # Extra fields this adapter writes into run.json beyond the spec minimum.
+  tools:
+    calls:  array   # { step, tool, target, ok, exit?, pr? }
+    denied: array   # tools the adapter refused to call
+
+compatibility:
+  # Hybrid mode: this adapter can be governed by the Hermes adapter.
+  governed_by:
+    - hermes
+
+install:
+  pip: infini-cli[openclaw]
+
+repo: https://github.com/NickAiNYC/infini/tree/main/adapters/openclaw

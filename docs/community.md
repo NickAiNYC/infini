@@ -1,35 +1,40 @@
 # Community
 
-## Where we hang out
+> *Planned. PRs welcome.*
 
-- **GitHub Discussions** — RFCs, Q&A, show-and-tell
-- **Discord** — `https://discord.gg/loom-dev` (coming soon)
-- **Office hours** — Thursdays 10am PT (link posted in Discussions every Wednesday)
+This document will hold the canonical community resources for INFINI. Until it's filled in, use GitHub Discussions and the issue tracker.
 
-## What we talk about
+---
 
-- Spec changes (RFCs in `spec/rfcs/`)
-- New canonical loops (PRs to `loops/`)
-- Engine adapter announcements
-- Cool runs people have shipped
-- Horror stories (we have a channel for these)
+## Office hours
 
-## How decisions get made
+Weekly office hours will be held on Discord once the public Discord server is live. The agenda doc will be linked here.
 
-1. **RFC** for spec changes (`spec/rfcs/`)
-2. **PR + review** for loops, adapters, CLI
-3. **Maintainer vote** for contentious issues (rare)
+Until then, file an issue with the `office-hours` label and we'll schedule a synchronous call.
 
-We default to "ship and learn." If a change is reversible, we merge it. If it's not, we RFC it.
+## Discussions
+
+GitHub Discussions is the primary place for:
+
+- Spec questions and edge cases
+- Loop design help
+- Adapter authoring help
+- Showcase your Loopfile
+
+## Discord
+
+`https://discord.gg/infini-dev` (coming soon). The Discord will have channels for:
+
+- `#spec` — Loopfile spec discussion
+- `#adapters` — adapter authoring
+- `#loops` — canonical and community loops
+- `#observatory` — Inspector and Observatory UI feedback
+- `#office-hours` — weekly synchronous discussions
+
+## Conferences and meetups
+
+Once we have adopters, we'll organize an INFINI meetup. If you'd like to host one, open an issue.
 
 ## Code of conduct
 
-Contributor Covenant 2.1. We enforce it. The maintainers are listed in `CONTRIBUTORS.md`.
-
-## Recognition
-
-Every merged PR adds you to `CONTRIBUTORS.md`. We do not gate on size.
-
-## Sponsors
-
-Loom is community-funded. If your company uses Loom in production, consider sponsoring the maintainers. Sponsorship does not buy spec votes.
+Be excellent to each other. Disagree about ideas, not about people. See [`CONTRIBUTING.md`](../CONTRIBUTING.md).

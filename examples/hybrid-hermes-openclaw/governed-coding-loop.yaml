@@ -1,0 +1,118 @@
+# governed-coding-loop.yaml
+# The hybrid demo: Hermes governs, OpenClaw executes, INFINI records.
+# This is the market hook — the missing protocol between governance and runtimes.
+
+LOOPFILE: "1.0"
+name: governed-coding-loop
+version: 1.0.0
+description: >
+  Hybrid demo. Implement a coding feature under Hermes governance:
+  plan, policy-check, audit-sign, then delegate file edits, tests,
+  and PR creation to OpenClaw, then audit-sign again and verify.
+
+ENGINE:
+  type: hermes
+  adapter: adapters/hermes
+  governance:
+    memory: true
+    audit_log: true
+    budget_policy: strict
+    escalation_policy: enabled
+  delegates:
+    execution:
+      type: openclaw
+      adapter: adapters/openclaw
+      tools: [file_system, terminal, github]
+
+OBJECTIVE: >
+  Implement the dark-mode toggle feature under governance: plan must
+  pass policy, edits must be audit-signed before and after execution,
+  tests must pass, and a PR must be opened with a governance audit hash.
+
+AGENTS:
+  # Hermes-side agents
+  - { name: planner,  role: planner,   model_tier: sonnet, tools: [read, memory] }
+  - { name: auditor,  role: verifier,  model_tier: opus,   tools: [read, audit, memory] }
+  # OpenClaw-side agents (delegated)
+  - { name: coder,    role: builder,   model_tier: sonnet, tools: [file_system, terminal, github] }
+  - { name: tester,   role: verifier,  model_tier: haiku,  tools: [terminal] }
+
+STEPS:
+  # ── Hermes lane ──
+  - id: s1
+    name: plan
+    action: coding.plan
+    uses: planner
+    produces: [plan.md]
+  - id: s2
+    name: policy_check
+    action: policy.cross_check
+    uses: auditor
+    depends_on: [s1]
+    produces: [policy_check.json]
+  - id: s3
+    name: audit_pre
+    action: audit.sign
+    uses: auditor
+    depends_on: [s2]
+    produces: [audit/pre.jsonl]
+
+  # ── OpenClaw lane (delegated) ──
+  - id: s4
+    name: edit_files
+    action: file_system.write
+    uses: coder
+    depends_on: [s3]
+    produces: [src/dark-mode.tsx, src/dark-mode.css]
+  - id: s5
+    name: run_tests
+    action: terminal.run
+    uses: tester
+    depends_on: [s4]
+    produces: [test-output.log]
+    retry: { max: 2, backoff: exponential }
+  - id: s6
+    name: open_pr
+    action: github.open_pr
+    uses: coder
+    depends_on: [s5]
+    produces: [pr-url.txt]
+
+  # ── Back to Hermes lane ──
+  - id: s7
+    name: audit_post
+    action: audit.sign
+    uses: auditor
+    depends_on: [s6]
+    produces: [audit/post.jsonl]
+  - id: s8
+    name: verify_governed
+    action: governance.verify
+    uses: auditor
+    depends_on: [s7]
+    produces: [governance-verify.json]
+
+VERIFY:
+  syntactic:
+    - "plan.md:exists"
+    - "policy_check.json:status_pass"
+    - "audit/pre.jsonl:non_empty"
+    - "src/dark-mode.tsx:exists"
+    - "src/dark-mode.css:exists"
+    - "test-output.log:exit_zero"
+    - "pr-url.txt:valid_url"
+    - "audit/post.jsonl:non_empty"
+  semantic:
+    - "judge:policy_citation>=90"
+    - "judge:feature_completeness>=90"
+    - "judge:test_coverage>=85"
+  confidence_threshold: 85
+
+BUDGET: { dollars: 6, minutes: 18 }
+
+STOP_WHEN:
+  - all_verify_passed
+  - iterations>=4
+
+LESSONS: { path: memory/governed-coding.md, append: true }
+STATE:   { path: state/governed-coding-demo/, resume: true }

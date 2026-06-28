@@ -1,0 +1,38 @@
+# loops/migration-loop/Loopfile.yaml — canonical loop (draft)
+LOOPFILE: "1.0"
+name: migration-loop
+version: 0.1.0
+description: >
+  Canonical migration-loop. Curated, versioned, benchmarked.
+  See essay.md for when to use and when not to use this loop.
+
+OBJECTIVE: >
+  Migrate a named module from one framework version to another, preserving behavior and updating tests.
+
+AGENTS:
+  - { name: migrator, role: builder, model_tier: sonnet, tools: [file_system, terminal] }
+  - { name: guard, role: verifier, model_tier: haiku, tools: [terminal] }
+
+STEPS:
+  - { id: s1, name: diff_versions, action: migration.diff_versions, uses: migrator, produces: [version-diff.json] }
+  - { id: s2, name: apply, action: migration.apply, uses: migrator, depends_on: [s1], produces: [src/] }
+  - { id: s3, name: test, action: terminal.run, uses: guard, depends_on: [s2], produces: [test-output.log] }
+  - { id: s4, name: verify, action: migration.verify_behavior, uses: guard, depends_on: [s3], produces: [behavior-diff.json] }
+
+VERIFY:
+  syntactic:
+    - "src/:exists"
+    - "test-output.log:exit_zero"
+    - "behavior-diff.json:no_regressions"
+  semantic:
+    - "judge:migration_completeness>=90"
+  confidence_threshold: 85
+
+BUDGET: { dollars: 5, minutes: 20 }
+
+STOP_WHEN:
+  - all_verify_passed
+  - iterations>=3
+
+LESSONS: { path: memory/migration-loop.md, append: true }
+STATE:   { path: state/migration-loop/, resume: true }

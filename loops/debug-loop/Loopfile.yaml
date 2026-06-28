@@ -1,0 +1,39 @@
+# loops/debug-loop/Loopfile.yaml — canonical loop (draft)
+LOOPFILE: "1.0"
+name: debug-loop
+version: 0.1.0
+description: >
+  Canonical debug-loop. Curated, versioned, benchmarked.
+  See essay.md for when to use and when not to use this loop.
+
+OBJECTIVE: >
+  Reproduce an open bug, isolate the root cause, propose a fix, and verify the fix does not regress other tests.
+
+AGENTS:
+  - { name: reproducer, role: researcher, model_tier: sonnet, tools: [terminal, file_system] }
+  - { name: fixer, role: builder, model_tier: sonnet, tools: [file_system, terminal] }
+  - { name: guard, role: verifier, model_tier: haiku, tools: [terminal] }
+
+STEPS:
+  - { id: s1, name: reproduce, action: debug.reproduce, uses: reproducer, produces: [repro.log] }
+  - { id: s2, name: isolate, action: debug.isolate, uses: reproducer, depends_on: [s1], produces: [root-cause.md] }
+  - { id: s3, name: fix, action: file_system.write, uses: fixer, depends_on: [s2], produces: [src/] }
+  - { id: s4, name: verify, action: terminal.run, uses: guard, depends_on: [s3], produces: [test-output.log] }
+
+VERIFY:
+  syntactic:
+    - "repro.log:bug_reproduced"
+    - "test-output.log:exit_zero"
+    - "test-output.log:bug_fixed"
+  semantic:
+    - "judge:root_cause_cited>=90"
+  confidence_threshold: 85
+
+BUDGET: { dollars: 5, minutes: 20 }
+
+STOP_WHEN:
+  - all_verify_passed
+  - iterations>=3
+
+LESSONS: { path: memory/debug-loop.md, append: true }
+STATE:   { path: state/debug-loop/, resume: true }

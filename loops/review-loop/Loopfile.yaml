@@ -1,0 +1,39 @@
+# loops/review-loop/Loopfile.yaml — canonical loop (draft)
+LOOPFILE: "1.0"
+name: review-loop
+version: 0.1.0
+description: >
+  Canonical review-loop. Curated, versioned, benchmarked.
+  See essay.md for when to use and when not to use this loop.
+
+OBJECTIVE: >
+  Review a pull request against a declared rubric, cross-check findings with a second reviewer, and post a structured review.
+
+AGENTS:
+  - { name: reviewer1, role: critic, model_tier: sonnet, tools: [github, file_system] }
+  - { name: reviewer2, role: critic, model_tier: sonnet, tools: [github, file_system] }
+  - { name: synthesizer, role: builder, model_tier: haiku, tools: [github] }
+
+STEPS:
+  - { id: s1, name: review_a, action: review.review, uses: reviewer1, produces: [review-a.json] }
+  - { id: s2, name: review_b, action: review.review, uses: reviewer2, produces: [review-b.json] }
+  - { id: s3, name: synthesize, action: review.synthesize, uses: synthesizer, depends_on: [s1, s2], produces: [review.md] }
+  - { id: s4, name: post, action: github.comment, uses: synthesizer, depends_on: [s3], produces: [comment-url.txt] }
+
+VERIFY:
+  syntactic:
+    - "review.md:exists"
+    - "review.md:rubric_complete"
+    - "comment-url.txt:valid_url"
+  semantic:
+    - "judge:cross_check_agreement>=80"
+  confidence_threshold: 85
+
+BUDGET: { dollars: 5, minutes: 20 }
+
+STOP_WHEN:
+  - all_verify_passed
+  - iterations>=3
+
+LESSONS: { path: memory/review-loop.md, append: true }
+STATE:   { path: state/review-loop/, resume: true }

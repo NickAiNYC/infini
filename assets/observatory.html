@@ -1,0 +1,539 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>INFINI Loop Observatory — mockup</title>
+<style>
+  :root {
+    --bg:        #0b0d12;
+    --panel:    #11141b;
+    --panel-2:  #161a23;
+    --line:     #1f242f;
+    --line-2:   #2a3140;
+    --text:     #e6e8ee;
+    --muted:    #8b93a4;
+    --dim:      #5b6477;
+    --accent:   #7c5cff;
+    --good:     #3ecf8e;
+    --warn:     #f5a623;
+    --bad:      #ef4565;
+    --hermes:   #6aa6ff;
+    --openclaw: #f59e7a;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--text); }
+  body {
+    font: 13px/1.45 -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  .mono { font-family: "SF Mono", "JetBrains Mono", Menlo, Consolas, monospace; }
+
+  /* ── top bar ── */
+  .topbar {
+    display: flex; align-items: center; gap: 14px;
+    padding: 10px 18px; border-bottom: 1px solid var(--line);
+    background: linear-gradient(180deg, #0e1118, #0b0d12);
+  }
+  .brand { display: flex; align-items: center; gap: 9px; font-weight: 600; letter-spacing: .2px; }
+  .brand .mark {
+    width: 22px; height: 22px; border-radius: 6px;
+    background: linear-gradient(135deg, #7c5cff, #4ea8ff);
+    display: grid; place-items: center; font-size: 13px;
+    box-shadow: 0 0 12px rgba(124,92,255,.4);
+  }
+  .crumbs { color: var(--muted); font-size: 12px; }
+  .crumbs b { color: var(--text); font-weight: 500; }
+  .spacer { flex: 1; }
+  .pill {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 4px 10px; border-radius: 999px;
+    background: var(--panel-2); border: 1px solid var(--line-2);
+    font-size: 11px; color: var(--muted);
+  }
+  .pill .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--good); }
+  .pill.warn .dot { background: var(--warn); }
+
+  /* ── layout ── */
+  .app { display: grid; grid-template-columns: 280px 1fr 360px; height: calc(100vh - 49px); }
+  .col { border-right: 1px solid var(--line); overflow: auto; }
+  .col:last-child { border-right: 0; }
+
+  /* ── left: run summary ── */
+  .section { padding: 14px 16px; border-bottom: 1px solid var(--line); }
+  .section h3 {
+    margin: 0 0 10px; font-size: 10px; font-weight: 600;
+    letter-spacing: 1.2px; text-transform: uppercase; color: var(--dim);
+  }
+  .summary-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .stat {
+    background: var(--panel-2); border: 1px solid var(--line);
+    border-radius: 8px; padding: 10px 12px;
+  }
+  .stat .label { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: .8px; }
+  .stat .value { font-size: 17px; font-weight: 600; margin-top: 3px; }
+  .stat .value.good { color: var(--good); }
+  .stat .value.warn { color: var(--warn); }
+  .stat .sub { font-size: 10px; color: var(--dim); margin-top: 2px; }
+
+  .budget-bar { height: 6px; background: var(--line); border-radius: 3px; overflow: hidden; margin-top: 6px; }
+  .budget-bar > div { height: 100%; background: linear-gradient(90deg, var(--good), #6bd098); }
+  .budget-bar.warn > div { background: linear-gradient(90deg, var(--warn), #ffb84d); }
+
+  .kv { display: grid; grid-template-columns: 92px 1fr; gap: 4px 8px; font-size: 12px; }
+  .kv dt { color: var(--muted); }
+  .kv dd { margin: 0; }
+
+  /* ── center: swimlane trace ── */
+  .trace-header {
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px 16px; border-bottom: 1px solid var(--line);
+    background: var(--panel);
+  }
+  .trace-header h2 { margin: 0; font-size: 14px; font-weight: 600; }
+  .lane-legend { display: flex; gap: 14px; font-size: 11px; color: var(--muted); margin-left: auto; }
+  .lane-legend .swatch { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 5px; vertical-align: -1px; }
+
+  .swimlane {
+    padding: 18px 16px 24px;
+    position: relative;
+  }
+  .lane {
+    position: relative; padding-left: 110px; margin-bottom: 22px;
+  }
+  .lane-label {
+    position: absolute; left: 0; top: 0; width: 100px;
+    font-size: 11px; font-weight: 600; color: var(--muted);
+    text-transform: uppercase; letter-spacing: .8px;
+    border-right: 2px solid var(--line-2); padding-right: 10px; text-align: right;
+    height: 100%;
+  }
+  .lane.hermes .lane-label { border-color: var(--hermes); color: var(--hermes); }
+  .lane.openclaw .lane-label { border-color: var(--openclaw); color: var(--openclaw); }
+
+  .steps { display: flex; gap: 6px; align-items: flex-start; flex-wrap: wrap; }
+  .step {
+    background: var(--panel-2); border: 1px solid var(--line-2); border-radius: 8px;
+    padding: 9px 12px; min-width: 132px; position: relative;
+    cursor: pointer; transition: border-color .15s, transform .15s;
+  }
+  .step:hover { transform: translateY(-1px); border-color: var(--accent); }
+  .step .id { font-size: 10px; color: var(--dim); font-family: "SF Mono", monospace; }
+  .step .name { font-size: 12px; font-weight: 600; margin: 2px 0 4px; }
+  .step .meta { font-size: 10px; color: var(--muted); font-family: "SF Mono", monospace; display: flex; gap: 8px; }
+  .step .meta .ok { color: var(--good); }
+  .step .meta .warn { color: var(--warn); }
+  .step .tools { margin-top: 5px; display: flex; flex-wrap: wrap; gap: 3px; }
+  .step .tool {
+    font-size: 9px; padding: 1px 5px; border-radius: 3px;
+    background: rgba(245,158,122,.12); color: var(--openclaw);
+    font-family: "SF Mono", monospace;
+  }
+  .step.hermes { border-left: 3px solid var(--hermes); }
+  .step.openclaw { border-left: 3px solid var(--openclaw); }
+  .step.flagged { border-color: var(--warn); box-shadow: 0 0 0 1px var(--warn); }
+
+  .handoff {
+    margin: -8px 0 14px 110px;
+    font-size: 10px; color: var(--dim); font-family: "SF Mono", monospace;
+    padding: 2px 8px; border: 1px dashed var(--line-2); border-radius: 4px;
+    display: inline-block;
+  }
+
+  /* verification strip */
+  .verify {
+    margin: 16px 16px 0; padding: 14px 16px;
+    background: var(--panel); border: 1px solid var(--line-2); border-radius: 10px;
+  }
+  .verify h3 { margin: 0 0 10px; font-size: 11px; letter-spacing: 1px; text-transform: uppercase; color: var(--dim); }
+  .verify-row {
+    display: grid; grid-template-columns: 1fr auto auto auto;
+    gap: 12px; align-items: center; padding: 6px 0;
+    border-bottom: 1px solid var(--line); font-size: 12px;
+  }
+  .verify-row:last-child { border-bottom: 0; }
+  .verify-row .check { font-family: "SF Mono", monospace; color: var(--text); }
+  .verify-row .kind { font-size: 10px; color: var(--dim); text-transform: uppercase; letter-spacing: .6px; }
+  .verify-row .status { font-size: 11px; font-weight: 600; }
+  .verify-row .status.pass { color: var(--good); }
+  .verify-row .conf { font-family: "SF Mono", monospace; color: var(--muted); width: 64px; text-align: right; }
+
+  /* ── right: detail panel ── */
+  .detail-tabs {
+    display: flex; border-bottom: 1px solid var(--line);
+    padding: 0 12px; background: var(--panel);
+  }
+  .detail-tabs button {
+    background: none; border: 0; color: var(--muted);
+    padding: 12px 12px; font-size: 12px; cursor: pointer;
+    border-bottom: 2px solid transparent;
+  }
+  .detail-tabs button.active { color: var(--text); border-bottom-color: var(--accent); }
+
+  .detail-body { padding: 14px 16px; }
+  .detail-body h4 { margin: 0 0 6px; font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: .8px; }
+  .step-title { font-size: 15px; font-weight: 600; margin: 0 0 4px; }
+  .step-id { font-family: "SF Mono", monospace; font-size: 11px; color: var(--dim); margin-bottom: 14px; }
+
+  .field { margin-bottom: 12px; }
+  .field .k { font-size: 10px; color: var(--dim); text-transform: uppercase; letter-spacing: .6px; margin-bottom: 2px; }
+  .field .v { font-size: 12px; }
+  .field .v.mono { font-size: 11px; }
+
+  .artifact {
+    display: flex; align-items: center; gap: 8px;
+    padding: 8px 10px; background: var(--panel-2);
+    border: 1px solid var(--line); border-radius: 6px;
+    font-family: "SF Mono", monospace; font-size: 11px; margin-bottom: 4px;
+  }
+  .artifact .icon { color: var(--accent); }
+  .artifact .size { margin-left: auto; color: var(--dim); }
+
+  .gov-event {
+    padding: 8px 10px; background: rgba(106,166,255,.06);
+    border-left: 2px solid var(--hermes); border-radius: 0 6px 6px 0;
+    font-size: 11px; margin-bottom: 6px;
+  }
+  .gov-event .when { font-family: "SF Mono", monospace; color: var(--dim); font-size: 10px; }
+
+  .replay-bar {
+    position: sticky; bottom: 0;
+    background: var(--panel); border-top: 1px solid var(--line);
+    padding: 10px 14px; display: flex; gap: 8px; align-items: center;
+  }
+  .replay-bar button {
+    background: var(--accent); color: white; border: 0;
+    padding: 7px 14px; border-radius: 6px; font-size: 12px; font-weight: 600;
+    cursor: pointer;
+  }
+  .replay-bar button.ghost { background: var(--panel-2); color: var(--text); border: 1px solid var(--line-2); }
+  .replay-bar .scrub {
+    flex: 1; height: 4px; background: var(--line); border-radius: 2px;
+    position: relative;
+  }
+  .replay-bar .scrub::before {
+    content: ''; position: absolute; left: 0; top: 0; height: 100%; width: 62%;
+    background: var(--accent); border-radius: 2px;
+  }
+  .replay-bar .scrub::after {
+    content: ''; position: absolute; left: 62%; top: -3px;
+    width: 10px; height: 10px; border-radius: 50%; background: white;
+    transform: translateX(-50%); box-shadow: 0 0 0 3px rgba(124,92,255,.3);
+  }
+
+  /* small footer note */
+  .footer-note {
+    padding: 8px 16px; border-top: 1px solid var(--line);
+    font-size: 10px; color: var(--dim); text-align: center;
+  }
+</style>
+</head>
+<body>
+
+<!-- top bar -->
+<div class="topbar">
+  <div class="brand"><span class="mark">∞</span> INFINI</div>
+  <div class="crumbs">runs / <b>2026-06-28-1042-governed-coding</b> / governed-coding-loop@1.0.0</div>
+  <div class="spacer"></div>
+  <span class="pill"><span class="dot"></span>verified</span>
+  <span class="pill">engine: hermes + openclaw</span>
+  <span class="pill">spec: LOOPFILE-1.0</span>
+</div>
+
+<div class="app">
+
+  <!-- ════════════════ LEFT: run summary ════════════════ -->
+  <div class="col">
+    <div class="section">
+      <h3>Outcome</h3>
+      <div class="kv">
+        <dt>Status</dt>      <dd style="color:var(--good);font-weight:600;">verified</dd>
+        <dt>Iterations</dt>  <dd class="mono">2 of 4</dd>
+        <dt>Started</dt>     <dd class="mono">10:42:50</dd>
+        <dt>Ended</dt>       <dd class="mono">10:47:11</dd>
+        <dt>Duration</dt>    <dd class="mono">4m 21s</dd>
+        <dt>Audit hash</dt>  <dd class="mono" style="color:var(--hermes);">sha256:b7c1…</dd>
+      </div>
+    </div>
+
+    <div class="section">
+      <h3>Budget</h3>
+      <div class="summary-grid">
+        <div class="stat">
+          <div class="label">Dollars</div>
+          <div class="value good">$1.70</div>
+          <div class="sub">of $6.00 · 28%</div>
+          <div class="budget-bar"><div style="width:28%"></div></div>
+        </div>
+        <div class="stat">
+          <div class="label">Minutes</div>
+          <div class="value good">4.35</div>
+          <div class="sub">of 18 · 24%</div>
+          <div class="budget-bar"><div style="width:24%"></div></div>
+        </div>
+        <div class="stat">
+          <div class="label">Tokens</div>
+          <div class="value">48,210</div>
+          <div class="sub">of 500k · 10%</div>
+        </div>
+        <div class="stat">
+          <div class="label">Artifacts</div>
+          <div class="value">9</div>
+          <div class="sub">2 signed</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <h3>Engine</h3>
+      <div class="kv">
+        <dt>Primary</dt>     <dd class="mono">hermes</dd>
+        <dt>Adapter</dt>     <dd class="mono">adapters/hermes</dd>
+        <dt>Delegates</dt>   <dd class="mono">openclaw</dd>
+        <dt>Tools</dt>       <dd class="mono">file_system, terminal, github</dd>
+        <dt>Governance</dt>  <dd class="mono">memory · audit · strict</dd>
+      </div>
+    </div>
+
+    <div class="section">
+      <h3>Loopfile</h3>
+      <div class="kv">
+        <dt>Name</dt>        <dd class="mono">governed-coding-loop</dd>
+        <dt>Version</dt>     <dd class="mono">1.0.0</dd>
+        <dt>Spec</dt>        <dd class="mono">LOOPFILE-1.0</dd>
+        <dt>Stop when</dt>   <dd class="mono">all_verify_passed</dd>
+      </div>
+    </div>
+
+    <div class="footer-note">Loop Observatory · preview</div>
+  </div>
+
+  <!-- ════════════════ CENTER: swimlane trace ════════════════ -->
+  <div class="col">
+    <div class="trace-header">
+      <h2>Trace</h2>
+      <span style="font-size:11px;color:var(--muted);">8 steps · 2 iterations</span>
+      <div class="lane-legend">
+        <span><span class="swatch" style="background:var(--hermes)"></span>Hermes · governance</span>
+        <span><span class="swatch" style="background:var(--openclaw)"></span>OpenClaw · execution</span>
+      </div>
+    </div>
+
+    <div class="swimlane">
+
+      <!-- iteration 1 -->
+      <div style="font-size:10px;color:var(--dim);margin-bottom:8px;letter-spacing:1px;">ITERATION 1</div>
+
+      <!-- Hermes lane -->
+      <div class="lane hermes">
+        <div class="lane-label">Hermes<br/><span style="font-size:9px;color:var(--dim);font-weight:400;">governance</span></div>
+        <div class="steps">
+          <div class="step hermes">
+            <div class="id">s1</div>
+            <div class="name">plan</div>
+            <div class="meta"><span>$0.18</span><span>0m42s</span><span class="ok">✓</span></div>
+          </div>
+          <div class="step hermes">
+            <div class="id">s2</div>
+            <div class="name">policy_check</div>
+            <div class="meta"><span>$0.31</span><span>0m54s</span><span class="ok">✓</span></div>
+          </div>
+          <div class="step hermes">
+            <div class="id">s3</div>
+            <div class="name">audit_pre</div>
+            <div class="meta"><span>$0.12</span><span>0m18s</span><span class="ok">✓</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="handoff">── delegating to openclaw ──</div>
+
+      <!-- OpenClaw lane -->
+      <div class="lane openclaw">
+        <div class="lane-label">OpenClaw<br/><span style="font-size:9px;color:var(--dim);font-weight:400;">execution</span></div>
+        <div class="steps">
+          <div class="step openclaw">
+            <div class="id">s4</div>
+            <div class="name">edit_files</div>
+            <div class="meta"><span>$0.34</span><span>1m12s</span><span class="ok">✓</span></div>
+            <div class="tools">
+              <span class="tool">file_system.write ×2</span>
+            </div>
+          </div>
+          <div class="step openclaw flagged">
+            <div class="id">s5</div>
+            <div class="name">run_tests</div>
+            <div class="meta"><span>$0.21</span><span>0m48s</span><span class="warn">⚠ retry 1/2</span></div>
+            <div class="tools">
+              <span class="tool">terminal.run</span>
+            </div>
+          </div>
+          <div class="step openclaw">
+            <div class="id">s6</div>
+            <div class="name">open_pr</div>
+            <div class="meta"><span>$0.22</span><span>0m36s</span><span class="ok">✓</span></div>
+            <div class="tools">
+              <span class="tool">github.open_pr → #4130</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="handoff">── returning to hermes ──</div>
+
+      <!-- Hermes lane resumed -->
+      <div class="lane hermes">
+        <div class="lane-label">Hermes<br/><span style="font-size:9px;color:var(--dim);font-weight:400;">governance</span></div>
+        <div class="steps">
+          <div class="step hermes">
+            <div class="id">s7</div>
+            <div class="name">audit_post</div>
+            <div class="meta"><span>$0.14</span><span>0m21s</span><span class="ok">✓</span></div>
+          </div>
+          <div class="step hermes">
+            <div class="id">s8</div>
+            <div class="name">verify_governed</div>
+            <div class="meta"><span>$0.18</span><span>0m30s</span><span class="ok">✓ 91</span></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- verification strip -->
+    <div class="verify">
+      <h3>Verification · all passed</h3>
+      <div class="verify-row">
+        <span class="check">tests:pass</span>
+        <span class="kind">syntactic</span>
+        <span class="status pass">PASS</span>
+        <span class="conf">exit 0</span>
+      </div>
+      <div class="verify-row">
+        <span class="check">pr-url.txt:valid_url</span>
+        <span class="kind">syntactic</span>
+        <span class="status pass">PASS</span>
+        <span class="conf">—</span>
+      </div>
+      <div class="verify-row">
+        <span class="check">audit/post.jsonl:non_empty</span>
+        <span class="kind">syntactic</span>
+        <span class="status pass">PASS</span>
+        <span class="conf">12 lines</span>
+      </div>
+      <div class="verify-row">
+        <span class="check">judge:policy_citation&gt;=90</span>
+        <span class="kind">semantic</span>
+        <span class="status pass">PASS</span>
+        <span class="conf">95</span>
+      </div>
+      <div class="verify-row">
+        <span class="check">judge:feature_completeness&gt;=90</span>
+        <span class="kind">semantic</span>
+        <span class="status pass">PASS</span>
+        <span class="conf">92</span>
+      </div>
+      <div class="verify-row">
+        <span class="check">judge:test_coverage&gt;=85</span>
+        <span class="kind">semantic</span>
+        <span class="status pass">PASS</span>
+        <span class="conf">87</span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ════════════════ RIGHT: detail panel ════════════════ -->
+  <div class="col">
+    <div class="detail-tabs">
+      <button class="active">Step</button>
+      <button>Artifacts</button>
+      <button>Governance</button>
+      <button>Lessons</button>
+    </div>
+
+    <div class="detail-body">
+
+      <h4>Selected step</h4>
+      <div class="step-title">s5 · run_tests</div>
+      <div class="step-id">openclaw · terminal.run · retry 1/2 succeeded</div>
+
+      <div class="field">
+        <div class="k">Action</div>
+        <div class="v mono">terminal.run</div>
+      </div>
+      <div class="field">
+        <div class="k">Agent</div>
+        <div class="v mono">tester (haiku)</div>
+      </div>
+      <div class="field">
+        <div class="k">Command</div>
+        <div class="v mono">pytest -q tests/dark_mode_test.py</div>
+      </div>
+
+      <div class="field">
+        <div class="k">Tool calls (this step)</div>
+        <div class="artifact">
+          <span class="icon">⌘</span>
+          <span>terminal.run</span>
+          <span class="size">exit 0 · 1.2s</span>
+        </div>
+      </div>
+
+      <div class="field">
+        <div class="k">Retry history</div>
+        <div class="gov-event" style="border-color:var(--warn);background:rgba(245,166,35,.06);">
+          <div class="when">10:46:11 · attempt 1</div>
+          <div>exit 1 — 1 test failed: <span class="mono">test_toggle_persists</span></div>
+        </div>
+        <div class="gov-event" style="border-color:var(--good);background:rgba(62,207,142,.06);">
+          <div class="when">10:46:39 · attempt 2 (after fix in s4)</div>
+          <div>exit 0 — all tests pass</div>
+        </div>
+      </div>
+
+      <div class="field">
+        <div class="k">Cost</div>
+        <div class="v mono">$0.21 · 0m48s · 4,210 tokens</div>
+      </div>
+
+      <div class="field">
+        <div class="k">Produces</div>
+        <div class="artifact">
+          <span class="icon">▣</span>
+          <span>test-output.log</span>
+          <span class="size">3.4 KB</span>
+        </div>
+      </div>
+
+      <h4 style="margin-top:18px;">Governance events</h4>
+      <div class="gov-event">
+        <div class="when">10:45:02 · s3</div>
+        <div>audit.sign · pre-execution hash recorded</div>
+      </div>
+      <div class="gov-event">
+        <div class="when">10:46:11 · s5</div>
+        <div>retry triggered · backoff=exponential</div>
+      </div>
+      <div class="gov-event">
+        <div class="when">10:46:55 · s7</div>
+        <div>audit.sign · post-execution hash recorded</div>
+      </div>
+      <div class="gov-event">
+        <div class="when">10:47:11 · s8</div>
+        <div>governance.verify · confidence 91 ≥ 85, shipped</div>
+      </div>
+
+    </div>
+
+    <div class="replay-bar">
+      <button class="ghost">◀</button>
+      <div class="scrub"></div>
+      <button class="ghost">▶</button>
+      <button>Replay from s5</button>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>

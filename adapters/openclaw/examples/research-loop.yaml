@@ -1,0 +1,70 @@
+# research-loop.yaml
+# Multi-source research loop run through OpenClaw.
+# Demonstrates: browser + terminal tools, citation requirements, semantic verify.
+
+LOOPFILE: "1.0"
+name: research-loop
+version: 1.0.0
+description: >
+  Research a topic across at least three primary sources, extract claims,
+  verify each claim has a citation, and produce a research brief.
+
+ENGINE:
+  type: openclaw
+  adapter: adapters/openclaw
+  tools:
+    - browser
+    - terminal
+    - file_system
+
+OBJECTIVE: >
+  Produce research_brief.md answering a single research question, with
+  every claim cited to a primary source.
+
+AGENTS:
+  - { name: researcher, role: researcher, model_tier: sonnet, tools: [browser, terminal, file_system] }
+  - { name: verifier,   role: verifier,   model_tier: sonnet, tools: [browser, file_system] }
+
+STEPS:
+  - id: s1
+    name: gather_sources
+    action: browser.find_sources
+    uses: researcher
+    produces: [sources.json]
+  - id: s2
+    name: extract_claims
+    action: browser.extract_claims
+    uses: researcher
+    depends_on: [s1]
+    produces: [claims.json]
+  - id: s3
+    name: verify_citations
+    action: browser.verify_citations
+    uses: verifier
+    depends_on: [s2]
+    produces: [citation_check.json]
+  - id: s4
+    name: write_brief
+    action: file_system.write
+    uses: researcher
+    depends_on: [s3]
+    produces: [research_brief.md]
+
+VERIFY:
+  syntactic:
+    - "sources.json:valid_json"
+    - "claims.json:valid_json"
+    - "research_brief.md:exists"
+    - "research_brief.md:every_claim_has_citation"
+  semantic:
+    - "judge:source_quality>=85"
+    - "judge:answer_quality>=85"
+  confidence_threshold: 85
+
+BUDGET: { dollars: 6, minutes: 20 }
+
+STOP_WHEN:
+  - all_verify_passed
+  - iterations>=3
+
+STATE: { path: state/research-loop/, resume: true }

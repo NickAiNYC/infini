@@ -1,0 +1,38 @@
+# loops/oncall-loop/Loopfile.yaml — canonical loop (draft)
+LOOPFILE: "1.0"
+name: oncall-loop
+version: 0.1.0
+description: >
+  Canonical oncall-loop. Curated, versioned, benchmarked.
+  See essay.md for when to use and when not to use this loop.
+
+OBJECTIVE: >
+  Triage an active incident, propose a mitigation, and prepare a handoff for the on-call engineer.
+
+AGENTS:
+  - { name: triager, role: researcher, model_tier: sonnet, tools: [read, metrics, memory] }
+  - { name: mitigator, role: builder, model_tier: sonnet, tools: [terminal, deploy] }
+
+STEPS:
+  - { id: s1, name: triage, action: incident.triage, uses: triager, produces: [triage.md] }
+  - { id: s2, name: propose, action: incident.propose, uses: mitigator, depends_on: [s1], produces: [proposal.md] }
+  - { id: s3, name: prepare_handoff, action: incident.handoff, uses: triager, depends_on: [s2], produces: [handoff.md] }
+
+VERIFY:
+  syntactic:
+    - "triage.md:exists"
+    - "proposal.md:exists"
+    - "handoff.md:exists"
+  semantic:
+    - "judge:triage_quality>=85"
+    - "judge:proposal_safety>=85"
+  confidence_threshold: 85
+
+BUDGET: { dollars: 5, minutes: 20 }
+
+STOP_WHEN:
+  - all_verify_passed
+  - iterations>=3
+
+LESSONS: { path: memory/oncall-loop.md, append: true }
+STATE:   { path: state/oncall-loop/, resume: true }

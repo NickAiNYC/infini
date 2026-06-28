@@ -1,0 +1,41 @@
+# loops/sre-loop/Loopfile.yaml — canonical loop (draft)
+LOOPFILE: "1.0"
+name: sre-loop
+version: 0.1.0
+description: >
+  Canonical sre-loop. Curated, versioned, benchmarked.
+  See essay.md for when to use and when not to use this loop.
+
+OBJECTIVE: >
+  Investigate a recurring incident, identify a root cause, propose a permanent fix, and generate a postmortem.
+
+AGENTS:
+  - { name: investigator, role: researcher, model_tier: opus, tools: [read, metrics, memory] }
+  - { name: fixer, role: builder, model_tier: sonnet, tools: [file_system, terminal] }
+  - { name: auditor, role: verifier, model_tier: opus, tools: [read, memory, audit] }
+
+STEPS:
+  - { id: s1, name: investigate, action: sre.investigate, uses: investigator, produces: [investigation.md] }
+  - { id: s2, name: root_cause, action: sre.root_cause, uses: investigator, depends_on: [s1], produces: [root-cause.md] }
+  - { id: s3, name: propose_fix, action: sre.propose_fix, uses: fixer, depends_on: [s2], produces: [fix-proposal.md] }
+  - { id: s4, name: postmortem, action: sre.postmortem, uses: fixer, depends_on: [s3], produces: [postmortem.md] }
+  - { id: s5, name: audit_sign, action: audit.sign, uses: auditor, depends_on: [s4], produces: [postmortem.signed.md, audit/log.jsonl] }
+
+VERIFY:
+  syntactic:
+    - "root-cause.md:exists"
+    - "postmortem.signed.md:exists"
+    - "audit/log.jsonl:non_empty"
+  semantic:
+    - "judge:root_citation>=85"
+    - "judge:references_prior_incidents>=1"
+  confidence_threshold: 85
+
+BUDGET: { dollars: 5, minutes: 20 }
+
+STOP_WHEN:
+  - all_verify_passed
+  - iterations>=3
+
+LESSONS: { path: memory/sre-loop.md, append: true }
+STATE:   { path: state/sre-loop/, resume: true }

@@ -1,68 +1,132 @@
-# Contributing to Loom
+# Contributing to INFINI
 
-Thanks for being here. Loom is built in the open, and we mean it.
+INFINI is an open standard. We accept contributions in five categories. Read this file before opening a PR.
+
+> **INFINI runs Loopfiles.** If you're contributing, you're either changing what a Loopfile can say, what an engine can do with one, or what the ecosystem looks like around both.
+
+---
+
+## Code of conduct
+
+Be excellent to each other. Disagree about ideas, not about people. Reject contributions that are dismissive, hostile, or that waste maintainers' time. Sign your commits.
+
+---
 
 ## What we accept
 
-| Type | Where | How |
-|------|-------|-----|
-| Spec changes | `spec/` | Open an RFC in `spec/rfcs/` first |
-| New canonical loops | `loops/` | PR with Loopfile + 300-word essay + 3 fixtures |
-| Engine adapters | `cli/adapters/` | PR with adapter + compatibility manifest |
-| Inspector / replay / diff improvements | `cli/` | PR with tests |
-| Essays, benchmarks | `docs/` | PR or discussions post first |
-| Bug fixes | anywhere | PR with reproduction |
+| Category | Where it lives | How to propose |
+| --- | --- | --- |
+| **Spec changes** | `spec/` | Open an RFC. See [`spec/migration.md`](spec/migration.md) for versioning rules. |
+| **New canonical loops** | `loops/` | PR a Loopfile + essay + fixtures. |
+| **Engine adapters** | `adapters/<name>/` | PR the adapter manifest + README + at least one example Loopfile. |
+| **Inspector / replay / diff / CLI** | `cli/` | PR with tests against the conformance suite. |
+| **Essays and benchmarks** | `docs/` | PR with a markdown essay and, where applicable, benchmark fixtures. |
 
-## How to contribute a loop
+---
 
-1. Pick a loop shape that does not exist yet (see `loops/` for the 12 canonicals).
-2. Write the Loopfile. Run `loom validate` on it. Fix all errors.
-3. Write a 300-word essay in `docs/essays/{loop-name}.md` explaining when to use it, when not to, and the trade-offs.
-4. Add 3 fixtures in `tests/fixtures/{loop-name}/` and 3 expected outputs in `tests/expected/{loop-name}/`.
-5. Open a PR. CI will run `loom ci` against your fixtures.
+## Spec changes (RFCs)
 
-We merge loops that:
-- Have ≥2 verification tiers
-- Have a non-trivial essay (not just a description of the YAML)
-- Have fixtures that actually exercise the loop
-- Follow the existing naming and structure conventions
+Spec changes are the highest-leverage and most carefully reviewed contributions.
 
-## How to contribute an engine adapter
+1. Open an issue with `RFC:` in the title describing the problem.
+2. A maintainer will assign you an RFC number (e.g., `RFC-0007`).
+3. PR a file at `spec/rfcs/RFC-0007.md` with: problem, proposed change, alternatives, backwards-compatibility, conformance impact.
+4. The RFC is discussed in GitHub Discussions. Two-week minimum review.
+5. Once accepted, the spec is updated and a migration entry is added to [`spec/migration.md`](spec/migration.md).
 
-If you maintain or use an agent runtime (LangGraph, CrewAI, OpenClaw, HermesAgents, AutoGen, etc.), you can make it Loom-compatible by writing an adapter that:
+Spec changes that break conformance require a major version bump (`1.x → 2.0`).
 
-1. Reads a Loopfile
-2. Validates it (`loom validate`)
-3. Maps `AGENTS` to your runtime's agent primitives
-4. Maps `STEPS` to your runtime's graph / chain / dag
-5. Emits `trace.jsonl` per the trace spec
-6. Writes `loop_state.json` per the state spec
+---
 
-Ship it as `loom-{engine}-adapter`. We will list it in `cli/adapters/README.md`.
+## New canonical loops
 
-## Sign your commits
+Canonical loops are the **Design Patterns book** for agent work. They are curated, not crowdsourced.
 
-We require DCO sign-off (`git commit -s`). It's the lightest-weight contributor agreement that still lets us relicense defensively if needed.
+A canonical loop PR must include:
 
-## Be excellent
+- `loops/<name>/Loopfile.yaml` — the Loopfile itself.
+- `loops/<name>/essay.md` — a 500–1500 word essay explaining *why* this loop exists, *when* to use it, and *when not* to.
+- `loops/<name>/fixtures/` — at least one fixture set the loop can be tested against.
+- `loops/<name>/expected/` — the expected trace shape, for CI.
 
-- Disagreements are fine. Disrespect is not.
-- We do not merge PRs from accounts that have been abusive in any Loom space.
-- We follow the Contributor Covenant 2.1.
+The bar is high. A loop that's just "another coding loop with a twist" is not canonical — it's an example. Examples go in `examples/`.
 
-## RFC process
+---
 
-Spec changes go through RFCs. The bar is intentionally low for v1 — we would rather ship and learn than debate forever.
+## Engine adapters
 
-1. Copy `spec/rfcs/_template.md` to `spec/rfcs/{NNN}-{short-name}.md`.
-2. Fill it in. Be concrete.
-3. Open a PR. We discuss for at least 7 days.
-4. We accept, reject, or defer. Accepted RFCs become the next spec version.
+An engine adapter PR must include:
+
+- `adapters/<name>/README.md` — what the adapter does, when to use it.
+- `adapters/<name>/adapter.yaml` — the adapter manifest (capabilities, engine type, trace extensions).
+- `adapters/<name>/examples/<loop>.yaml` — at least one runnable example.
+- A conformance row in [`spec/compatibility.md`](spec/compatibility.md).
+
+Adapters must implement at least **Parse Loopfile** ✅. Full conformance (Run, Verify, Inspect, Replay, Diff) is encouraged but not required for merge.
+
+Adapters whose repos go 90 days without a commit are marked stale in the compatibility matrix.
+
+---
+
+## CLI and tooling
+
+CLI changes (`cli/`) must:
+
+- Include tests against the conformance suite in `cli/tests/`.
+- Not break the `run.json` trace schema without a spec RFC.
+- Pass `infini validate` on every example Loopfile in the repo.
+
+---
+
+## Essays and benchmarks
+
+Essays (`docs/`) are how the ecosystem learns. We accept:
+
+- **Loop design patterns** — when to use a verify-heavy loop vs. a plan-heavy loop, etc.
+- **Anti-patterns** — what *not* to do, and why.
+- **Verification bible** — patterns for writing good `VERIFY` blocks.
+- **Cost optimization guide** — how to write loops that cost less without sacrificing correctness.
+- **Loop psychology** — the human side of working with autonomous loops.
+- **Benchmarks** — comparative runs of canonical loops across engines. Must include raw `run.json` traces.
+
+---
+
+## Commit and PR conventions
+
+- Sign your commits (`git commit -S`).
+- Use [Conventional Commits](https://www.conventionalcommits.org/): `feat:`, `fix:`, `docs:`, `spec:`, `chore:`.
+- One PR per concern. Don't bundle a spec change with a CLI change.
+- PRs that touch `spec/` must link to an RFC issue.
+
+---
+
+## Release process
+
+- Spec releases follow semver: `1.0` → `1.1` (additive) → `2.0` (breaking).
+- CLI releases follow semver independently: `infini 1.4.2`.
+- Registry versions are immutable. Once `infini/coding-loop@1.2` is published, it cannot be republished.
+- Every release updates [`CHANGELOG.md`](CHANGELOG.md).
+
+---
 
 ## Office hours
 
-Weekly, Thursdays 10am PT. See `docs/community.md` for the link. We do not require PRs to come through office hours, but it usually makes them faster.
+Weekly office hours are held on Discord. See [`docs/community.md`](docs/community.md) for the current schedule and the agenda doc.
 
-## Recognition
+---
 
-Every contributor who gets a PR merged is added to `CONTRIBUTORS.md`. We do not gate this on size — first commit counts.
+## License of contributions
+
+By contributing, you agree that your contributions are licensed under the same terms as the file you're editing:
+
+- `spec/` and `docs/` — CC-BY-4.0
+- `cli/`, `ci/`, `adapters/` — MIT
+- `loops/`, `examples/` — MIT
+
+---
+
+## The bar
+
+The bar is not "this is a good idea." The bar is "this makes INFINI more useful to someone who is shipping real loops in production." If your PR clears that bar, we will merge it. If it doesn't, we'll tell you why.
+
+We are shipping first. Join us.
