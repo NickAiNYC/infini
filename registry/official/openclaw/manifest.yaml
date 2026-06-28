@@ -1,0 +1,25 @@
+# Official adapter manifest: openclaw
+adapter:
+  name: openclaw
+  version: 1.0.0
+  spec: LOOPFILE-1.0
+  type: execution
+  description: Execution runtime: browser, GitHub, terminal, filesystem.
+
+engine:
+  type: openclaw
+  runtime: openclaw-runtime
+  min_version: 1.0.0
+
+capabilities:
+  parse_loopfile: true
+  run_loop: true
+  verify: true
+  inspect_trace: true
+  replay: false
+  diff: false
+
+install:
+  pip: infini-cli[openclaw]
+
+repo: https://github.com/NickAiNYC/infini/tree/main/adapters/openclaw

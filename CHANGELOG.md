@@ -8,6 +8,50 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) 
 
 ## [Unreleased]
 
+### Added — Milestone 3: The Standard Scales
+
+#### Community Adapter SDK
+- **`sdk/`** restructured with 6 files: README, adapter-interface, minimal-adapter/, testing-guide, certification-guide, publishing-guide
+- Minimal adapter: ~50-line PARSE-only adapter as a copy-and-extend starting point
+- Build an adapter in under 30 minutes
+
+#### Community Registry
+- **`registry/official/`** — hermes + openclaw with manifest.yaml, metadata.json, README, compatibility.json
+- **`registry/community/`** — ready for community adapters
+- **`registry/experimental/`** — for adapters in development
+- Git-based, no hosted service
+
+#### Marketplace Structure
+- 12 category pages: Research, Coding, DevOps, Security, Compliance, Marketing, Sales, Legal, Healthcare, Finance, Infrastructure, Education
+- Submission template with: Loopfile, diagram, benchmark, essay, verification, replay, license, tags, difficulty, runtime, capabilities
+
+#### Official Design Language
+- **`brand/`** directory: logo.svg, wordmark.svg, favicon.svg, social-banner.svg (1280×640)
+- palette.md, typography.md, diagram-style.md
+- One visual identity across all docs
+
+#### Documentation Upgrade
+- Handbook expanded to 17 cross-linked chapters
+- New: getting-started, architecture, mcp-roadmap, adapter-development, certification, marketplace, community
+- Cross-reference map in handbook README
+
+#### Benchmark Suite
+- 8 benchmark specs: browser-automation, coding, research, planning, refactoring, compliance, hybrid-agent, cost-optimization
+- Each defines: goal, success criteria, artifacts, budget, verification rubric
+
+#### Contributor Experience
+- CODEOWNERS file for code ownership guidance
+- RELEASE_CHECKLIST.md for release process
+- Issue templates (bug, feature, RFC) — already existed
+- PR template with spec-impact checklist — already existed
+
+### Changed
+- README polished: full-width banner, certification badges, corpus section, certification section
+
+---
+
+## [0.1.0] — 2026-06-28
+
 ### Added — protocol-grade expansion
 
 #### RFC system

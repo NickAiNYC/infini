@@ -1,84 +1,40 @@
 # INFINI Marketplace
 
-> **Status: Preview.** This is a static mock of the future marketplace UI.
-> The real marketplace ships after the public registry launches. No loops
-> are listed here yet because the registry is not yet live. When it is,
-> the listings below will be populated from real registry data.
-
-The marketplace is a browseable view of the INFINI registry, organized
-by use case. It is a UI on top of the registry protocol defined in
-[RFC-0005](../spec/rfcs/RFC-0005-registry.md); it adds no new protocol.
-
----
+> **Status: Preview.** The marketplace is a Git-based index of community
+> loops, organized by category. No hosted service.
 
 ## Categories
 
 | Category | Description |
 | --- | --- |
-| [Research](research.md)       | Multi-source research loops with citations. |
-| [Coding](coding.md)           | Feature implementation, refactoring, debugging. |
-| [Compliance](compliance.md)   | Audit, policy, regulatory workflows. |
-| [Security](security.md)       | Vulnerability research, incident response. |
-| [Sales](sales.md)             | Outreach, prospecting, account research. |
-| [SEO](seo.md)                 | Keyword research, content optimization. |
-| [Marketing](marketing.md)     | Content drafting, campaign analysis. |
-| [Healthcare](healthcare.md)   | Clinical research, claims audit. |
-| [Finance](finance.md)         | Reconciliation, risk analysis, reporting. |
-| [Legal](legal.md)             | Contract review, case research. |
-| [Education](education.md)     | Lesson planning, assessment, tutoring. |
-| [Infrastructure](infrastructure.md) | SRE, oncall, deployment automation. |
+| [Research](research/) | Multi-source research with citations and verification. |
+| [Coding](coding/) | Feature implementation, refactoring, debugging, review. |
+| [DevOps](devops/) | SRE, oncall, deployment automation, migration. |
+| [Security](security/) | Vulnerability research, incident response, postmortem. |
+| [Compliance](compliance/) | Audit, policy enforcement, regulatory workflows. |
+| [Marketing](marketing/) | Content drafting, campaign analysis, brand voice. |
+| [Sales](sales/) | Outreach, prospecting, account research. |
+| [Legal](legal/) | Contract review, case research, citation checking. |
+| [Healthcare](healthcare/) | Clinical research, claims audit, FDA workflows. |
+| [Finance](finance/) | Reconciliation, risk analysis, regulatory reporting. |
+| [Infrastructure](infrastructure/) | SRE, oncall, deployment, migration. |
+| [Education](education/) | Lesson planning, assessment, personalized tutoring. |
 
----
+## Submitting a loop
 
-## What you'll see when the marketplace is live
+1. Write a Loopfile
+2. Validate: `infini validate loop.yaml`
+3. Test: `infini run loop.yaml --mock`
+4. Create the submission following the [template](#submission-template)
+5. PR to `marketplace/<category>/<your-loop>/`
 
-Each category page shows:
+Each submission must include: Loopfile, diagram, benchmark, essay,
+verification notes, replay notes, license, tags, difficulty, estimated
+runtime, required capabilities.
 
-- **Featured loops.** 0–3 curated loops, with a verification badge.
-- **New loops.** Recently published in this category.
-- **Top contributors.** Publishers with the most verified loops in this
-  category.
-- **Supported engines.** Which adapters each loop has been tested
-  against.
+## Principles
 
-Every loop shows:
-
-- Name, version, publisher, description.
-- Verification badge: ✅ Verified, ⚠ Unverified, ❌ No verification.
-- Supported engines.
-- Estimated runtime, estimated cost.
-- Required tools.
-- Maintainer, license.
-- Real download count (no fake numbers).
-
----
-
-## Non-negotiable principles
-
-- **No fake featured loops.** Until a real loop is published and
-  verified, the featured slot is empty.
-- **No fake downloads.** The download count is real, pulled from the
-  registry.
-- **No paid placement.** The marketplace is neutral. Featured loops are
-  curated by maintainers based on verification score and adoption, not
-  on payment.
 - **Verification over popularity.** A loop with 5 stars and verified ✅
   is featured above a loop with 5000 stars and no verification.
-
----
-
-## Mock vs. real
-
-The pages in this directory are static markdown mocks. They look like
-what the real marketplace will look like, with placeholder text where
-real data will go. When the registry ships, this directory will be
-replaced by a dynamic site at `marketplace.infini.dev`.
-
-Until then, browse the [12 canonical loops](../loops/) for runnable
-examples.
-
----
-
-## License
-
-CC-BY-4.0. See [repository LICENSE](../LICENSE).
+- **No fake numbers.** Download counts are real (when the registry ships).
+- **No paid placement.** Featured loops are curated by maintainers.

@@ -1,0 +1,25 @@
+# Official adapter manifest: hermes
+adapter:
+  name: hermes
+  version: 1.0.0
+  spec: LOOPFILE-1.0
+  type: governance
+  description: Governance brain: policy, memory, escalation, audit.
+
+engine:
+  type: hermes
+  runtime: hermes-runtime
+  min_version: 1.0.0
+
+capabilities:
+  parse_loopfile: true
+  run_loop: true
+  verify: true
+  inspect_trace: true
+  replay: true
+  diff: false
+
+install:
+  pip: infini-cli[hermes]
+
+repo: https://github.com/NickAiNYC/infini/tree/main/adapters/hermes

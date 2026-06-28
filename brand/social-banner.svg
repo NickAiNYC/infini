@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 640" width="1280" height="640">
+  <defs>
+    <linearGradient id="bg-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0a0e14"/>
+      <stop offset="100%" stop-color="#0d1117"/>
+    </linearGradient>
+    <linearGradient id="logo-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#8494ff"/>
+      <stop offset="50%" stop-color="#7c5cff"/>
+      <stop offset="100%" stop-color="#06b6d4"/>
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="8" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <rect width="1280" height="640" fill="url(#bg-grad)"/>
+
+  <!-- Atmospheric glow -->
+  <ellipse cx="640" cy="100" rx="600" ry="200" fill="#06b6d4" opacity="0.08"/>
+  <ellipse cx="200" cy="500" rx="300" ry="150" fill="#7c5cff" opacity="0.06"/>
+
+  <!-- Logo -->
+  <g transform="translate(490, 180)" filter="url(#glow)">
+    <path d="M 50 80 C 50 40, 120 40, 150 80 C 180 120, 250 120, 300 80 C 250 40, 180 40, 150 80 C 120 120, 50 120, 50 80 Z"
+          fill="none" stroke="url(#logo-grad)" stroke-width="10" stroke-linecap="round"/>
+  </g>
+
+  <!-- Wordmark -->
+  <text x="640" y="400" text-anchor="middle" font-family="Plus Jakarta Sans, sans-serif"
+        font-size="72" font-weight="700" fill="#f8fafc" letter-spacing="4">INFINI</text>
+
+  <!-- Tagline -->
+  <text x="640" y="450" text-anchor="middle" font-family="Plus Jakarta Sans, sans-serif"
+        font-size="24" font-weight="400" fill="#94a3b8">The Open Standard for Agent Portability</text>
+
+  <!-- Subtitle -->
+  <text x="640" y="500" text-anchor="middle" font-family="Geist Mono, monospace"
+        font-size="16" fill="#06b6d4">Write your logic once. Execute it on any framework.</text>
+</svg>

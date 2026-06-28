@@ -1,0 +1,25 @@
+# CODEOWNERS
+# https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+
+# Spec changes require maintainer review
+/spec/                    @NickAiNYC
+
+# CLI changes require maintainer review
+/cli/                     @NickAiNYC
+
+# Certification reports require maintainer review
+/registry/certifications/ @NickAiNYC
+
+# Adapter manifests require maintainer review
+/adapters/                @NickAiNYC
+
+# CI workflows require maintainer review
+/.github/workflows/       @NickAiNYC
+/ci/                      @NickAiNYC
+
+# Brand assets require maintainer review
+/brand/                   @NickAiNYC
+/assets/                  @NickAiNYC
+
+# Default: anyone with write access
+*                         @NickAiNYC

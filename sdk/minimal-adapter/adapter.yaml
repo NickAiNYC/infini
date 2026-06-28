@@ -1,0 +1,28 @@
+# Minimal adapter manifest — copy and edit
+adapter:
+  name: minimal
+  version: 0.1.0
+  spec: LOOPFILE-1.0
+  type: execution
+  description: >
+    Minimal adapter — PARSE only. Use as a starting point for a real
+    adapter. Implements parse_loopfile; run/verify/inspect/replay/diff
+    are false (not yet implemented).
+
+engine:
+  type: minimal
+  runtime: minimal-runtime
+  min_version: 0.1.0
+
+capabilities:
+  parse_loopfile: true
+  run_loop: false
+  verify: false
+  inspect_trace: false
+  replay: false
+  diff: false
+
+install:
+  pip: infini-cli[minimal]
+
+repo: https://github.com/NickAiNYC/infini/tree/main/sdk/minimal-adapter

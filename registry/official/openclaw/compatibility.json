@@ -1,5 +1,5 @@
 {
-  "adapter_name": "hermes",
+  "adapter_name": "openclaw",
   "version": "1.0.0",
   "engine": "infini",
   "spec_version": "LOOPFILE-1.0",
@@ -7,8 +7,7 @@
     "parse_loopfile",
     "run_loop",
     "verify",
-    "inspect_trace",
-    "replay"
+    "inspect_trace"
   ],
   "conformance_results": [
     {
@@ -60,8 +59,8 @@
       "required_capabilities": []
     }
   ],
-  "compatibility_percentage": 70.8,
+  "compatibility_percentage": 66.7,
   "certification_status": "certified",
-  "timestamp": "2026-06-28T17:48:05Z",
+  "timestamp": "2026-06-28T17:25:56Z",
   "notes": []
 }

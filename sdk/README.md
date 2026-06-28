@@ -1,204 +1,147 @@
 # INFINI Adapter SDK
 
-The Adapter SDK is the contract every INFINI engine adapter implements.
-The goal: adding a runtime should require only implementing a small
-interface, not forking the CLI.
+Build an adapter that lets any Loopfile run on your runtime. Someone
+should be able to build one in under 30 minutes.
 
-> **INFINI runs Loopfiles.** Engines that conform to the spec can run
-> Loopfiles. This SDK is how they conform.
-
----
-
-## The six capabilities
-
-Every adapter declares which of six capabilities it implements. Partial
-conformance is allowed and tracked in [`spec/compatibility.md`](../spec/compatibility.md).
-
-| Capability | What it does | Required for |
-| --- | --- | --- |
-| `PARSE`    | Parse and validate a Loopfile. | Adapter registration. |
-| `RUN`      | Execute the STEPS DAG. | `infini run`. |
-| `VERIFY`   | Run syntactic and semantic checks. | `verified` outcome. |
-| `INSPECT`  | Emit a `run.json` trace. | `infini inspect`. |
-| `REPLAY`   | Resume from any step. | `infini replay`. |
-| `DIFF`     | Semantic diff between Loopfiles. | `infini diff`. |
-
-`PARSE` is the only required capability. An adapter that ships only
-`PARSE` is registered and listed in `infini engines`; it can validate
-Loopfiles but not run them.
+> **Would this make another framework want to support INFINI?**
+> That's the guiding question for every decision in this SDK.
 
 ---
 
-## The interface
+## What is an adapter?
 
-The SDK is a set of abstract base classes. The reference implementation is
-in Python; adapters in other languages wrap the CLI's Python interface.
+An adapter is a thin module that translates Loopfile primitives into
+your runtime's native operations. INFINI owns the format; your engine
+owns the execution. The adapter is the bridge.
 
-```python
-# my_adapter/__init__.py
-from infini.sdk import Adapter, Capability
-from infini.types import Loopfile, State, Trace, VerifyResult, Diff
-
-class MyAdapter(Adapter):
-    name = "my-engine"
-    spec = "LOOPFILE-1.0"
-    type = "execution"  # governance | execution | hybrid
-    description = "My agent runtime."
-    min_engine_version = "1.0.0"
-    tools = ["browser", "github", "terminal", "file_system"]
-    agent_roles = {
-        "builder":   "my.coder.CoderAgent",
-        "verifier":  "my.tester.TesterAgent",
-        "critic":    "my.reviewer.ReviewerAgent",
-        "researcher":"my.scraper.ScraperAgent",
-        "planner":   "my.planner.PlannerAgent",
-    }
-
-    @Capability.PARSE
-    def parse(self, loopfile_yaml: str) -> Loopfile:
-        """Parse and validate a Loopfile. Returns a structured Loopfile."""
-
-    @Capability.RUN
-    def run(self, loopfile: Loopfile, state: State) -> State:
-        """Execute the STEPS DAG. Return the final state."""
-
-    @Capability.VERIFY
-    def verify(self, loopfile: Loopfile, state: State) -> VerifyResult:
-        """Run syntactic and semantic checks. Return pass/fail + confidence."""
-
-    @Capability.INSPECT
-    def inspect(self, run_dir: Path) -> Trace:
-        """Load a run's trace. Returns a structured Trace."""
-
-    @Capability.REPLAY
-    def replay(self, run_dir: Path, from_step: str, mutations: dict) -> Trace:
-        """Replay a run from a step, with optional input mutations."""
-
-    @Capability.DIFF
-    def diff(self, v1: Loopfile, v2: Loopfile) -> Diff:
-        """Produce a semantic diff between two Loopfiles."""
-```
-
-Full interface reference: [`adapter-interface.md`](adapter-interface.md).
+A Loopfile declares **what** to do (steps, agents, verification). The
+adapter decides **how** to do it on your runtime.
 
 ---
 
-## Install
+## The 6 capabilities
 
-```bash
-pip install infini-sdk
-```
+Every adapter declares which capabilities it implements. Partial
+conformance is allowed and tracked honestly in the
+[compatibility matrix](../spec/compatibility.md).
 
-The SDK is a separate package from the CLI. Adapters depend on the SDK,
-not on the CLI.
+| Capability | What it does | Required to be listed |
+| --- | --- | :---: |
+| `parse_loopfile` | Parse and validate a Loopfile | ✅ |
+| `run_loop` | Execute the STEPS DAG | |
+| `verify` | Run syntactic + semantic checks | |
+| `inspect_trace` | Emit a `run.json` trace | |
+| `replay` | Resume from any step | |
+| `diff` | Semantic diff between Loopfiles | |
+
+`parse_loopfile` is the only required capability. An adapter that ships
+only PARSE is registered and listed; it can validate Loopfiles but not
+run them.
 
 ---
 
-## Anatomy of an adapter
+## Build an adapter in 30 minutes
 
-An adapter ships:
+1. **Read the [Adapter Interface Reference](adapter-interface.md)** (5 min)
+2. **Copy the [minimal adapter](minimal-adapter/)** (5 min)
+3. **Implement `PARSE` + `RUN`** (10 min)
+4. **Run the [testing guide](testing-guide.md)** (5 min)
+5. **Get [certified](certification-guide.md)** (5 min)
+6. **[Publish](publishing-guide.md) to the registry** (optional)
+
+---
+
+## SDK structure
 
 ```
-my-adapter/
-├── pyproject.toml          # depends on infini-sdk
-├── my_adapter/
-│   ├── __init__.py         # exports MyAdapter
-│   ├── parser.py           # PARSE implementation
-│   ├── runner.py           # RUN implementation
-│   ├── verifier.py         # VERIFY implementation
-│   ├── inspector.py        # INSPECT implementation
-│   ├── replay.py           # REPLAY implementation (optional)
-│   └── differ.py           # DIFF implementation (optional)
-├── adapter.yaml            # adapter manifest
-├── examples/
-│   └── my-loop.yaml        # at least one runnable example
-└── README.md
+sdk/
+├── README.md                    ← you are here
+├── adapter-interface.md         ← normative interface reference
+├── minimal-adapter/             ← copy this as your starting point
+│   ├── adapter.yaml             ← manifest template
+│   ├── __init__.py              ← ~50-line PARSE-only adapter
+│   └── README.md                ← how to extend it
+├── testing-guide.md             ← how to test your adapter
+├── certification-guide.md       ← how to get certified
+└── publishing-guide.md          ← how to publish to the registry
 ```
-
-The `adapter.yaml` manifest is what the CLI reads to register the adapter.
-See [`adapters/hermes/adapter.yaml`](../adapters/hermes/adapter.yaml) for
-a real example.
 
 ---
 
-## Capability discovery
+## The adapter manifest
 
-The CLI discovers adapters via Python entry points. An adapter's
-`pyproject.toml` declares:
+Every adapter ships an `adapter.yaml` manifest:
 
-```toml
-[project.entry-points."infini.adapters"]
-my-engine = "my_adapter:MyAdapter"
+```yaml
+adapter:
+  name: my-engine
+  version: 0.1.0
+  spec: LOOPFILE-1.0
+  type: execution          # governance | execution | hybrid
+  description: My agent runtime.
+
+engine:
+  type: my-engine
+  runtime: my-engine-runtime
+  min_version: 1.0.0
+
+capabilities:
+  parse_loopfile: true
+  run_loop: true
+  verify: true
+  inspect_trace: true
+  replay: false            # planned
+  diff: false              # planned
+
+install:
+  pip: infini-cli[my-engine]
+
+repo: https://github.com/you/infini-my-engine
 ```
 
-The CLI scans entry points on startup; `infini engines` lists them.
+The manifest is what `infini engines` and `infini certify` read. Without
+it, your adapter is invisible.
 
 ---
 
-## Trace extensions
+## The lifecycle
 
-Adapters can extend the trace with engine-specific fields. The Hermes
-adapter, for example, adds a `governance` field; the OpenClaw adapter
-adds a `tools` field.
-
-```python
-class HermesAdapter(Adapter):
-    trace_extensions = {
-        "governance": {
-            "policy_violations": "array",
-            "escalations":       "array",
-            "audit_hash":        "string",
-            "memory_refs":       "array",
-        }
-    }
+```text
+1. PARSE     — read the Loopfile, validate against schema
+2. RUN       — execute the STEPS DAG with declared AGENTS
+3. VERIFY    — run syntactic + semantic checks, compute confidence
+4. INSPECT   — emit a run.json trace
+5. REPLAY    — restore state at any step, resume from there
+6. DIFF      — semantic diff between two Loopfiles
 ```
 
-The CLI's `infini inspect` command renders these in the Observatory under
-engine-specific tabs.
+You can implement these in order. Each builds on the previous. An adapter
+that implements PARSE + RUN + VERIFY + INSPECT is "compatible"; one that
+adds REPLAY + DIFF is "certified."
 
 ---
 
-## Hybrid mode
+## Semantic versioning
 
-An adapter can declare that it delegates to another adapter. This is how
-the hybrid demo works: Hermes governs, OpenClaw executes.
+Adapters version independently of the spec:
 
-```python
-class HermesAdapter(Adapter):
-    name = "hermes"
-    delegates = {
-        "execution": "openclaw",
-    }
-```
+- **Patch** (`0.1.0` → `0.1.1`): bug fixes, no new capabilities
+- **Minor** (`0.1.0` → `0.2.0`): new capabilities, backward-compatible
+- **Major** (`0.1.0` → `1.0.0`): breaking changes to adapter behavior
 
-When a Loopfile's `ENGINE.delegates.execution` is set, the Hermes adapter
-handles governance; the OpenClaw adapter handles execution. Both write to
-the same `run.json`.
+The `spec` field in your manifest declares which spec version you
+support. It must match the `LOOPFILE` version in the Loopfiles you
+accept. See [spec versioning](../spec/versions.md).
 
 ---
 
-## Conformance test suite
+## Next steps
 
-The SDK ships a conformance test suite. Run it against your adapter:
-
-```bash
-infini adapter test my-adapter/
-```
-
-The suite tests each declared capability against a set of canonical
-Loopfiles and expected traces. An adapter that passes the suite is
-eligible for a ✅ in the compatibility matrix.
-
----
-
-## Examples
-
-- [`adapters/hermes/`](../adapters/hermes/) — full reference implementation
-  of a governance adapter.
-- [`adapters/openclaw/`](../adapters/openclaw/) — full reference
-  implementation of an execution adapter.
-- [`sdk/examples/minimal-adapter/`](examples/) — the smallest possible
-  adapter (PARSE only).
+- [Adapter Interface Reference](adapter-interface.md) — the normative contract
+- [Minimal Adapter](minimal-adapter/) — copy and extend
+- [Testing Guide](testing-guide.md) — verify your adapter works
+- [Certification Guide](certification-guide.md) — get the certified badge
+- [Publishing Guide](publishing-guide.md) — share your adapter with the ecosystem
 
 ---
 
