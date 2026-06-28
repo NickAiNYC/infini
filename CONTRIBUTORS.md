@@ -21,4 +21,5 @@ This project exists because of the people who contribute to it.
 ## Acknowledgements
 
 INFINI draws on ideas from Docker, Terraform, OpenAPI, Kubernetes, Rust,
-Python PEPs, and the SRE Book. We stand on their shoulders.
+Python PEPs, the SRE Book, Squad, MemPalace, Anthropic Skills, and
+Superpowers. We stand on their shoulders.

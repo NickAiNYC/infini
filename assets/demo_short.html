@@ -1,0 +1,103 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:#0a0e14; font-family:"SF Mono","JetBrains Mono",Menlo,Consolas,monospace; }
+  .terminal {
+    width:1100px; background:#0d1117; border:1px solid #1f242f; border-radius:12px;
+    overflow:hidden; box-shadow:0 20px 60px rgba(0,0,0,.5),0 0 80px rgba(6,182,212,.08);
+  }
+  .titlebar { background:#161c28; padding:10px 16px; display:flex; align-items:center; gap:8px; border-bottom:1px solid #1f242f; }
+  .dot { width:12px; height:12px; border-radius:50%; }
+  .dot.r { background:#ef4444; } .dot.y { background:#f59e0b; } .dot.g { background:#10b981; }
+  .title { color:#64748b; font-size:12px; margin-left:8px; font-weight:500; }
+  .body { padding:20px 24px; color:#c9d1d9; font-size:12px; line-height:1.55; min-height:580px; max-height:580px; overflow:hidden; }
+  .cmd-block { margin-bottom:14px; opacity:0; animation:fadeIn .5s ease forwards; }
+  .cmd-block:nth-child(1) { animation-delay: 0.3s; }
+.cmd-block:nth-child(2) { animation-delay: 2.9s; }
+.cmd-block:nth-child(3) { animation-delay: 5.5s; }
+.cmd-block:nth-child(4) { animation-delay: 8.1s; }
+.cmd-block:nth-child(5) { animation-delay: 10.7s; }
+  @keyframes fadeIn { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+  .annotation { color:#06b6d4; font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:.8px; margin-bottom:4px; text-shadow:0 0 8px rgba(6,182,212,.3); }
+  .cmd-line { color:#e6e8ee; margin-bottom:4px; font-weight:600; font-size:12px; }
+  .prompt { color:#06b6d4; margin-right:6px; }
+  .cmd-text { color:#67e8f9; }
+  .output { color:#94a3b8; font-size:11px; line-height:1.5; white-space:pre-wrap; word-break:break-word; margin-left:16px; max-height:130px; overflow:hidden; }
+  .footer { background:#0a0e14; padding:10px 16px; border-top:1px solid #1f242f; text-align:center; color:#475569; font-size:11px; }
+</style>
+</head>
+<body>
+<div class="terminal">
+  <div class="titlebar">
+    <div class="dot r"></div><div class="dot y"></div><div class="dot g"></div>
+    <div class="title">infini — the open standard for agent portability</div>
+  </div>
+  <div class="body">
+        <div class="cmd-block">
+          <div class="annotation">Validate against the spec</div>
+          <div class="cmd-line"><span class="prompt">$</span> <span class="cmd-text">infini validate research-loop.yaml</span></div>
+          <pre class="output">✓ valid  golden-research-assistant@1.0.0  (LOOPFILE-1.0)
+  objective: Answer the research question using at least three primary sources, 
+with every claim cited and citations verified. Produce a research brief that a 
+human reviewer would accept as well-sourced.
+
+  agents: 3  steps: 4  verify: 5 syntactic + 3 semantic
+  budget: $6 / 20m</pre>
+        </div>
+        <div class="cmd-block">
+          <div class="annotation">Execute (mock mode)</div>
+          <div class="cmd-line"><span class="prompt">$</span> <span class="cmd-text">infini run research-loop.yaml --mock</span></div>
+          <pre class="output">✓ shipped. trace: /tmp/demo-run/run.json</pre>
+        </div>
+        <div class="cmd-block">
+          <div class="annotation">Time-travel replay</div>
+          <div class="cmd-line"><span class="prompt">$</span> <span class="cmd-text">infini replay runs/latest/ --step s2</span></div>
+          <pre class="output">▶ replay golden-research-assistant from step s2
+  re-executing 7 step(s)
+  ✓ s2 extract_claims
+  ✓ s3 verify_citations
+  ⚠ s4 write_brief
+  ✓ s1 find_sources
+  ✓ s2 extract_claims
+  ✓ s3 verify_citations</pre>
+        </div>
+        <div class="cmd-block">
+          <div class="annotation">Certify the adapter</div>
+          <div class="cmd-line"><span class="prompt">$</span> <span class="cmd-text">infini certify adapters/hermes --mock</span></div>
+          <pre class="output">──────────────────────────── Certification: hermes ─────────────────────────────
+  version: 1.0.0
+  engine:   infini
+  spec:     LOOPFILE-1.0
+  caps:     parse_loopfile, run_loop, verify, inspect_trace, replay
+  compat:   70.8%
+  status:   certified
+  time:     2026-06-28T18:31:49Z
+┏━━━━━━━━━━━━━━━━━━━┳━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃ Test              ┃ Status ┃ Detail                             ┃
+┡━━━━━━━━━━━━━━━━━━━╇━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┩</pre>
+        </div>
+        <div class="cmd-block">
+          <div class="annotation">Adapter ecosystem</div>
+          <div class="cmd-line"><span class="prompt">$</span> <span class="cmd-text">infini engines</span></div>
+          <pre class="output">──────────────────────── Engines / Adapters (detected) ─────────────────────────
+                                                                                
+  Adapter     Version   Type         Capabilities                               
+ ────────────────────────────────────────────────────────────────────────────── 
+  codex       0.1.0     community    (none declared)                            
+  crewai      0.1.0     community    (none declared)                            
+  goose       0.1.0     community    (none declared)                            
+  hermes      1.0.0     governance   parse_loopfile, run_loop, verify,          
+                                     inspect_trace, replay                      
+  langgraph   0.1.0     community    (none declared)                            
+  mastra      0.1.0     community    (none declared)                            
+  openclaw    1.0.0     execution    parse_loopfile, run_loop, verify,          
+                                     inspect_trace                              
+                                                                                
+
+Full compatibility matrix: spec/compatibility.md
+Adapters without adapter.yaml are not listed.</pre>
+        </div></div>
+  <div class="footer">github.com/NickAiNYC/infini — Write your logic once. Run it on any framework.</div>
+</div>
+</body></html>

@@ -5,7 +5,7 @@
 **Version:** 1.0.0
 **Engine:** infini
 **Spec:** LOOPFILE-1.0
-**Certified at:** 2026-06-28T17:48:05Z
+**Certified at:** 2026-06-28T18:31:49Z
 
 ## Supported capabilities
 

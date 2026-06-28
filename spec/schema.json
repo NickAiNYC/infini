@@ -62,7 +62,8 @@
     "LESSONS": { "$ref": "#/$defs/lessons" },
     "STATE":   { "$ref": "#/$defs/state" },
     "ENGINE":  { "$ref": "#/$defs/engine" },
-    "TOOLS":   { "$ref": "#/$defs/tools" }
+    "TOOLS":   { "$ref": "#/$defs/tools" },
+    "memory":  { "$ref": "#/$defs/memory_config" }
   },
 
   "$defs": {
@@ -198,6 +199,16 @@
             "additionalProperties": true
           }
         }
+      }
+    },
+
+    "memory_config": {
+      "type": "object",
+      "description": "Memory configuration. Attribution: MemPalace (https://github.com/mempalace/mempalace).",
+      "additionalProperties": false,
+      "properties": {
+        "persist": { "type": "boolean", "description": "Store all output verbatim in the lessons table." },
+        "context_window": { "type": "integer", "description": "Number of recent lessons to inject as context.", "minimum": 0, "maximum": 10000 }
       }
     }
   }
