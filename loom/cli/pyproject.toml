@@ -1,0 +1,23 @@
+[project]
+name = "loom-cli"
+version = "0.1.0"
+description = "The open standard for agent loops. Write a Loopfile, run it on any engine."
+readme = "README.md"
+license = { text = "MIT" }
+requires-python = ">=3.10"
+authors = [{ name = "loom-spec" }]
+dependencies = ["pyyaml>=6.0"]
+
+[project.scripts]
+loom = "loom:main"
+
+[project.urls]
+Homepage = "https://github.com/loom-spec/loom"
+Spec = "https://github.com/loom-spec/loom/blob/main/spec/loopfile-v1.md"
+
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+py-modules = ["loom"]
