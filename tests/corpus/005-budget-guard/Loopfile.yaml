@@ -1,0 +1,30 @@
+# Corpus case 005: budget-guard
+# Tight budget that forces the loop to stop before completion. Tests budget enforcement.
+LOOPFILE: "1.0"
+name: 005-budget-guard
+version: 1.0.0
+description: >
+  Corpus case 005: Tight budget that forces the loop to stop before completion. Tests budget enforcement.
+
+OBJECTIVE: >
+  Tight budget that forces the loop to stop before completion. Tests budget enforcement.
+
+AGENTS:
+  - { name: builder, role: builder, model_tier: sonnet }
+
+STEPS:
+  - { id: s1, name: work, action: expensive_work, uses: builder, produces: [work-1.json] }
+  - { id: s2, name: work, action: expensive_work, uses: builder, depends_on: [s1], produces: [work-2.json] }
+  - { id: s3, name: work, action: expensive_work, uses: builder, depends_on: [s2], produces: [work-3.json] }
+
+VERIFY:
+  syntactic:
+    - "work-3.json:exists"
+  semantic:
+    - "judge:quality>=80"
+  confidence_threshold: 80
+
+BUDGET: { dollars: 1, minutes: 2 }
+STOP_WHEN:
+  - all_verify_passed
+  - iterations>=1

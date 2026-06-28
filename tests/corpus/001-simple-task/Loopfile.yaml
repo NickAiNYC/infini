@@ -1,0 +1,28 @@
+# Corpus case 001: simple-task
+# Minimal loop: one step, one agent, one artifact. The 'hello world' of Loopfiles.
+LOOPFILE: "1.0"
+name: 001-simple-task
+version: 1.0.0
+description: >
+  Corpus case 001: Minimal loop: one step, one agent, one artifact. The 'hello world' of Loopfiles.
+
+OBJECTIVE: >
+  Minimal loop: one step, one agent, one artifact. The 'hello world' of Loopfiles.
+
+AGENTS:
+  - { name: builder, role: builder, model_tier: sonnet }
+
+STEPS:
+  - { id: s1, name: execute, action: task.execute, uses: builder, produces: [output.txt] }
+
+VERIFY:
+  syntactic:
+    - "output.txt:exists"
+  semantic:
+    []
+  confidence_threshold: 0
+
+BUDGET: { dollars: 1, minutes: 3 }
+STOP_WHEN:
+  - all_verify_passed
+  - iterations>=2

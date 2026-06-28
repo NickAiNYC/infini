@@ -1,0 +1,24 @@
+{
+  "loopfile": "infini/002-research-summary@1.0.0",
+  "expected_outcome": "verified",
+  "min_iterations": 1,
+  "max_iterations": 3,
+  "expected_steps": 4,
+  "expected_verifications": {
+    "syntactic_count": 1,
+    "semantic_count": 1
+  },
+  "budget": {
+    "dollars": 6,
+    "minutes": 20
+  },
+  "category": [
+    "research",
+    "verification"
+  ],
+  "required_capabilities": [
+    "parse_loopfile",
+    "run_loop",
+    "verify"
+  ]
+}

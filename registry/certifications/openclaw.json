@@ -1,0 +1,66 @@
+{
+  "adapter_name": "openclaw",
+  "version": "1.0.0",
+  "engine": "infini",
+  "spec_version": "LOOPFILE-1.0",
+  "supported_capabilities": [
+    "parse_loopfile",
+    "run_loop",
+    "verify",
+    "inspect_trace"
+  ],
+  "conformance_results": [
+    {
+      "test_name": "browser-loop",
+      "status": "pass",
+      "detail": "outcome=verified, steps=4, iters=1",
+      "required_capabilities": []
+    },
+    {
+      "test_name": "cost-loop",
+      "status": "pass",
+      "detail": "outcome=verified, steps=1, iters=1",
+      "required_capabilities": []
+    },
+    {
+      "test_name": "memory-loop",
+      "status": "pass",
+      "detail": "outcome=verified, steps=3, iters=1",
+      "required_capabilities": []
+    },
+    {
+      "test_name": "parallel-loop",
+      "status": "pass",
+      "detail": "outcome=verified, steps=5, iters=1",
+      "required_capabilities": []
+    },
+    {
+      "test_name": "research-loop",
+      "status": "pass",
+      "detail": "outcome=verified, steps=4, iters=1",
+      "required_capabilities": []
+    },
+    {
+      "test_name": "retry-loop",
+      "status": "pass",
+      "detail": "outcome=verified, steps=1, iters=1",
+      "required_capabilities": []
+    },
+    {
+      "test_name": "simple-loop",
+      "status": "pass",
+      "detail": "outcome=verified, steps=1, iters=1",
+      "required_capabilities": []
+    },
+    {
+      "test_name": "verification-loop",
+      "status": "pass",
+      "detail": "outcome=verified, steps=2, iters=1",
+      "required_capabilities": []
+    }
+  ],
+  "compatibility_percentage": 66.7,
+  "certification_status": "certified",
+  "timestamp": "2026-06-28T17:25:56Z",
+  "notes": []
+}

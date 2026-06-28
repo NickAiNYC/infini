@@ -1,0 +1,31 @@
+# Corpus case 010: replay-diff
+# Loop designed to produce a diffable trace. Run twice with different inputs, then diff. Tests replay + diff.
+LOOPFILE: "1.0"
+name: 010-replay-diff
+version: 1.0.0
+description: >
+  Corpus case 010: Loop designed to produce a diffable trace. Run twice with different inputs, then diff. Tests replay + diff.
+
+OBJECTIVE: >
+  Loop designed to produce a diffable trace. Run twice with different inputs, then diff. Tests replay + diff.
+
+AGENTS:
+  - { name: builder, role: builder, model_tier: sonnet }
+
+STEPS:
+  - { id: s1, name: plan, action: task.plan, uses: builder, produces: [plan.md] }
+  - { id: s2, name: execute, action: task.execute, uses: builder, depends_on: [s1], produces: [output.txt] }
+  - { id: s3, name: verify, action: task.verify, uses: builder, depends_on: [s2], produces: [verify.json] }
+
+VERIFY:
+  syntactic:
+    - "output.txt:exists"
+    - "verify.json:exists"
+  semantic:
+    - "judge:correctness>=85"
+  confidence_threshold: 85
+
+BUDGET: { dollars: 3, minutes: 10 }
+STOP_WHEN:
+  - all_verify_passed
+  - iterations>=2

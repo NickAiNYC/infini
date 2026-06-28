@@ -3,6 +3,7 @@ pyproject.toml
 src/infini/__init__.py
 src/infini/__main__.py
 src/infini/adapters.py
+src/infini/certify.py
 src/infini/cli.py
 src/infini/conformance.py
 src/infini/diff.py
@@ -20,3 +21,6 @@ src/infini_cli.egg-info/dependency_links.txt
 src/infini_cli.egg-info/entry_points.txt
 src/infini_cli.egg-info/requires.txt
 src/infini_cli.egg-info/top_level.txt
+tests/test_certify.py
+tests/test_mock.py
+tests/test_parse.py

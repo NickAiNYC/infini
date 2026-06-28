@@ -1,0 +1,32 @@
+# Corpus case 009: human-approval-gate
+# Loop that pauses for human approval before an irreversible step. Tests escalation.
+LOOPFILE: "1.0"
+name: 009-human-approval-gate
+version: 1.0.0
+description: >
+  Corpus case 009: Loop that pauses for human approval before an irreversible step. Tests escalation.
+
+OBJECTIVE: >
+  Loop that pauses for human approval before an irreversible step. Tests escalation.
+
+AGENTS:
+  - { name: builder, role: builder, model_tier: sonnet }
+  - { name: auditor, role: verifier, model_tier: opus }
+
+STEPS:
+  - { id: s1, name: prepare, action: action.prepare, uses: builder, produces: [draft.json] }
+  - { id: s2, name: await_approval, action: governance.await_approval, uses: auditor, depends_on: [s1], produces: [approval.json] }
+  - { id: s3, name: execute, action: action.execute, uses: builder, depends_on: [s2], produces: [executed.json] }
+
+VERIFY:
+  syntactic:
+    - "approval.json:approved"
+    - "executed.json:exists"
+  semantic:
+    - "judge:safety>=90"
+  confidence_threshold: 90
+
+BUDGET: { dollars: 4, minutes: 15 }
+STOP_WHEN:
+  - all_verify_passed
+  - iterations>=2

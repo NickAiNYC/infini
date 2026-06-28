@@ -1,0 +1,23 @@
+{
+  "loopfile": "infini/004-retry-recovery@1.0.0",
+  "expected_outcome": "verified",
+  "min_iterations": 1,
+  "max_iterations": 3,
+  "expected_steps": 1,
+  "expected_verifications": {
+    "syntactic_count": 1,
+    "semantic_count": 0
+  },
+  "budget": {
+    "dollars": 3,
+    "minutes": 5
+  },
+  "category": [
+    "resilience",
+    "retry"
+  ],
+  "required_capabilities": [
+    "parse_loopfile",
+    "run_loop"
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "loopfile": "infini/007-memory-update@1.0.0",
+  "expected_outcome": "verified",
+  "min_iterations": 1,
+  "max_iterations": 2,
+  "expected_steps": 3,
+  "expected_verifications": {
+    "syntactic_count": 3,
+    "semantic_count": 0
+  },
+  "budget": {
+    "dollars": 5,
+    "minutes": 8
+  },
+  "category": [
+    "memory",
+    "learning"
+  ],
+  "required_capabilities": [
+    "parse_loopfile",
+    "run_loop",
+    "memory"
+  ]
+}

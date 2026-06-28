@@ -1,0 +1,28 @@
+# Corpus case 004: retry-recovery
+# Step that fails transiently and retries with exponential backoff. Tests retry policy.
+LOOPFILE: "1.0"
+name: 004-retry-recovery
+version: 1.0.0
+description: >
+  Corpus case 004: Step that fails transiently and retries with exponential backoff. Tests retry policy.
+
+OBJECTIVE: >
+  Step that fails transiently and retries with exponential backoff. Tests retry policy.
+
+AGENTS:
+  - { name: builder, role: builder, model_tier: sonnet }
+
+STEPS:
+  - { id: s1, name: flaky, action: flaky_action, uses: builder, produces: [output.txt], retry: { max: 3, backoff: exponential } }
+
+VERIFY:
+  syntactic:
+    - "output.txt:exists"
+  semantic:
+    []
+  confidence_threshold: 0
+
+BUDGET: { dollars: 3, minutes: 5 }
+STOP_WHEN:
+  - all_verify_passed
+  - iterations>=3

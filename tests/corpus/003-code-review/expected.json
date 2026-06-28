@@ -1,0 +1,25 @@
+{
+  "loopfile": "infini/003-code-review@1.0.0",
+  "expected_outcome": "verified",
+  "min_iterations": 1,
+  "max_iterations": 2,
+  "expected_steps": 3,
+  "expected_verifications": {
+    "syntactic_count": 1,
+    "semantic_count": 1
+  },
+  "budget": {
+    "dollars": 3,
+    "minutes": 10
+  },
+  "category": [
+    "coding",
+    "parallel",
+    "verification"
+  ],
+  "required_capabilities": [
+    "parse_loopfile",
+    "run_loop",
+    "verify"
+  ]
+}

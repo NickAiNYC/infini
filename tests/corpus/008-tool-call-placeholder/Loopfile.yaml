@@ -1,0 +1,32 @@
+# Corpus case 008: tool-call-placeholder
+# Loop that declares MCP tools. Tests tool resolution and namespacing (placeholder — no real MCP server).
+LOOPFILE: "1.0"
+name: 008-tool-call-placeholder
+version: 1.0.0
+description: >
+  Corpus case 008: Loop that declares MCP tools. Tests tool resolution and namespacing (placeholder — no real MCP server).
+
+OBJECTIVE: >
+  Loop that declares MCP tools. Tests tool resolution and namespacing (placeholder — no real MCP server).
+
+AGENTS:
+  - { name: builder, role: builder, model_tier: sonnet, tools: [mcp_tool.query] }
+
+STEPS:
+  - { id: s1, name: call_tool, action: mcp_tool.query, uses: builder, produces: [result.json] }
+  - { id: s2, name: verify, action: verify_result, uses: builder, depends_on: [s1], produces: [verify.json] }
+
+VERIFY:
+  syntactic:
+    - "result.json:exists"
+  semantic:
+    - "judge:tool_correctness>=85"
+  confidence_threshold: 85
+
+BUDGET: { dollars: 3, minutes: 8 }
+STOP_WHEN:
+  - all_verify_passed
+  - iterations>=2
+
+TOOLS:
+  - { mcp: "example.com/mcp/placeholder" }

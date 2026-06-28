@@ -1,0 +1,33 @@
+# Corpus case 007: memory-update
+# Loop that recalls lessons at start and appends a lesson at end. Tests memory persistence.
+LOOPFILE: "1.0"
+name: 007-memory-update
+version: 1.0.0
+description: >
+  Corpus case 007: Loop that recalls lessons at start and appends a lesson at end. Tests memory persistence.
+
+OBJECTIVE: >
+  Loop that recalls lessons at start and appends a lesson at end. Tests memory persistence.
+
+AGENTS:
+  - { name: planner, role: planner, model_tier: sonnet }
+  - { name: builder, role: builder, model_tier: sonnet }
+
+STEPS:
+  - { id: s1, name: recall, action: memory.recall, uses: planner, produces: [recall.json] }
+  - { id: s2, name: execute, action: task.execute, uses: builder, depends_on: [s1], produces: [output.txt] }
+  - { id: s3, name: append_lesson, action: memory.append, uses: builder, depends_on: [s2], produces: [lesson.md] }
+
+VERIFY:
+  syntactic:
+    - "output.txt:exists"
+    - "recall.json:exists"
+    - "lesson.md:exists"
+  semantic:
+    []
+  confidence_threshold: 0
+
+BUDGET: { dollars: 5, minutes: 8 }
+STOP_WHEN:
+  - all_verify_passed
+  - iterations>=2

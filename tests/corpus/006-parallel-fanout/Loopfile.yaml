@@ -1,0 +1,32 @@
+# Corpus case 006: parallel-fanout
+# Fan-out to 3 parallel workers, then fan-in to merge. Tests DAG scheduling.
+LOOPFILE: "1.0"
+name: 006-parallel-fanout
+version: 1.0.0
+description: >
+  Corpus case 006: Fan-out to 3 parallel workers, then fan-in to merge. Tests DAG scheduling.
+
+OBJECTIVE: >
+  Fan-out to 3 parallel workers, then fan-in to merge. Tests DAG scheduling.
+
+AGENTS:
+  - { name: builder, role: builder, model_tier: sonnet }
+
+STEPS:
+  - { id: s1, name: input, action: read_input, uses: builder, produces: [input.json] }
+  - { id: s2a, name: worker_a, action: process, uses: builder, depends_on: [s1], produces: [a.json] }
+  - { id: s2b, name: worker_b, action: process, uses: builder, depends_on: [s1], produces: [b.json] }
+  - { id: s2c, name: worker_c, action: process, uses: builder, depends_on: [s1], produces: [c.json] }
+  - { id: s3, name: merge, action: merge_results, uses: builder, depends_on: [s2a, s2b, s2c], produces: [merged.json] }
+
+VERIFY:
+  syntactic:
+    - "merged.json:exists"
+  semantic:
+    - "judge:merge_quality>=80"
+  confidence_threshold: 80
+
+BUDGET: { dollars: 8, minutes: 10 }
+STOP_WHEN:
+  - all_verify_passed
+  - iterations>=2

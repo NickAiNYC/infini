@@ -14,8 +14,9 @@
 
 <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square" alt="License: MIT"></a>
 <a href="https://www.python.org/"><img src="https://img.shields.io/badge/python-3.10+-3776AB.svg?style=flat-square&logo=python&logoColor=white" alt="Python 3.10+"></a>
-<a href="#the-reference-runtime"><img src="https://img.shields.io/badge/milestone-Reference_Runtime-blueviolet?style=flat-square" alt="Milestone"></a>
-<a href="#the-loopfile"><img src="https://img.shields.io/badge/spec-v1.0-00C853?style=flat-square" alt="Spec"></a>
+<a href="spec/loopfile-v1.md"><img src="https://img.shields.io/badge/spec-v1.0-00C853?style=flat-square" alt="Spec v1.0"></a>
+<a href="tests/conformance/"><img src="https://img.shields.io/badge/conformance-8%2F8%20passing-10b981?style=flat-square" alt="Conformance 8/8"></a>
+<a href="registry/certifications/"><img src="https://img.shields.io/badge/certified-hermes%20%2B%20openclaw-06b6d4?style=flat-square" alt="Certified adapters"></a>
 <a href="https://github.com/NickAiNYC/infini"><img src="https://img.shields.io/github/stars/NickAiNYC/infini?style=flat-square&color=orange" alt="Stars"></a>
 <a href="#community"><img src="https://img.shields.io/badge/Discord-join-5865F2?style=flat-square&logo=discord&logoColor=white" alt="Discord"></a>
 
@@ -179,6 +180,8 @@ infini inspect run.json        # Open trace details in the terminal
 infini ui run.json             # Launch the Observatory UI
 infini replay run.json         # Time-travel debug a previous run
 infini diff v1.yaml v2.yaml    # Semantic diff between Loopfiles
+infini conformance tests/conformance/  # Run the conformance suite
+infini certify adapters/hermes # Certify an adapter against the spec
 infini benchmark loop.yaml     # Run standardized benchmarks
 ```
 
@@ -196,6 +199,49 @@ Inspectable agents. No more black boxes. The Observatory is a local Next.js + Re
 - **Granular Metrics** — See cost, tokens, artifacts, decisions, and failures per step.
 - **Time-Travel Debugging** — Replay execution from any node.
 - **Diff Analysis** — Compare runs side-by-side with `infini diff`.
+
+---
+
+## Certification
+
+Adapters can be certified against the INFINI spec. Certification runs the
+conformance suite and produces a machine-readable report:
+
+```bash
+infini certify adapters/hermes --engine infini --mock
+infini certify adapters/openclaw --engine infini --mock
+```
+
+Produces `registry/certifications/<adapter>.json` + `.md` with:
+- Adapter name, version, engine, spec version
+- Supported capabilities
+- Conformance pass/fail/skip per test
+- Compatibility percentage
+- Certification status: `experimental` / `compatible` / `certified`
+
+📖 **[Certification reports →](registry/certifications/)** · **[Compatibility matrix →](spec/compatibility.md)**
+
+---
+
+## Canonical Corpus
+
+INFINI's "ImageNet for agent loops" — 10 durable benchmark cases every
+engine should run, every release should run.
+
+| # | Case | Category |
+| --- | --- | --- |
+| 001 | simple-task | minimal, baseline |
+| 002 | research-summary | research, verification |
+| 003 | code-review | coding, parallel, verification |
+| 004 | retry-recovery | resilience, retry |
+| 005 | budget-guard | budget, safety |
+| 006 | parallel-fanout | parallel, dag |
+| 007 | memory-update | memory, learning |
+| 008 | tool-call-placeholder | tools, mcp |
+| 009 | human-approval-gate | governance, human-in-loop |
+| 010 | replay-diff | replay, diff, debugging |
+
+📖 **[Full corpus →](tests/corpus/)**
 
 ---
 
@@ -233,10 +279,10 @@ When that path works end-to-end, everything else becomes easy. One demo that sho
 
 | Milestone | Deliverables | Status |
 | --- | --- | :---: |
-| **1. Reference Runtime** | Execute Loopfiles, generate structured traces, support replay. | 🔄 In Progress |
-| **2. Adapter Ecosystem** | Stable SDK, Hermes adapter, OpenClaw adapter, Community examples. | ⏭ Next |
-| **3. Observatory** | Live timeline, trace visualizer, verification reports, cost metrics. | ⏭ Next |
-| **4. Registry** | Publish, search, version, rate, and review loops globally. | 📋 Planned |
+| **1. The Standard Works** | Deterministic engine, schema, conformance (8/8 passing), tests. | ✅ Complete |
+| **2. The Standard Travels** | Adapters, certification, compatibility matrix, canonical corpus. | 🔄 In Progress |
+| **3. The Standard Scales** | Observatory, registry, signatures, marketplace. | ⏭ Next |
+| **4. The Standard Evolves** | MCP, memory, distributed execution, DAG scheduler, parallel workers. | 📋 Planned |
 
 ---
 

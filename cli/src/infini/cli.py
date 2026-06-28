@@ -34,6 +34,7 @@ from .diff import diff as diff_cmd
 from .ui import launch_ui
 from .adapters import detect_adapters
 from .conformance import run_conformance
+from .certify import certify as certify_adapter, print_report as print_cert_report
 
 console = Console()
 
@@ -178,6 +179,26 @@ def conformance(conformance_dir: str, engine: str, mock: bool):
     exit_code = run_conformance(conformance_dir, engine=engine, mock=mock)
     if exit_code != 0:
         sys.exit(exit_code)
+
+
+@cli.command()
+@click.argument("adapter_path", type=click.Path(exists=True))
+@click.option("--engine", default="infini", help="Engine to certify against.")
+@click.option("--mock/--live", default=True, help="Use mock mode (default).")
+@click.option("--conformance-dir", default=None, help="Conformance test directory (default: tests/conformance/).")
+@click.option("-o", "--output", default=None, help="Output directory for certification report (default: registry/certifications/).")
+def certify(adapter_path: str, engine: str, mock: bool, conformance_dir: str | None, output: str | None):
+    """Certify an adapter against the INFINI spec."""
+    report = certify_adapter(
+        adapter_path,
+        engine=engine,
+        mock=mock,
+        conformance_dir=conformance_dir,
+        output_dir=output,
+    )
+    print_cert_report(report)
+    console.print(f"\n[dim]JSON: registry/certifications/{report.adapter_name}.json[/dim]")
+    console.print(f"[dim]Markdown: registry/certifications/{report.adapter_name}.md[/dim]")
 
 
 @cli.command()

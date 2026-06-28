@@ -1,0 +1,32 @@
+# Corpus case 003: code-review
+# Two-reviewer cross-check with rubric. Tests parallel agents and verification gates.
+LOOPFILE: "1.0"
+name: 003-code-review
+version: 1.0.0
+description: >
+  Corpus case 003: Two-reviewer cross-check with rubric. Tests parallel agents and verification gates.
+
+OBJECTIVE: >
+  Two-reviewer cross-check with rubric. Tests parallel agents and verification gates.
+
+AGENTS:
+  - { name: reviewer1, role: critic, model_tier: sonnet }
+  - { name: reviewer2, role: critic, model_tier: sonnet }
+  - { name: synthesizer, role: builder, model_tier: haiku }
+
+STEPS:
+  - { id: s1, name: review_a, action: review.review, uses: reviewer1, produces: [review-a.json] }
+  - { id: s2, name: review_b, action: review.review, uses: reviewer2, produces: [review-b.json] }
+  - { id: s3, name: synthesize, action: review.synthesize, uses: synthesizer, depends_on: [s1, s2], produces: [review.md] }
+
+VERIFY:
+  syntactic:
+    - "review.md:rubric_complete"
+  semantic:
+    - "judge:cross_check_agreement>=80"
+  confidence_threshold: 80
+
+BUDGET: { dollars: 3, minutes: 10 }
+STOP_WHEN:
+  - all_verify_passed
+  - iterations>=2

@@ -41,6 +41,54 @@ jobs:
         run: |
           infini conformance tests/conformance/ --engine infini --mock
 
+  certify:
+    name: Certify adapters
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.11' }
+      - run: pip install -e './cli[dev]'
+      - name: Certify Hermes adapter
+        run: |
+          infini certify adapters/hermes --engine infini --mock
+      - name: Certify OpenClaw adapter
+        run: |
+          infini certify adapters/openclaw --engine infini --mock
+      - name: Regenerate compatibility matrix
+        run: |
+          python ci/generate_matrix.py
+      - name: Verify schema sync
+        run: |
+          python ci/check_schema_sync.py
+
+  unit-tests:
+    name: Unit tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.11' }
+      - run: pip install -e './cli[dev]'
+      - name: Run pytest
+        run: python -m pytest cli/tests/ -q
+
+  corpus:
+    name: Canonical corpus
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.11' }
+      - run: pip install -e './cli[dev]'
+      - name: Validate all corpus cases
+        run: |
+          for f in tests/corpus/*/Loopfile.yaml; do
+            echo "::group::Validating $f"
+            infini validate "$f" || exit 1
+            echo "::endgroup::"
+          done
+
   golden-examples:
     name: Golden examples
     runs-on: ubuntu-latest

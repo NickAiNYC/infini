@@ -1,0 +1,24 @@
+{
+  "loopfile": "infini/005-budget-guard@1.0.0",
+  "expected_outcome": "verified",
+  "min_iterations": 1,
+  "max_iterations": 1,
+  "expected_steps": 3,
+  "expected_verifications": {
+    "syntactic_count": 1,
+    "semantic_count": 1
+  },
+  "budget": {
+    "dollars": 1,
+    "minutes": 2
+  },
+  "category": [
+    "budget",
+    "safety"
+  ],
+  "required_capabilities": [
+    "parse_loopfile",
+    "run_loop",
+    "budget"
+  ]
+}
