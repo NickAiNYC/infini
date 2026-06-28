@@ -22,9 +22,28 @@
 
 > **Agents just got their Docker moment.**
 
+```
+Docker      standardized containers.
+OpenTelemetry standardized traces.
+Terraform   standardized infrastructure.
+INFINI      standardizes AI agent loops.
+```
+
 [Install](#install) · [Quickstart](#quickstart) · [Observatory](#the-observatory) · [Adapters](#adapters) · [Manifesto](MANIFESTO.md) · [Spec](spec/loopfile-v1.md) · [Roadmap](ROADMAP.md)
 
-<img src="assets/demo.gif" alt="INFINI Demo" width="700">
+<img src="assets/demo.gif" alt="INFINI Demo — validate, run, replay, certify" width="700">
+
+### Works with
+
+| Adapter | Status | Compatibility |
+| --- | :---: | :---: |
+| [Hermes](adapters/hermes/) | ✅ Certified | 70.8% |
+| [OpenClaw](adapters/openclaw/) | ✅ Certified | 66.7% |
+| [LangGraph](adapters/langgraph/) | ⏳ Help wanted | — |
+| [CrewAI](adapters/crewai/) | ⏳ Help wanted | — |
+| [Mastra](adapters/mastra/) | ⏳ Help wanted | — |
+| [Goose](adapters/goose/) | ⏳ Help wanted | — |
+| [OpenAI Agents SDK](adapters/codex/) | ⏳ Help wanted | — |
 
 </div>
 
