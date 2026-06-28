@@ -182,10 +182,12 @@ def _execute_step(
             retry_attempt=retry_attempt,
         )
     else:
-        # Live mode: not implemented in V1 (requires adapter)
+        # Live mode: route to the live MCP engine
+        # This is reached only if run() is called with mock=False and no --plan
+        # The live engine is invoked at the CLI level, not here.
         raise NotImplementedError(
-            "Live execution requires an engine adapter. Use --mock for now, "
-            "or install infini-cli[hermes] / infini-cli[openclaw] when adapters ship."
+            "Live execution is handled by the live_engine module. "
+            "Use `infini run loop.yaml --live` from the CLI."
         )
 
 

@@ -121,6 +121,40 @@ def run(loopfile: str, mock: bool, plan: bool, output: str, max_iterations: int,
         console.print(f"[dim]  review: {result['review']}[/dim]")
         return
 
+    if not mock:
+        # Live execution via MCP — talks to real LLMs
+        from .live_engine import run_live
+        try:
+            trace = run_live(
+                lf,
+                output_dir=output,
+                max_iterations=max_iterations,
+                verbose=not quiet,
+            )
+        except RuntimeError as e:
+            console.print(f"[red]✗ {e}[/red]")
+            sys.exit(1)
+
+        # Store to memory
+        try:
+            for step_trace in trace.steps:
+                memory.store_run_output(
+                    lf.name, step_trace.id, step_trace.name,
+                    f"status={step_trace.status} cost=${step_trace.cost['dollars']:.2f}"
+                )
+        except Exception:
+            pass
+
+        if trace.outcome == "verified":
+            console.print(f"\n[green]✓ shipped (live).[/green] trace: {Path(output) / 'run.json'}")
+        elif trace.outcome == "budget_exceeded":
+            console.print(f"\n[red]✗ budget exceeded.[/red] trace: {Path(output) / 'run.json'}")
+            sys.exit(1)
+        else:
+            console.print(f"\n[yellow]⚠ unverified.[/yellow] trace: {Path(output) / 'run.json'}")
+            sys.exit(1)
+        return
+
     trace = run_loop(
         lf,
         output_dir=output,

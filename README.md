@@ -65,11 +65,11 @@ conformance suite, certification flow, and adapter SDK.
 - ✅ Adapter SDK — build an adapter in under 30 minutes
 
 **What doesn't work yet:**
-- ⏳ `infini run` without `--mock` (live LLM execution)
+- ✅ `infini run` without `--mock` (live LLM execution via MCP — needs API key)
 - ⏳ External adapters (Hermes and OpenClaw are reference implementations)
 - ⏳ `pip install infini-cli` (PyPI publication pending)
-- ⏳ MCP runtime (specified in [`docs/mcp-strategy.md`](docs/mcp-strategy.md), not yet implemented)
-- ⏳ Memory persistence (`LESSONS` block is in the schema, not the runtime)
+- ✅ MCP runtime (tool definitions + live execution, specified in [`docs/mcp-strategy.md`](docs/mcp-strategy.md))
+- ✅ Memory persistence (SQLite FTS5 eternal memory, verbatim storage)
 
 **What this means:**
 This is early. If you build agents and you're tired of framework lock-in,

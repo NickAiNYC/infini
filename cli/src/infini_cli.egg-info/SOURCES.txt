@@ -10,6 +10,8 @@ src/infini/db.py
 src/infini/diff.py
 src/infini/engine.py
 src/infini/inspect.py
+src/infini/live_engine.py
+src/infini/mcp_runtime.py
 src/infini/memory.py
 src/infini/mock.py
 src/infini/orchestrator.py
