@@ -154,13 +154,20 @@ infini run examples/golden-research-assistant/research-loop.yaml --engine=opencl
 ```bash
 infini validate  [loopfile]   # check spec compliance
 infini run       [loopfile]   # execute a loop (--mock for no API key)
-infini inspect   [run_dir]    # inspect a trace in the terminal
+infini inspect   [run_dir]    # inspect a trace (--web opens Observatory, coming soon)
 infini replay    [run_dir]    # time-travel debug from any step
 infini diff      [v1] [v2]    # semantic diff between loops or traces
 infini ui        [trace]      # launch the Observatory web app
-infini engines                # list compatible engines
-infini conformance [dir]      # run the conformance test suite
+infini engines                # list detected adapters (reads adapter.yaml)
+infini init      [--target]   # scaffold a minimal project (Loopfile, loops/, state/, runs/)
+infini new       <name>       # create a new project scaffold
+infini graph     [loopfile]   # render a simple ASCII graph of steps
+infini benchmark [loopfile]   # preview benchmark estimate (real profiling needs a run)
 ```
+
+**Mock mode:** `infini run --mock` simulates LLM calls so you can run any Loopfile without an API key. Deterministic: same Loopfile + same seed = same output.
+
+**Adapter detection:** `infini engines` scans `adapters/` for `adapter.yaml` manifests and reports actual capabilities (parse, run, verify, inspect, replay, diff) — not just directory names.
 
 📖 **[CLI source →](cli/)** · **[pyproject.toml →](cli/pyproject.toml)**
 

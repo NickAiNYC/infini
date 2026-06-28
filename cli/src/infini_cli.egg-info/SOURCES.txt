@@ -2,6 +2,7 @@ README.md
 pyproject.toml
 src/infini/__init__.py
 src/infini/__main__.py
+src/infini/adapters.py
 src/infini/cli.py
 src/infini/diff.py
 src/infini/engine.py

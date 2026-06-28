@@ -26,19 +26,35 @@ Requires Python 3.10+.
 ## Commands
 
 ```bash
-infini run       [Loopfile]   # execute a loop
 infini validate  [Loopfile]   # check spec compliance
-infini inspect   [run_dir]    # visualize a run trace
-infini replay    [run_dir]    # time-travel debug
-infini diff      [v1] [v2]    # semantic diff between loop versions
-infini install   [loop_ref]   # pull from registry
-infini publish   [Loopfile]   # push to registry
+infini run       [Loopfile]   # execute a loop (--mock for no API key)
+infini inspect   [run_dir]    # inspect a trace (--web opens Observatory, coming soon)
+infini replay    [run_dir]    # time-travel debug from any step
+infini diff      [v1] [v2]    # semantic diff between loops or traces
+infini ui        [trace]      # launch the Observatory web app
+infini engines                # list detected adapters (reads adapter.yaml)
+infini init      [--target]   # scaffold a minimal project (Loopfile, loops/, state/, runs/)
+infini new       <name>       # create a new project scaffold
+infini graph     [Loopfile]   # render a simple ASCII graph of steps
+infini benchmark [Loopfile]   # preview benchmark estimate (real profiling needs a run)
+```
+
+### Commands not yet implemented (planned)
+
+```bash
+infini install   [loop_ref]   # pull from registry (planned — registry not yet live)
+infini publish   [Loopfile]   # push to registry (planned)
 infini ci        [Loopfile]   # run loop against fixtures (GitHub Action)
-infini engines                # list compatible engines
-infini search    [query]      # search the registry
+infini search    [query]      # search the registry (planned)
 infini migrate   [Loopfile]   # migrate a Loopfile between spec versions
 infini keys generate           # generate a publisher signing keypair
 ```
+
+### Mock mode
+
+`infini run --mock` simulates LLM calls so you can run any Loopfile
+without an API key. Useful for evaluation, CI, demos, and the conformance
+suite. Mock mode is deterministic: same Loopfile + same seed = same output.
 
 ---
 
