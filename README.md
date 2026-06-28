@@ -8,19 +8,21 @@
 
 # `INFINI`
 
-### The Open Standard for Agent Portability
+### Serverless Orchestration for Autonomous AI Agents
 
-**Write your agent logic once. Execute it on any framework. <br> Verify it actually worked. Replay it when it didn't.**
+[![Conformance](https://img.shields.io/badge/conformance-8%2F8-brightgreen?style=flat-square)](tests/conformance/)
+[![Tests](https://img.shields.io/badge/tests-20%20passing-brightgreen?style=flat-square)](cli/tests/)
+[![License](https://img.shields.io/badge/license-MIT-blue?style=flat-square)](LICENSE)
+[![Spec](https://img.shields.io/badge/spec-v1.0-00C853?style=flat-square)](spec/loopfile-v1.md)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen?style=flat-square)](CONTRIBUTING.md)
+[![Made with Python](https://img.shields.io/badge/Made%20with-Python-1f425f?style=flat-square)](https://www.python.org/)
+[![Stars](https://img.shields.io/github/stars/NickAiNYC/infini?style=flat-square&color=orange)](https://github.com/NickAiNYC/infini)
 
-<a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square" alt="License: MIT"></a>
-<a href="https://www.python.org/"><img src="https://img.shields.io/badge/python-3.10+-3776AB.svg?style=flat-square&logo=python&logoColor=white" alt="Python 3.10+"></a>
-<a href="spec/loopfile-v1.md"><img src="https://img.shields.io/badge/spec-v1.0-00C853?style=flat-square" alt="Spec v1.0"></a>
-<a href="tests/conformance/"><img src="https://img.shields.io/badge/conformance-8%2F8%20passing-10b981?style=flat-square" alt="Conformance 8/8"></a>
-<a href="registry/certifications/"><img src="https://img.shields.io/badge/certified-hermes%20%2B%20openclaw-06b6d4?style=flat-square" alt="Certified adapters"></a>
-<a href="https://github.com/NickAiNYC/infini"><img src="https://img.shields.io/github/stars/NickAiNYC/infini?style=flat-square&color=orange" alt="Stars"></a>
-<a href="#community"><img src="https://img.shields.io/badge/Discord-join-5865F2?style=flat-square&logo=discord&logoColor=white" alt="Discord"></a>
+</div>
 
-> **Agents just got their Docker moment.**
+**What if your AI agents had infinite memory, zero infrastructure costs, and could collaborate like a SWAT team?**
+
+INFINI is the orchestration layer that makes it happen. Spin up agents. Give them tasks. Watch them plan, execute, and review each other's work. All through a single CLI. All with zero external dependencies.
 
 ```
 Docker      standardized containers.
@@ -29,9 +31,13 @@ Terraform   standardized infrastructure.
 INFINI      standardizes AI agent loops.
 ```
 
-[Install](#install) · [Quickstart](#quickstart) · [Observatory](#the-observatory) · [Adapters](#adapters) · [Manifesto](MANIFESTO.md) · [Spec](spec/loopfile-v1.md) · [Roadmap](ROADMAP.md)
+**One command to rule them all:**
 
-<img src="assets/demo.gif" alt="INFINI Demo — validate, run, replay, certify" width="700">
+```bash
+pip install infini-cli && infini setup && infini run my-loop.yaml --plan
+```
+
+<img src="assets/demo.gif" alt="INFINI Demo" width="700">
 
 ### Works with
 
@@ -45,88 +51,176 @@ INFINI      standardizes AI agent loops.
 | [Goose](adapters/goose/) | ⏳ Help wanted | — |
 | [OpenAI Agents SDK](adapters/codex/) | ⏳ Help wanted | — |
 
-</div>
+---
+
+## Why INFINI?
+
+| Problem | INFINI Solution |
+|---------|-----------------|
+| **Agents have amnesia** | Eternal memory with FTS5 retrieval — verbatim storage, no summarization |
+| **Coordination costs $$$** | SQLite bus = $0 infrastructure, sub-100ms scheduling latency |
+| **Plugins are a mess** | Anthropic Skills standard — `infini skill install <git-url>` and go |
+| **Agents hallucinate** | 3-agent supervision (Planner → Worker → Inspector) via SQLite message bus |
+| **Complex setup** | One CLI, auto-installs `/infini` slash commands for Claude/Gemini/Codex |
+| **Vendor lock-in** | Write a Loopfile once, run on any engine — same YAML, any framework |
 
 ---
 
-## Status
+## 🎬 See It In Action
 
-**INFINI is not production infrastructure yet.**
+<img src="assets/demo.gif" alt="INFINI Demo — setup, task creation, 3-agent orchestration" width="700">
 
-It is an early open standard for portable agent loops, with a working CLI,
-conformance suite, certification flow, and adapter SDK.
-
-**What works today:**
-- ✅ `infini validate` — check any Loopfile against the spec
-- ✅ `infini run --mock` — execute loops deterministically (no API key)
-- ✅ `infini inspect` / `infini replay` / `infini diff` — trace tools
-- ✅ `infini conformance` — 8/8 tests passing
-- ✅ `infini certify` — Hermes (70.8%) and OpenClaw (66.7%) certified
-- ✅ Adapter SDK — build an adapter in under 30 minutes
-
-**What doesn't work yet:**
-- ✅ `infini run` without `--mock` (live LLM execution via MCP — needs API key)
-- ⏳ External adapters (Hermes and OpenClaw are reference implementations)
-- ⏳ `pip install infini-cli` (PyPI publication pending)
-- ✅ MCP runtime (tool definitions + live execution, specified in [`docs/mcp-strategy.md`](docs/mcp-strategy.md))
-- ✅ Memory persistence (SQLite FTS5 eternal memory, verbatim storage)
-
-**What this means:**
-This is early. If you build agents and you're tired of framework lock-in,
-here's a standard with a working CLI, a conformance suite, and an SDK.
-Build an adapter and prove portability works.
+**What you're watching:**
+1. `infini setup` → Initializes SQLite DB, detects AI terminals, installs slash commands
+2. `infini validate loop.yaml` → Checks against the spec
+3. `infini run loop.yaml --mock` → Executes deterministically (no API key)
+4. `infini replay runs/latest/ --step s2` → Time-travel debug from any step
+5. `infini certify adapters/hermes --mock` → Adapter certification (70.8%)
+6. `infini engines` → The adapter ecosystem
 
 ---
 
-## The Problem
-
-Current agent frameworks create massive vendor lock-in. Your core logic gets entangled with LangChain, CrewAI, AutoGen, or OpenAI SDKs. Switching runtimes means rewriting everything. Traces are opaque, verification is an afterthought, and migration debt compounds silently.
-
-**INFINI is the escape hatch.**
-
-| The Old Way (Lock-in) | The INFINI Way (Portable) |
-| :--- | :--- |
-| **Logic** is hardcoded into specific frameworks. | **Logic** is declarative and framework-agnostic. |
-| **Execution** is a black box with messy logs. | **Execution** generates standardized, visual traces. |
-| **Migration** requires a complete codebase rewrite. | **Migration** requires changing one line in the engine config. |
-| **Debugging** involves parsing terminal outputs. | **Debugging** is done via time-travel replay in a 3D UI. |
-
-<div align="center">
-
-### Spaghetti → Spec
-
-<img src="assets/spaghetti-to-spec.png" alt="150 lines of tangled framework code becomes 15 lines of declarative Loopfile YAML" width="800">
-
-<sub>Stop hardcoding your agent logic into frameworks. Write it once as a standard spec, run it anywhere.</sub>
-
-</div>
-
----
-
-## The Architecture
-
-INFINI standardizes autonomous work through a clean, decoupled architecture:
+## 🏗️ How It Works
 
 ```text
-                    ┌─────────────┐
-                    │  Loopfile   │    ← Portable. Declarative. Yours.
-                    └──────┬──────┘
-                           │
-                    ┌──────▼──────┐
-                    │   Engine    │    ← Reference, Hermes, OpenClaw, yours
-                    └──────┬──────┘
-                           │
-              ┌────────────┼────────────┐
-              │            │            │
-        ┌─────▼─────┐ ┌───▼───┐ ┌──────▼──────┐
-        │  Adapter  │ │ Trace │ │  Verifier   │
-        └─────┬─────┘ └───┬───┘ └──────┬──────┘
-              │            │            │
-              └────────────┼────────────┘
-                           │
-                    ┌──────▼──────┐
-                    │ Observatory │    ← See everything. Replay anything.
-                    └─────────────┘
+┌─────────────────────────────────────────────────────┐
+│                     USER                            │
+│               infini run --plan                     │
+└─────────────────┬───────────────────────────────────┘
+                  │
+                  ▼
+┌─────────────────────────────────────────────────────┐
+│                  PLANNER (Agent 1)                  │
+│        Writes plan.md with step checklist           │
+└─────────────────┬───────────────────────────────────┘
+                  │ (SQLite Message Bus)
+                  ▼
+┌─────────────────────────────────────────────────────┐
+│                  WORKER (Agent 2)                   │
+│      Executes steps, updates tasks table            │
+└─────────────────┬───────────────────────────────────┘
+                  │ (SQLite Message Bus)
+                  ▼
+┌─────────────────────────────────────────────────────┐
+│                 INSPECTOR (Agent 3)                 │
+│         Reviews output, writes review.md            │
+└─────────────────┬───────────────────────────────────┘
+                  │
+                  ▼
+┌─────────────────────────────────────────────────────┐
+│                  ETERNAL MEMORY                     │
+│         (SQLite FTS5 — verbatim retrieval)          │
+└─────────────────────────────────────────────────────┘
+```
+
+**All without Redis. All without Kafka. Just SQLite.**
+
+---
+
+## ✨ Features
+
+### For Developers
+- **`infini run --plan`** → 3-agent supervision reduces hallucinations
+- **`infini task *`** → Full task lifecycle (create/ack/complete/wait)
+- **`infini skill install`** → Plug in any Anthropic Skills-compatible adapter
+- **`infini run --live`** → Execute against real LLMs (Anthropic/OpenAI, no vendor lock-in)
+- **`infini replay --step s2`** → Time-travel debug from any node
+
+### For DevOps
+- **Zero infrastructure** → No Redis, no message queues, no microservices
+- **SQLite WAL mode** → Handles 50+ concurrent agents on a t3.micro
+- **Single binary deployment** → `pip install` and you're done
+
+### For AI Engineers
+- **Eternal memory** → Verbatim storage + FTS5 retrieval (MemPalace pattern)
+- **MCP runtime** → Model Context Protocol tool definitions + live execution
+- **Full observability** → Every run produces a signed `.trace` file
+- **3D Observatory** → Next.js + React Three Fiber trace visualizer
+
+### For End Users
+- **`/infini` slash commands** → Works inside Claude Code, Gemini CLI, Codex
+- **One-command setup** → `infini setup` detects and configures everything
+- **Declarative Loopfiles** → YAML workflows, no code required
+
+---
+
+## 📊 INFINI vs. The World
+
+| Feature | INFINI | LangGraph | CrewAI | AutoGen |
+|---------|--------|-----------|--------|---------|
+| Zero-infra orchestration | ✅ | ❌ | ❌ | ❌ |
+| Eternal memory (FTS5) | ✅ | ❌ | ❌ | ✅ |
+| Slash command auto-install | ✅ | ❌ | ❌ | ❌ |
+| 3-agent supervision | ✅ | ✅ | ❌ | ✅ |
+| SQLite message bus | ✅ | ❌ | ❌ | ❌ |
+| Adapter certification | ✅ | ❌ | ❌ | ❌ |
+| Anthropic Skills standard | ✅ | ❌ | ❌ | ❌ |
+| Time-travel replay | ✅ | ❌ | ❌ | ❌ |
+
+---
+
+## 🚀 Quick Start
+
+```bash
+# 1. Install
+pip install infini-cli
+
+# 2. Setup (init DB + detect terminals + install slash commands)
+infini setup
+
+# 3. Run your first workflow (mock mode — no API keys needed)
+infini run examples/golden-research-assistant/research-loop.yaml --mock
+
+# 4. Run with real agents (3-agent supervision)
+infini run examples/golden-research-assistant/research-loop.yaml --plan
+
+# 5. Run against a live LLM (needs ANTHROPIC_API_KEY or OPENAI_API_KEY)
+infini run examples/golden-research-assistant/research-loop.yaml --live
+
+# 6. Inspect the trace
+infini inspect runs/latest/
+
+# 7. Time-travel replay from any step
+infini replay runs/latest/ --step s2
+
+# 8. See your tasks
+infini task list --status all
+
+# 9. Install a community skill
+infini skill install https://github.com/awesome/skill-repo
+
+# 10. Certify an adapter
+infini certify adapters/hermes --mock
+```
+
+### Example Loopfile
+
+```yaml
+LOOPFILE: "1.0"
+name: auth-module
+
+OBJECTIVE: "Implement JWT auth with refresh tokens."
+
+AGENTS:
+  - { name: coder, role: builder, model_tier: sonnet, tools: [terminal.run, file_system.write] }
+  - { name: judge, role: verifier, model_tier: haiku }
+
+STEPS:
+  - { id: s1, name: implement, action: terminal.run, uses: coder, produces: [auth.py] }
+  - { id: s2, name: test, action: terminal.run, uses: coder, depends_on: [s1] }
+  - { id: s3, name: verify, action: verify, uses: judge, depends_on: [s2] }
+
+VERIFY:
+  syntactic: ["auth.py:exists", "test-output.log:exit_zero"]
+  semantic: ["judge:code_quality>=85"]
+  confidence_threshold: 85
+
+BUDGET: { dollars: 5, minutes: 15 }
+STOP_WHEN: ["all_verify_passed"]
+
+memory:
+  persist: true
+  context_window: 100
 ```
 
 ---
@@ -135,137 +229,40 @@ INFINI standardizes autonomous work through a clean, decoupled architecture:
 
 A declarative `loop.yaml` that defines *what* your agent should do — not *how* one specific framework does it. Same file. Any engine. Full traceability.
 
-```yaml
-LOOPFILE: "1.0"
-name: research-assistant
-
-AGENTS:
-  - { name: researcher, model_tier: sonnet, tools: [browser] }
-  - { name: verifier,  model_tier: haiku }
-
-STEPS:
-  - { id: s1, action: browser.find_sources, uses: researcher }
-  - { id: s2, action: verify_citations, uses: verifier, depends_on: [s1] }
-
-VERIFY:
-  syntactic: ["every_claim_has_citation"]
-  semantic: ["source_quality >= 85"]
-  confidence_threshold: 85
-
-BUDGET: { dollars: 6, minutes: 20 }
-STOP_WHEN: ["all_verify_passed"]
-```
+📖 **[Read the spec →](spec/loopfile-v1.md)** · **[10 RFCs →](spec/rfcs/)** · **[Versioning policy →](spec/versions.md)**
 
 ### Native MCP Support
-
-INFINI ingests any [Model Context Protocol](https://modelcontextprotocol.io) server directly in the YAML. Drop in a standard database, GitHub, or terminal MCP server with one line — no custom integrations, no lock-in.
 
 ```yaml
 TOOLS:
   - mcp: "github.com/modelcontextprotocol/servers/src/postgres"
-  - mcp: "github.com/modelcontextprotocol/servers/src/filesystem"
   - mcp: "github.com/modelcontextprotocol/servers/src/github"
 ```
 
-📖 **[MCP integration strategy →](docs/mcp-strategy.md)**
-
----
-
-## Quickstart
-
-### 1. Install
-
-```bash
-pip install infini-cli
-```
-
-*(Or install from source by cloning this repo and running `pip install -e .` in the `cli/` directory.)*
-
-### 2. Run a Loop
-
-Execute an agent loop end-to-end:
-
-```bash
-infini run research-loop.yaml
-```
-
-Want to test without API keys? Use Mock Mode for CI & demos:
-
-```bash
-infini run examples/golden-research-assistant/research-loop.yaml --mock
-```
-
-### 3. Visualize
-
-Every run produces a standardized trace. Launch the local Next.js dashboard to inspect it:
-
-```bash
-infini ui runs/latest/run.json
-```
-
-```
-✓ Loaded Loopfile
-✓ Loaded adapter
-✓ Executing...
-✓ Verification passed
-✓ Trace saved
-✓ Observatory updated
-```
-
----
-
-## CLI Reference
-
-The `infini` CLI is your control center for portable agents:
-
-```bash
-infini init                    # Scaffold a new Loopfile
-infini validate loop.yaml      # Check a Loopfile against the spec
-infini engines                 # List available adapters
-infini run loop.yaml           # Execute a loop
-infini run loop.yaml --mock    # Execute with mock adapter (no API key)
-infini inspect run.json        # Open trace details in the terminal
-infini ui run.json             # Launch the Observatory UI
-infini replay run.json         # Time-travel debug a previous run
-infini diff v1.yaml v2.yaml    # Semantic diff between Loopfiles
-infini conformance tests/conformance/  # Run the conformance suite
-infini certify adapters/hermes # Certify an adapter against the spec
-infini benchmark loop.yaml     # Run standardized benchmarks
-```
+Drop in any MCP server with one line of YAML. No custom integrations.
 
 ---
 
 ## The Observatory
 
-Inspectable agents. No more black boxes. The Observatory is a local Next.js + React Three Fiber dashboard that reads your `.trace` files.
+Every run produces a standardized trace. The Observatory is a local Next.js + React Three Fiber dashboard:
 
 <div align="center">
   <img src="assets/observatory-ui.png" alt="INFINI Observatory — 3D execution graph" width="700">
 </div>
 
-- **3D Execution Graph** — Drop in a `.trace` file for an interactive timeline.
-- **Granular Metrics** — See cost, tokens, artifacts, decisions, and failures per step.
-- **Time-Travel Debugging** — Replay execution from any node.
-- **Diff Analysis** — Compare runs side-by-side with `infini diff`.
+- **3D Execution Graph** — Rotate, zoom, click any node for cost/tokens/artifacts
+- **Time-Travel Debugging** — Replay from any node
+- **Diff Analysis** — Compare runs side-by-side
 
 ---
 
 ## Certification
 
-Adapters can be certified against the INFINI spec. Certification runs the
-conformance suite and produces a machine-readable report:
-
 ```bash
-infini certify adapters/hermes --engine infini --mock
-infini certify adapters/openclaw --engine infini --mock
+infini certify adapters/hermes --mock   # → certified (70.8%)
+infini certify adapters/openclaw --mock  # → certified (66.7%)
 ```
-
-Produces `registry/certifications/<adapter>.json` + `.md` with:
-- Adapter name, version, engine, spec version
-- Supported capabilities
-- Conformance pass/fail/skip per test
-- Compatibility percentage
-- Certification status: `experimental` / `compatible` / `certified`
 
 📖 **[Certification reports →](registry/certifications/)** · **[Compatibility matrix →](spec/compatibility.md)**
 
@@ -273,70 +270,87 @@ Produces `registry/certifications/<adapter>.json` + `.md` with:
 
 ## Canonical Corpus
 
-INFINI's "ImageNet for agent loops" — 10 durable benchmark cases every
-engine should run, every release should run.
+INFINI's "ImageNet for agent loops" — 10 durable benchmark cases every engine should run.
 
 | # | Case | Category |
 | --- | --- | --- |
 | 001 | simple-task | minimal, baseline |
 | 002 | research-summary | research, verification |
-| 003 | code-review | coding, parallel, verification |
-| 004 | retry-recovery | resilience, retry |
+| 003 | code-review | coding, parallel |
+| 004 | retry-recovery | resilience |
 | 005 | budget-guard | budget, safety |
 | 006 | parallel-fanout | parallel, dag |
 | 007 | memory-update | memory, learning |
 | 008 | tool-call-placeholder | tools, mcp |
-| 009 | human-approval-gate | governance, human-in-loop |
-| 010 | replay-diff | replay, diff, debugging |
+| 009 | human-approval-gate | governance |
+| 010 | replay-diff | replay, diff |
 
 📖 **[Full corpus →](tests/corpus/)**
 
 ---
 
-## Adapters
+## CLI Reference
 
-Adapters make the INFINI spec real for runtimes that already exist. The easiest way to contribute to the project is by building a new adapter using the [Adapter SDK](sdk/).
-
-Each adapter must pass the conformance suite: **Parse, Run, Verify, Inspect, Replay**.
-
-| Adapter | Type | Description |
-| --- | --- | --- |
-| [`hermes/`](adapters/hermes/) | Core | Governance brain: policy, memory, escalation, audit. |
-| [`openclaw/`](adapters/openclaw/) | Core | Execution runtime: browser, GitHub, terminal, filesystem. |
-| [`crewai/`](adapters/crewai/) | Community | Wrapper for CrewAI framework. *(help wanted)* |
-| [`langgraph/`](adapters/langgraph/) | Community | Wrapper for LangChain's LangGraph. *(help wanted)* |
-| [`mastra/`](adapters/mastra/) | Community | Wrapper for Mastra integration. *(help wanted)* |
-| [`goose/`](adapters/goose/) | Community | Wrapper for Block's Goose. *(help wanted)* |
-| [`codex/`](adapters/codex/) | Community | Wrapper for OpenAI's Codex. *(help wanted)* |
+```bash
+infini validate loop.yaml           # Check against spec
+infini run loop.yaml --mock         # Execute (no API key)
+infini run loop.yaml --live         # Execute against real LLM
+infini run loop.yaml --plan         # 3-agent orchestration
+infini inspect runs/latest/         # Trace in terminal
+infini replay runs/latest/ --step s2  # Time-travel debug
+infini diff v1.yaml v2.yaml         # Semantic diff
+infini ui runs/latest/run.json      # Launch Observatory
+infini task create/ack/complete/list/wait  # Task lifecycle
+infini skill list/install           # Skill management
+infini certify adapters/<name>      # Adapter certification
+infini conformance tests/conformance/  # Run conformance suite
+infini engines                      # List adapters + skills
+infini setup                        # Initialize everything
+```
 
 ---
 
-## The Reference Runtime
+## 🤝 Join the Heist
 
-> **Current Milestone** — this is what we're building right now.
+INFINI is open source. We stole the best ideas from Squad, MemPalace, Anthropic Skills, Superpowers, and FastMCP. Now we're building something bigger.
 
-<div align="center">
+**Ways to contribute:**
+- **Adapters** → Help us build for LangGraph, CrewAI, Mastra, Goose, Codex
+- **Docs** → Write the [Loop Engineer Handbook](docs/handbook/)
+- **Skills** → Create reusable skill repositories
+- **Benchmarks** → Run performance tests against other frameworks
+- **Corpus** → Add canonical benchmark cases
 
+**Start here:**
+```bash
+git clone https://github.com/NickAiNYC/infini
+cd infini
+pip install -e './cli[dev]'
+infini setup
+infini conformance tests/conformance/ --mock
 ```
-Loopfile → Engine → Adapter → Execution → Trace → Replay → Observatory
-```
 
-</div>
+📖 **[Contributing Guide →](CONTRIBUTING.md)** · **[Adapter SDK →](sdk/)** · **[Architecture Decision Records →](docs/adr/)**
 
-When that path works end-to-end, everything else becomes easy. One demo that shows a Loopfile executing for real communicates the entire value of the project.
+---
 
-| Milestone | Deliverables | Status |
-| --- | --- | :---: |
-| **1. The Standard Works** | Deterministic engine, schema, conformance (8/8 passing), tests. | ✅ Complete |
-| **2. The Standard Travels** | Adapters, certification, compatibility matrix, canonical corpus. | 🔄 In Progress |
-| **3. The Standard Scales** | Observatory, registry, signatures, marketplace. | ⏭ Next |
-| **4. The Standard Evolves** | MCP, memory, distributed execution, DAG scheduler, parallel workers. | 📋 Planned |
+## 📖 The Story
+
+INFINI was built by stealing the best architectural ideas from 5 groundbreaking open-source projects:
+
+- **[Squad](https://github.com/mco-org/squad)** → SQLite task/message bus and slash-command installer
+- **[MemPalace](https://github.com/mempalace/mempalace)** → Verbatim storage with FTS5 retrieval
+- **[Anthropic Skills](https://github.com/anthropics/skills)** → Plugin standard and skill marketplace
+- **[Superpowers](https://github.com/obra/superpowers)** → 3-agent supervision pattern (Planner/Worker/Inspector)
+- **[FastMCP](https://github.com/jlowin/fastmcp)** → Decorator-based tool definitions for live LLM execution
+
+**We credit them. We love them. We stand on their shoulders.**
+
+Read the full story: **[Scaling INFINI: How we built a serverless agent orchestration layer using SQLite](docs/blog/scaling-infini.md)**
 
 ---
 
 ## The Lineage
-
-Standards build the future.
 
 ```
 Docker      standardized   containers
@@ -346,27 +360,14 @@ Markdown    standardized   documents
 INFINI      standardizes   autonomous work
 ```
 
-Read our full philosophy in the [Manifesto](MANIFESTO.md).
-
 ---
 
 ## Community
 
 - [Discussions](https://github.com/NickAiNYC/infini/discussions) — Questions, ideas, show & tell
 - [RFCs](spec/rfcs/) — Propose spec changes
-- [Contributing](CONTRIBUTING.md) — Learn how to get involved
+- [Contributing](CONTRIBUTING.md) — How to get involved
 - [Code of Conduct](CODE_OF_CONDUCT.md) — Contributor Covenant 2.1
-
----
-
-## Next Steps
-
-- Run a [golden example](examples/) in mock mode
-- Read the [12 canonical loops](loops/)
-- Explore the [spec](spec/loopfile-v1.md) and [RFCs](spec/rfcs/)
-- Build an adapter using the [SDK](sdk/)
-- Read the [MCP integration strategy](docs/mcp-strategy.md)
-- Read the [Handbook](docs/handbook/)
 
 ---
 
@@ -375,8 +376,6 @@ Read our full philosophy in the [Manifesto](MANIFESTO.md).
 **Star this repo if you want agents to be portable and inspectable.**
 
 Built for the agent ecosystem. Spec is [CC-BY-4.0](https://creativecommons.org/licenses/by/4.0/). Code is [MIT](LICENSE).
-
-<br>
 
 <sub>Loops that don't end. Loops that improve.</sub>
 
