@@ -1,0 +1,329 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Spaghetti to Spec</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #0a0e14;
+    font-family: "SF Mono", "JetBrains Mono", Menlo, Consolas, monospace;
+    padding: 32px;
+  }
+  .container {
+    display: grid;
+    grid-template-columns: 1fr 60px 1fr;
+    gap: 0;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+  .panel {
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+  }
+  .panel-header {
+    padding: 12px 16px;
+    font-size: 13px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .panel-left .panel-header {
+    background: #2a1010;
+    color: #ef4444;
+    border-bottom: 1px solid #4a2020;
+  }
+  .panel-right .panel-header {
+    background: #0a2a1a;
+    color: #10b981;
+    border-bottom: 1px solid #1a4a2a;
+  }
+  .lines {
+    color: #475569;
+    font-size: 11px;
+    font-weight: 400;
+    text-transform: none;
+    letter-spacing: 0;
+  }
+  .code {
+    background: #0d1117;
+    padding: 16px;
+    font-size: 11px;
+    line-height: 1.6;
+    color: #c9d1d9;
+    height: 580px;
+    overflow: hidden;
+    white-space: pre;
+  }
+  .panel-left .code { color: #8b4444; }
+  .panel-right .code { color: #6bd098; }
+
+  /* Arrow in the middle */
+  .arrow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    color: #06b6d4;
+  }
+  .arrow svg {
+    filter: drop-shadow(0 0 12px rgba(6,182,212,0.6));
+  }
+  .arrow-text {
+    margin-top: 8px;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: #06b6d4;
+    text-shadow: 0 0 8px rgba(6,182,212,0.4);
+  }
+
+  .caption {
+    text-align: center;
+    margin-top: 24px;
+    color: #64748b;
+    font-size: 13px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, sans-serif;
+  }
+  .caption strong { color: #94a3b8; }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- LEFT: Spaghetti -->
+  <div class="panel panel-left">
+    <div class="panel-header">
+      <span>🔴 Before — Framework Lock-in</span>
+      <span class="lines">147 lines</span>
+    </div>
+    <div class="code">from langchain.agents import AgentExecutor
+from langchain.agents.openai_functions_agent
+    import OpenAIFunctionsAgent
+from langchain.chat_models import ChatOpenAI
+from langchain.memory import ConversationBufferMemory
+from langchain.prompts import (
+    ChatPromptTemplate,
+    MessagesPlaceholder,
+)
+from langchain.tools import Tool, DuckDuckGoSearchRun
+from langchain.chains import LLMChain
+from langchain.schema import SystemMessage
+from langchain.callbacks import (
+    StdOutCallbackHandler,
+    FileCallbackHandler,
+)
+from langchain_community.utilities import SerpAPIWrapper
+from langchain_core.messages import HumanMessage
+from langchain_core.runnables import RunnablePassthrough
+from typing import Dict, List, Optional, Any
+import os, json, time, logging
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+# --- Configuration ---
+OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
+SERPAPI_API_KEY = os.environ.get("SERPAPI_API_KEY")
+if not OPENAI_API_KEY:
+    raise ValueError("Missing OPENAI_API_KEY")
+
+# --- Model setup ---
+llm = ChatOpenAI(
+    model="gpt-4o",
+    temperature=0.1,
+    max_tokens=2000,
+    streaming=True,
+    callbacks=[StdOutCallbackHandler()],
+)
+
+# --- Memory ---
+memory = ConversationBufferMemory(
+    memory_key="chat_history",
+    return_messages=True,
+    output_key="output",
+    input_key="input",
+    max_token_limit=4000,
+)
+
+# --- Tools ---
+search = DuckDuckGoSearchRun()
+serp = SerpAPIWrapper()
+
+def search_sources(query: str) -> List[Dict]:
+    """Find primary sources for a research query."""
+    results = serp.results(query, num_results=5)
+    sources = []
+    for r in results.get("organic_results", []):
+        sources.append({
+            "title": r.get("title"),
+            "url": r.get("link"),
+            "snippet": r.get("snippet"),
+        })
+    return sources
+
+def extract_claims(sources: List[Dict]) -> List[Dict]:
+    """Extract claims from sources using LLM."""
+    prompt = ChatPromptTemplate.from_messages([
+        SystemMessage(content="Extract claims with citations."),
+        MessagesPlaceholder(variable_name="sources"),
+        HumanMessage(content="{input}"),
+    ])
+    chain = LLMChain(llm=llm, prompt=prompt, verbose=True)
+    claims = []
+    for s in sources:
+        result = chain.run(sources=json.dumps(s), input="extract")
+        claims.append({"claim": result, "source": s["url"]})
+    return claims
+
+def verify_citations(claims: List[Dict]) -> Dict:
+    """Verify each claim has a valid citation."""
+    prompt = ChatPromptTemplate.from_messages([
+        SystemMessage(content="Check citation accuracy."),
+        HumanMessage(content="{claims}"),
+    ])
+    chain = LLMChain(llm=llm, prompt=prompt)
+    verified = []
+    for c in claims:
+        result = chain.run(claims=json.dumps(c))
+        score = parse_confidence(result)
+        if score >= 85:
+            verified.append(c)
+    return {"verified": verified, "count": len(verified)}
+
+# --- Agent ---
+tools = [
+    Tool(name="search_sources", func=search_sources,
+         description="Find sources"),
+    Tool(name="extract_claims", func=extract_claims,
+         description="Extract claims"),
+    Tool(name="verify_citations", func=verify_citations,
+         description="Verify citations"),
+]
+
+agent = OpenAIFunctionsAgent.from_llm_and_tools(
+    llm=llm,
+    tools=tools,
+    memory=memory,
+    system_message=SystemMessage(
+        content="You are a research assistant. "
+                "Find 3+ sources. Verify citations."
+    ),
+    extra_prompt_messages=[
+        MessagesPlaceholder(variable_name="chat_history")
+    ],
+)
+
+executor = AgentExecutor.from_agent_and_tools(
+    agent=agent,
+    tools=tools,
+    memory=memory,
+    verbose=True,
+    max_iterations=5,
+    early_stopping_method="generate",
+    handle_parsing_errors=True,
+    return_intermediate_steps=True,
+)
+
+# --- Run ---
+if __name__ == "__main__":
+    result = executor({
+        "input": "Research the impact of MCP on agent interoperability.",
+    })
+    print(json.dumps(result, indent=2))
+    with open("output.json", "w") as f:
+        json.dump(result, f, indent=2)
+
+# --- Tracing (manual) ---
+def log_step(step: str, data: Any):
+    entry = {"step": step, "ts": time.time(), "data": data}
+    logger.info(json.dumps(entry))
+
+# --- Cost tracking (manual) ---
+class CostTracker:
+    def __init__(self, budget_usd: float = 6.0):
+        self.budget = budget_usd
+        self.spent = 0.0
+    def track(self, tokens: int, model: str):
+        rate = 0.000015 if model == "gpt-4o" else 0.000003
+        self.spent += tokens * rate
+        if self.spent > self.budget:
+            raise RuntimeError("Budget exceeded!")
+        return self.spent
+
+# --- Replay (not supported) ---
+# To replay, re-run the whole script and hope
+# the model gives the same answer. Good luck.</div>
+  </div>
+
+  <!-- ARROW -->
+  <div class="arrow">
+    <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
+      <path d="M5 20 L35 20 M25 10 L35 20 L25 30"
+            stroke="#06b6d4" stroke-width="2.5"
+            stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    <div class="arrow-text">INFINI</div>
+  </div>
+
+  <!-- RIGHT: Spec -->
+  <div class="panel panel-right">
+    <div class="panel-header">
+      <span>🟢 After — Declarative Loopfile</span>
+      <span class="lines">15 lines</span>
+    </div>
+    <div class="code">LOOPFILE: "1.0"
+name: research-assistant
+
+OBJECTIVE: >
+  Answer a research question with at
+  least three cited sources.
+
+AGENTS:
+  - { name: researcher, model_tier: sonnet, tools: [browser] }
+  - { name: verifier,  model_tier: haiku }
+
+STEPS:
+  - { id: s1, action: browser.find_sources,    uses: researcher }
+  - { id: s2, action: browser.extract_claims,  uses: researcher, depends_on: [s1] }
+  - { id: s3, action: verify_citations,        uses: verifier,   depends_on: [s2] }
+
+VERIFY:
+  syntactic: ["research_brief.md:every_claim_has_citation"]
+  semantic:  ["judge:source_quality>=85"]
+  confidence_threshold: 85
+
+BUDGET: { dollars: 6, minutes: 20 }
+STOP_WHEN: ["all_verify_passed"]
+
+# That's it. Portable. Verifiable.
+# Replayable. Engine-agnostic.
+# No lock-in. No boilerplate.
+
+# infini run research-loop.yaml --engine=hermes
+# infini run research-loop.yaml --engine=openclaw
+# infini run research-loop.yaml --engine=langgraph
+#
+# Same YAML. Any engine.
+# Full trace. Time-travel replay.
+
+# Want to add tools? Drop in an MCP server:
+#
+# TOOLS:
+#   - mcp: "github.com/.../src/postgres"
+#   - mcp: "github.com/.../src/github"
+#
+# One line per tool. No integration code.</div>
+  </div>
+
+</div>
+
+<div class="caption">
+  <strong>Stop hardcoding your agent logic into frameworks.</strong>
+  Write it once as a standard spec, run it anywhere.
+</div>
+
+</body>
+</html>

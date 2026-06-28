@@ -61,7 +61,8 @@
     },
     "LESSONS": { "$ref": "#/$defs/lessons" },
     "STATE":   { "$ref": "#/$defs/state" },
-    "ENGINE":  { "$ref": "#/$defs/engine" }
+    "ENGINE":  { "$ref": "#/$defs/engine" },
+    "TOOLS":   { "$ref": "#/$defs/tools" }
   },
 
   "$defs": {
@@ -175,6 +176,28 @@
         "governance": { "type": "object" },
         "tools":      { "type": "array", "items": { "type": "string" } },
         "delegates":  { "type": "object" }
+      }
+    },
+
+    "tools": {
+      "type": "array",
+      "description": "MCP (Model Context Protocol) servers to load for this loop.",
+      "items": {
+        "type": "object",
+        "required": ["mcp"],
+        "additionalProperties": false,
+        "properties": {
+          "mcp": {
+            "type": "string",
+            "description": "MCP server reference: URL, path, or registry address.",
+            "minLength": 1
+          },
+          "config": {
+            "type": "object",
+            "description": "Optional MCP server configuration (connection params, auth, etc.).",
+            "additionalProperties": true
+          }
+        }
       }
     }
   }

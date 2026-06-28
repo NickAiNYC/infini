@@ -79,6 +79,36 @@ AGENTS:
 - `model_tier` is engine-resolved. The Loopfile does not pin a specific model.
 - `tools` is engine-resolved. The Loopfile declares intent; the engine maps to real tools.
 
+## 5b. TOOLS (MCP — Model Context Protocol)
+
+A Loopfile can declare a `TOOLS` block that references [MCP servers](https://modelcontextprotocol.io) directly. This lets any Loopfile ingest thousands of open-source MCP servers — databases, GitHub, filesystems, browsers, APIs — with one line per tool. No custom integration code.
+
+```yaml
+TOOLS:
+  - mcp: "github.com/modelcontextprotocol/servers/src/postgres"
+  - mcp: "github.com/modelcontextprotocol/servers/src/filesystem"
+  - mcp: "github.com/modelcontextprotocol/servers/src/github"
+  - mcp: "github.com/modelcontextprotocol/servers/src/brave-search"
+```
+
+- Each entry is an MCP server reference (URL, path, or registry address).
+- The engine resolves the MCP server at run time and exposes its tools to the agents declared in `AGENTS`.
+- MCP tools are namespaced: `postgres.query`, `filesystem.read`, `github.create_issue`.
+- An agent gains access to MCP tools by listing them in `tools:`:
+
+```yaml
+AGENTS:
+  - name: researcher
+    role: researcher
+    model_tier: sonnet
+    tools: [browser, postgres.query, github.search_repos]
+```
+
+- MCP servers can declare their own budgets and rate limits; the engine respects them.
+- If an MCP server is unavailable at run time, the engine marks steps that depend on it as `tool_unavailable` and the loop can escalate or retry.
+
+See [`docs/mcp-strategy.md`](../docs/mcp-strategy.md) for the full integration strategy.
+
 ## 6. STEPS
 
 ```yaml
