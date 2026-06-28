@@ -8,26 +8,28 @@
 
 <br><br>
 
-# `INFINI`
+<h1><code>INFINI</code></h1>
 
-### The Open Standard for Agent Portability
+<h3>The Open Standard for Agent Portability</h3>
 
-Write your agent logic **once**. Execute it on **any** framework.<br>Verify it actually worked. Replay it when it didn't.
-
-<br>
-
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](https://opensource.org/licenses/MIT)
-[![Python 3.10+](https://img.shields.io/badge/python-3.10+-3776AB.svg?style=flat-square&logo=python&logoColor=white)](https://www.python.org/)
-[![Version](https://img.shields.io/badge/milestone-Reference_Runtime-blueviolet?style=flat-square)](#the-reference-runtime)
-[![Spec](https://img.shields.io/badge/spec-v1.0-00C853?style=flat-square)](#the-loopfile)
-[![Stars](https://img.shields.io/github/stars/NickAiNYC/infini?style=flat-square&color=orange)](https://github.com/NickAiNYC/infini)
-[![Discord](https://img.shields.io/badge/Discord-join-5865F2?style=flat-square&logo=discord&logoColor=white)](#community)
+<p>Write your agent logic <b>once</b>. Execute it on <b>any</b> framework.<br>Verify it actually worked. Replay it when it didn't.</p>
 
 <br>
 
-> **Agents just got their Docker moment.**
+<a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square" alt="License: MIT"></a>
+<a href="https://www.python.org/"><img src="https://img.shields.io/badge/python-3.10+-3776AB.svg?style=flat-square&logo=python&logoColor=white" alt="Python 3.10+"></a>
+<a href="#the-reference-runtime"><img src="https://img.shields.io/badge/milestone-Reference_Runtime-blueviolet?style=flat-square" alt="Milestone"></a>
+<a href="#the-loopfile"><img src="https://img.shields.io/badge/spec-v1.0-00C853?style=flat-square" alt="Spec"></a>
+<a href="https://github.com/NickAiNYC/infini"><img src="https://img.shields.io/github/stars/NickAiNYC/infini?style=flat-square&color=orange" alt="Stars"></a>
+<a href="#community"><img src="https://img.shields.io/badge/Discord-join-5865F2?style=flat-square&logo=discord&logoColor=white" alt="Discord"></a>
 
-[Install](#install) · [Quickstart](#quickstart) · [Observatory](#-the-observatory) · [Adapters](#-adapters) · [Manifesto](MANIFESTO.md) · [Spec](spec/loopfile-v1.md) · [Roadmap](ROADMAP.md)
+<br><br>
+
+<blockquote><b>Agents just got their Docker moment.</b></blockquote>
+
+<p>
+<a href="#install">Install</a> · <a href="#quickstart">Quickstart</a> · <a href="#the-observatory">Observatory</a> · <a href="#adapters">Adapters</a> · <a href="MANIFESTO.md">Manifesto</a> · <a href="spec/loopfile-v1.md">Spec</a> · <a href="ROADMAP.md">Roadmap</a>
+</p>
 
 <br>
 
@@ -325,9 +327,9 @@ INFINI      standardizes   autonomous work
 
 <div align="center">
 
-**Star if you want agents to be portable and inspectable.**
+<p><b>Star if you want agents to be portable and inspectable.</b></p>
 
-Built for the agent ecosystem. Spec is [CC-BY-4.0](https://creativecommons.org/licenses/by/4.0/). Code is [MIT](LICENSE).
+<p>Built for the agent ecosystem. Spec is <a href="https://creativecommons.org/licenses/by/4.0/">CC-BY-4.0</a>. Code is <a href="LICENSE">MIT</a>.</p>
 
 <br>
 
