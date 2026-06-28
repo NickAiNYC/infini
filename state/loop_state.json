@@ -1,0 +1,27 @@
+{
+  "loop": {
+    "name": null,
+    "version": null,
+    "spec": "1.0"
+  },
+  "objective": null,
+  "status": "pending",
+  "started_at": null,
+  "updated_at": null,
+  "current_step": null,
+  "completed_steps": [],
+  "pending_steps": [],
+  "blocked_on": null,
+  "artifacts": {},
+  "budget": {
+    "dollars": { "used": 0.0, "limit": null },
+    "tokens":  { "used": 0, "limit": null },
+    "minutes": { "used": 0.0, "limit": null }
+  },
+  "verify_results": {},
+  "failures": [],
+  "escalations": [],
+  "confidence": null,
+  "next_action": null,
+  "lessons_appended": false
+}

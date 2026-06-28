@@ -1,0 +1,78 @@
+LOOM: "1.0"
+name: oncall-loop
+version: 1.0.0
+description: Triage incidents and propose mitigations.
+author: loom
+license: MIT
+
+OBJECTIVE: "Given an incident alert, triage severity, gather context from logs and metrics, identify likely cause, and propose a mitigation. Do not apply destructive fixes without human approval."
+
+INPUTS:
+  - { name: alert, type: json, required: true }
+  - { name: repo_path, type: file, required: false }
+
+CONSTRAINTS:
+  - no_destructive_actions_without_approval
+  - all_proposals_cite_evidence
+  - severity_must_be_justified
+
+AGENTS:
+  - { name: triager,  role: manager,   model_tier: sonnet, tools: [bash, file_io] }
+  - { name: investigator, role: researcher, model_tier: sonnet, tools: [bash, file_io] }
+  - { name: judge,    role: verifier,  model_tier: opus,   tools: [bash] }
+
+STEPS:
+  - id: s1
+    name: triage
+    action: classify_severity
+    uses: triager
+    produces: [triage.md]
+  - id: s2
+    name: investigate
+    action: gather_logs_metrics_context
+    uses: investigator
+    depends_on: [s1]
+    produces: [investigation.md]
+  - id: s3
+    name: hypothesize
+    action: identify_likely_cause
+    uses: investigator
+    depends_on: [s2]
+    produces: [hypotheses.md]
+  - id: s4
+    name: propose
+    action: draft_mitigation_options
+    uses: triager
+    depends_on: [s3]
+    produces: [mitigation_options.md]
+  - id: s5
+    name: verify
+    action: judge_triage_quality
+    uses: judge
+    depends_on: [s4]
+    produces: [verification_report.md]
+
+VERIFY:
+  syntactic: ["all_outputs:valid_markdown"]
+  semantic:  ["severity:justified", "evidence:cited", "no_unsafe_actions_proposed"]
+  external:  ["logs:accessible", "metrics:current"]
+  confidence_threshold: 80
+
+BUDGET: { dollars: 4, tokens: 400000, minutes: 10, external_calls: 30 }
+
+ESCALATE_WHEN:
+  severity: sev1_or_sev2
+  destructive_action_required: true
+  ambiguity_above: 0.4
+  consecutive_failures: 1
+
+STOP_WHEN: ["triage_complete", "mitigation_proposed", "evidence_cited"]
+
+SELF_IMPROVE:
+  on_success: [lessons.md, incident_postmortem.md]
+  on_failure: [lessons.md, hypotheses.md]
+  lessons_file: state/lessons.md
+
+STATE:
+  file: state/loop_state.json
+  resume_strategy: continue

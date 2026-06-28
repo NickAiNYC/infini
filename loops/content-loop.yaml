@@ -1,0 +1,72 @@
+LOOM: "1.0"
+name: content-loop
+version: 1.0.0
+description: Draft, critique, and revise content until rubric is met.
+author: loom
+license: MIT
+
+OBJECTIVE: "Produce a piece of content (blog post, thread, essay) that meets the rubric for voice, structure, and clarity through iterative draft-critique-revise cycles."
+
+INPUTS:
+  - { name: brief,    type: string, required: true }
+  - { name: format,   type: string, required: true, enum: [blog, thread, essay, newsletter] }
+  - { name: voice,    type: string, required: false, default: "professional" }
+  - { name: word_count, type: number, required: false, default: 800 }
+
+CONSTRAINTS:
+  - no_emoji_unless_brief_says_so
+  - no_unsourced_statistics
+  - hook_in_first_50_words
+
+AGENTS:
+  - { name: drafter,  role: builder,   model_tier: sonnet, tools: [file_io] }
+  - { name: critic,   role: verifier,  model_tier: opus,   tools: [file_io] }
+  - { name: reviser,  role: refiner,   model_tier: sonnet, tools: [file_io] }
+
+STEPS:
+  - id: s1
+    name: draft
+    action: write_first_draft
+    uses: drafter
+    produces: [draft_v1.md]
+  - id: s2
+    name: critique
+    action: score_against_rubric
+    uses: critic
+    depends_on: [s1]
+    produces: [critique_v1.md]
+  - id: s3
+    name: revise
+    action: address_critique
+    uses: reviser
+    depends_on: [s2]
+    produces: [draft_v2.md]
+  - id: s4
+    name: verify
+    action: score_against_rubric
+    uses: critic
+    depends_on: [s3]
+    produces: [verification_report.md]
+
+VERIFY:
+  syntactic: ["draft:valid_markdown", "word_count:within_±10%"]
+  semantic:  ["rubric:voice>=85", "rubric:structure>=85", "rubric:clarity>=85", "hook:present"]
+  external:  ["links:valid", "stats:sourced"]
+  confidence_threshold: 85
+
+BUDGET: { dollars: 2, tokens: 200000, minutes: 10, external_calls: 0 }
+
+ESCALATE_WHEN:
+  consecutive_failures: 3
+  budget_used_percent: 80
+
+STOP_WHEN: ["all_rubric_dimensions_met", "confidence>=85"]
+
+SELF_IMPROVE:
+  on_success: [lessons.md]
+  on_failure: [lessons.md, critique_v1.md]
+  lessons_file: state/lessons.md
+
+STATE:
+  file: state/loop_state.json
+  resume_strategy: continue

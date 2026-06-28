@@ -1,0 +1,73 @@
+LOOM: "1.0"
+name: debug-loop
+version: 1.0.0
+description: Reproduce, isolate, fix, and verify a bug.
+author: loom
+license: MIT
+
+OBJECTIVE: "Given a bug report, reproduce the failure, isolate the root cause, propose and apply a fix, and verify the fix without introducing regressions."
+
+INPUTS:
+  - { name: repo_path, type: file, required: true }
+  - { name: bug_report, type: string, required: true }
+
+CONSTRAINTS:
+  - minimal_diff
+  - no_new_dependencies
+  - regression_tests_added
+
+AGENTS:
+  - { name: reproducer, role: researcher, model_tier: sonnet, tools: [bash, file_io] }
+  - { name: isolator,   role: researcher, model_tier: sonnet, tools: [bash, file_io] }
+  - { name: fixer,      role: builder,    model_tier: sonnet, tools: [file_io, bash] }
+  - { name: judge,      role: verifier,   model_tier: opus,   tools: [bash] }
+
+STEPS:
+  - id: s1
+    name: reproduce
+    action: write_reproduction_case
+    uses: reproducer
+    produces: [repro.test.ts]
+    retry: { max: 3, backoff: exponential }
+  - id: s2
+    name: isolate
+    action: bisect_to_root_cause
+    uses: isolator
+    depends_on: [s1]
+    produces: [root_cause.md]
+  - id: s3
+    name: fix
+    action: apply_fix
+    uses: fixer
+    depends_on: [s2]
+    produces: [fix.patch, regression.test.ts]
+  - id: s4
+    name: verify
+    action: run_full_suite
+    uses: judge
+    depends_on: [s3]
+    produces: [verification_report.md]
+
+VERIFY:
+  syntactic: ["repro.test:passes_after_fix", "regression.test:passes", "lint:clean"]
+  semantic:  ["root_cause:identified", "fix:minimal", "no_regressions"]
+  external:  ["test_suite:all_pass"]
+  confidence_threshold: 90
+
+BUDGET: { dollars: 6, tokens: 600000, minutes: 30, external_calls: 20 }
+
+ESCALATE_WHEN:
+  ambiguity_above: 0.6
+  consecutive_failures: 3
+  budget_used_percent: 80
+
+STOP_WHEN: ["repro_passes_after_fix", "no_regressions"]
+
+SELF_IMPROVE:
+  on_success: [lessons.md]
+  on_failure: [lessons.md, root_cause.md]
+  lessons_file: state/lessons.md
+
+STATE:
+  file: state/loop_state.json
+  resume_strategy: continue

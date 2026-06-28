@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "lessons": [],
+  "failure_library": [],
+  "cost_estimates": {
+    "haiku_per_1k_tokens": 0.00025,
+    "sonnet_per_1k_tokens": 0.003,
+    "opus_per_1k_tokens": 0.015
+  },
+  "calibration_notes": "Cost estimates are starting points. After every run, recalibrate against actuals in cost_report.md."
+}

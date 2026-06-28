@@ -1,0 +1,74 @@
+LOOM: "1.0"
+name: migration-loop
+version: 1.0.0
+description: Migrate code across framework or language versions.
+author: loom
+license: MIT
+
+OBJECTIVE: "Migrate the target codebase from source_version to target_version of the specified framework or language, preserving behavior and updating all relevant config and dependencies."
+
+INPUTS:
+  - { name: repo_path,      type: file,   required: true }
+  - { name: framework,      type: string, required: true }
+  - { name: source_version, type: string, required: true }
+  - { name: target_version, type: string, required: true }
+
+CONSTRAINTS:
+  - behavior_preserved
+  - all_tests_pass_after_migration
+  - no_skipped_migrations
+
+AGENTS:
+  - { name: auditor, role: researcher, model_tier: sonnet, tools: [file_io, bash] }
+  - { name: migrator, role: builder,   model_tier: sonnet, tools: [file_io, bash] }
+  - { name: judge,    role: verifier,  model_tier: opus,   tools: [bash] }
+
+STEPS:
+  - id: s1
+    name: audit
+    action: scan_for_breaking_changes
+    uses: auditor
+    produces: [breaking_changes.md]
+  - id: s2
+    name: plan
+    action: write_migration_plan
+    uses: auditor
+    depends_on: [s1]
+    produces: [migration_plan.md]
+  - id: s3
+    name: migrate
+    action: apply_migrations
+    uses: migrator
+    depends_on: [s2]
+    produces: [migration.patch]
+    retry: { max: 3, backoff: exponential }
+  - id: s4
+    name: verify
+    action: run_full_suite_and_diff
+    uses: judge
+    depends_on: [s3]
+    produces: [verification_report.md]
+
+VERIFY:
+  syntactic: ["tests:pass", "lint:clean", "typecheck:pass"]
+  semantic:  ["behavior_diff:none", "no_skipped_migrations"]
+  external:  ["build:success", "version:matches_target"]
+  confidence_threshold: 90
+
+BUDGET: { dollars: 10, tokens: 1000000, minutes: 45, external_calls: 30 }
+
+ESCALATE_WHEN:
+  ambiguity_above: 0.5
+  consecutive_failures: 2
+  budget_used_percent: 75
+
+STOP_WHEN: ["behavior_preserved", "version_matches_target", "all_tests_pass"]
+
+SELF_IMPROVE:
+  on_success: [lessons.md]
+  on_failure: [lessons.md, breaking_changes.md]
+  lessons_file: state/lessons.md
+
+STATE:
+  file: state/loop_state.json
+  resume_strategy: continue

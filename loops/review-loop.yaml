@@ -1,0 +1,71 @@
+LOOM: "1.0"
+name: review-loop
+version: 1.0.0
+description: Code review with rubric and cross-check.
+author: loom
+license: MIT
+
+OBJECTIVE: "Review a pull request against a rubric covering correctness, security, performance, readability, and test coverage. Produce a structured review with severity-tagged comments."
+
+INPUTS:
+  - { name: pr_diff,   type: file,   required: true }
+  - { name: repo_path, type: file,   required: true }
+  - { name: rubric,    type: file,   required: false, default: review-rubric.md }
+
+CONSTRAINTS:
+  - no_direct_edits
+  - every_comment_has_severity
+  - cite_line_numbers
+
+AGENTS:
+  - { name: reviewer_a, role: verifier, model_tier: sonnet, tools: [file_io] }
+  - { name: reviewer_b, role: verifier, model_tier: sonnet, tools: [file_io] }
+  - { name: synthesizer, role: manager, model_tier: opus,   tools: [file_io] }
+
+STEPS:
+  - id: s1
+    name: review_a
+    action: rubric_review
+    uses: reviewer_a
+    produces: [review_a.md]
+  - id: s2
+    name: review_b
+    action: independent_review
+    uses: reviewer_b
+    produces: [review_b.md]
+    parallel: true
+  - id: s3
+    name: synthesize
+    action: merge_and_deduplicate
+    uses: synthesizer
+    depends_on: [s1, s2]
+    produces: [review.md]
+  - id: s4
+    name: verify
+    action: check_coverage_of_rubric
+    uses: synthesizer
+    depends_on: [s3]
+    produces: [verification_report.md]
+
+VERIFY:
+  syntactic: ["review.md:valid_markdown", "all_comments_have_severity"]
+  semantic:  ["rubric:all_dimensions_covered", "no_contradictions_between_reviewers"]
+  external:  ["line_numbers:cited_correctly"]
+  confidence_threshold: 85
+
+BUDGET: { dollars: 3, tokens: 300000, minutes: 10, external_calls: 0 }
+
+ESCALATE_WHEN:
+  ambiguity_above: 0.7
+  reviewers_disagree_on_severity: true
+
+STOP_WHEN: ["rubric_covered", "no_contradictions"]
+
+SELF_IMPROVE:
+  on_success: [lessons.md]
+  on_failure: [lessons.md, rubric.md]
+  lessons_file: state/lessons.md
+
+STATE:
+  file: state/loop_state.json
+  resume_strategy: continue
