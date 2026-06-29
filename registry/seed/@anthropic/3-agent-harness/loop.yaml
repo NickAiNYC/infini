@@ -1,0 +1,168 @@
+# Anthropic 3-Agent Harness — INFINI Reference Implementation
+# Flagship Gold-certified loop for the INFINI Loop Registry.
+#
+# Maps to Anthropic Research Engineering's internal harness:
+#   6 layers: Plan → Build → Test → Reject → Repair → Improve
+#   3 agents: Planner, Generator, Evaluator
+#   ~$1k/day autonomous operation
+#
+# Install: infini registry install @anthropic/3-agent-harness@1.0.0
+# Run:     infini run loop.yaml --live --engine infini
+
+LOOPFILE: "1.0"
+name: 3-agent-harness
+version: 1.0.0
+description: >
+  Anthropic-style 3-agent coding harness: Planner turns vague prompts
+  into specs, Generator builds in sprints with git commits, Evaluator
+  runs Playwright UI tests before declaring victory. 6-layer loop:
+  Plan → Build → Test → Reject → Repair → Improve.
+
+OBJECTIVE: >
+  Autonomously implement a software feature from a natural language
+  prompt. The Planner produces a spec, the Generator implements it
+  in sprints with git commits, and the Evaluator runs Playwright UI
+  tests. The loop repairs until all tests pass, then improves the
+  codebase. Total daily cost must not exceed $1000.
+
+AGENTS:
+  - name: planner
+    role: planner
+    model_tier: opus
+    tools: [file_system.read, file_system.write, terminal.run]
+  - name: generator
+    role: builder
+    model_tier: sonnet
+    tools: [file_system.read, file_system.write, terminal.run, git.commit]
+  - name: evaluator
+    role: verifier
+    model_tier: sonnet
+    tools: [file_system.read, terminal.run, browser.navigate, browser.scrape, browser.screenshot]
+
+STEPS:
+  # ─── Layer 0: Startup Sequence ───
+  # Spins up the environment before every session.
+  # This is the expensive initialization Anthropic described.
+  - id: s0_startup
+    name: startup_sequence
+    action: terminal.run
+    uses: planner
+    produces: [.env, docker-compose.yml, startup.log]
+    retry: { max: 2, backoff: exponential }
+
+  # ─── Layer 1: Plan ───
+  # Planner turns the vague prompt into a concrete spec.
+  - id: s1_plan
+    name: plan
+    action: file_system.write
+    uses: planner
+    depends_on: [s0_startup]
+    produces: [spec.md, task-breakdown.json]
+    retry: { max: 3, backoff: exponential }
+
+  # ─── Layer 2: Build ───
+  # Generator implements the spec in sprints, committing to git.
+  - id: s2_build
+    name: build
+    action: git.commit
+    uses: generator
+    depends_on: [s1_plan]
+    produces: [src/, git-log.txt]
+    retry: { max: 3, backoff: exponential }
+
+  # ─── Layer 3: Test ───
+  # Evaluator runs unit tests + Playwright UI tests.
+  # Critical: must NOT declare victory without running UI tests.
+  - id: s3_test
+    name: test
+    action: terminal.run
+    uses: evaluator
+    depends_on: [s2_build]
+    produces: [test-results.json, ui-screenshots/, playwright-report.json]
+    retry: { max: 2, backoff: exponential }
+
+  # ─── Layer 4: Reject (Evaluation Gate) ───
+  # If tests fail, route back to Generator with the specific bug report.
+  # This is the repair loop — the core of the harness.
+  - id: s4_reject
+    name: evaluate_and_route
+    action: verify
+    uses: evaluator
+    depends_on: [s3_test]
+    produces: [evaluation.json, bug-report.md]
+    retry: { max: 5, backoff: exponential }
+
+  # ─── Layer 5: Repair (conditional re-build) ───
+  # Generator receives the bug report and fixes the specific issues.
+  # Depends on s4_reject — only executes if evaluation failed.
+  - id: s5_repair
+    name: repair
+    action: git.commit
+    uses: generator
+    depends_on: [s4_reject]
+    produces: [src/, repair-log.txt]
+    retry: { max: 3, backoff: exponential }
+
+  # ─── Layer 6: Improve (post-verification polish) ───
+  # After all tests pass, the Generator improves the codebase:
+  # refactor, add docs, optimize. This is the "Improve" layer.
+  - id: s6_improve
+    name: improve
+    action: git.commit
+    uses: generator
+    depends_on: [s4_reject]
+    produces: [src/, CHANGELOG.md]
+    retry: { max: 2, backoff: exponential }
+
+VERIFY:
+  syntactic:
+    # ── Premature Victory Prevention ──
+    # The Evaluator MUST run Playwright UI tests before declaring success.
+    # This explicitly guards against the bug where the Evaluator looked
+    # at progress logs superficially and declared "done" prematurely.
+    - "playwright-report.json:exists"
+    - "playwright-report.json:tests_executed"
+    - "playwright-report.json:exit_zero"
+    - "ui-screenshots/:non_empty"
+    # ── Standard checks ──
+    - "spec.md:exists"
+    - "src/:exists"
+    - "test-results.json:exit_zero"
+    - "git-log.txt:non_empty"
+  semantic:
+    - "judge:spec_completeness>=90"
+    - "judge:code_quality>=85"
+    - "judge:test_coverage>=80"
+    # Explicit check: did the evaluator actually RUN the tests,
+    # not just look at logs?
+    - "judge:evaluator_ran_ui_tests==true"
+  confidence_threshold: 90
+
+BUDGET: { dollars: 1000, minutes: 1440, tokens: 10000000 }
+
+STOP_WHEN:
+  - all_verify_passed
+  - iterations>=10
+
+# Cost monitoring via environment variables.
+# The engine reads COST_LIMIT and aborts if daily spend exceeds it.
+ENGINE:
+  type: infini
+  adapter: adapters/infini
+  cost_monitoring:
+    daily_limit: ${COST_LIMIT:-1000}
+    abort_on_exceed: true
+    alert_at: 80%
+
+TOOLS:
+  - mcp: "github.com/modelcontextprotocol/servers/src/filesystem"
+  - mcp: "github.com/modelcontextprotocol/servers/src/git"
+  - mcp: "github.com/modelcontextprotocol/servers/src/playwright"
+  - mcp: "github.com/modelcontextprotocol/servers/src/sequential-thinking"
+
+memory:
+  persist: true
+  context_window: 200
+
+LESSONS: { path: memory/3-agent-harness.md, append: true }
+STATE:   { path: state/3-agent-harness/, resume: true }

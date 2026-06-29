@@ -159,22 +159,20 @@ def register_registry_commands(cli: click.Group) -> None:
             console.print(f"[dim]Run with: infini run {cache_path}/loop.yaml --mock[/dim]")
             return
 
-        # Check seed loops (bundled with the repo)
-        if namespace == "@infini":
-            # Find the repo root by searching upwards for registry/seed
-            from .adapters import find_adapters_dir
-            p = Path.cwd()
-            for _ in range(10):
-                seed_path = p / "registry" / "seed" / "@infini" / name_version
-                if seed_path.exists():
-                    cache_path = CACHE_DIR / namespace / name_version / version
-                    cache_path.mkdir(parents=True, exist_ok=True)
-                    import shutil
-                    shutil.copytree(seed_path, cache_path, dirs_exist_ok=True)
-                    console.print(f"[green]✓[/green] Installed from seed: {cache_path}")
-                    console.print(f"[dim]Run with: infini run {cache_path}/loop.yaml --mock[/dim]")
-                    return
-                p = p.parent
+        # Check seed loops (bundled with the repo) — any namespace
+        from .adapters import find_adapters_dir
+        p = Path.cwd()
+        for _ in range(10):
+            seed_path = p / "registry" / "seed" / namespace / name_version
+            if seed_path.exists():
+                cache_path = CACHE_DIR / namespace / name_version / version
+                cache_path.mkdir(parents=True, exist_ok=True)
+                import shutil
+                shutil.copytree(seed_path, cache_path, dirs_exist_ok=True)
+                console.print(f"[green]✓[/green] Installed from seed: {cache_path}")
+                console.print(f"[dim]Run with: infini run {cache_path}/loop.yaml --mock[/dim]")
+                return
+            p = p.parent
 
         # Try remote fetch
         try:

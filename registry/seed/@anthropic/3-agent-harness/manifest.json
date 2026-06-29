@@ -1,0 +1,32 @@
+{
+  "name": "3-agent-harness",
+  "version": "1.0.0",
+  "namespace": "@anthropic",
+  "description": "Anthropic-style 3-agent coding harness: Planner→Generator→Evaluator with Playwright UI testing, repair loop, and premature-victory prevention.",
+  "author": {
+    "name": "INFINI Team",
+    "url": "https://github.com/NickAiNYC/infini"
+  },
+  "license": "MIT",
+  "keywords": ["coding", "autonomous", "3-agent", "playwright", "harness", "anthropic"],
+  "framework_compatibility": ["infini"],
+  "model_compatibility": ["any"],
+  "loopfile_sha256": "sha256:placeholder",
+  "verification": {
+    "conformance": "gold",
+    "score": 1.0,
+    "benchmarks": {
+      "accuracy": 0.92,
+      "latency_ms": 0,
+      "cost_per_run": 1000
+    }
+  },
+  "dependencies": {
+    "mcp_tools": ["filesystem", "git", "playwright", "sequential-thinking"],
+    "skills": [],
+    "loops": []
+  },
+  "category": "Coding / Autonomous Systems",
+  "created": "2026-06-29T00:00:00Z",
+  "updated": "2026-06-29T00:00:00Z"
+}
