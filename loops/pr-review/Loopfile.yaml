@@ -1,0 +1,26 @@
+LOOPFILE: "1.0"
+name: pr-review
+version: 1.0.0
+OBJECTIVE: Review an open pull request — check CI status, assess code quality, and produce a structured review.
+AGENTS:
+  - { name: reviewer, role: researcher, model_tier: sonnet, tools: [github] }
+  - { name: analyst, role: builder, model_tier: sonnet, tools: [github, file_system] }
+  - { name: verifier, role: verifier, model_tier: haiku, tools: [github] }
+STEPS:
+  - { id: s1, name: fetch-pr, action: github.fetch_pr, uses: reviewer, produces: [pr-data.json] }
+  - { id: s2, name: check-ci, action: github.check_ci, uses: reviewer, depends_on: [s1], produces: [ci-status.json] }
+  - { id: s3, name: analyze-changes, action: code.analyze, uses: analyst, depends_on: [s1], produces: [analysis.json] }
+  - { id: s4, name: write-review, action: review.write, uses: analyst, depends_on: [s2, s3], produces: [review.md] }
+  - { id: s5, name: verify-review, action: review.verify, uses: verifier, depends_on: [s4], produces: [verify.json] }
+VERIFY:
+  syntactic:
+    - "pr-data.json:exists"
+    - "ci-status.json:valid_json"
+    - "analysis.json:valid_json"
+    - "review.md:exists"
+    - "verify.json:valid_json"
+  semantic:
+    - "judge:review_quality>=80"
+  confidence_threshold: 80
+BUDGET: { dollars: 3, minutes: 15 }
+STOP_WHEN: [all_verify_passed, iterations>=2]

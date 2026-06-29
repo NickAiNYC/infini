@@ -1,0 +1,332 @@
+{
+  "loopfile": "pr-review",
+  "loopfile_hash": "sha256:5dc181ddeb44daa1185ce6b55e9f7ddba9ce7b5e255fd29cd22746eb54e7bfc3",
+  "engine": {
+    "type": "infini-reference",
+    "version": "1.0.0"
+  },
+  "started_at": "2026-06-29T15:33:34Z",
+  "ended_at": "2026-06-29T15:33:34Z",
+  "iterations": 2,
+  "steps": [
+    {
+      "id": "s1",
+      "name": "fetch-pr",
+      "status": "ok",
+      "started_at": "2026-06-29T15:33:34Z",
+      "ended_at": "2026-06-29T15:33:34Z",
+      "cost": {
+        "dollars": 0.0163,
+        "minutes": 1.43,
+        "tokens": {
+          "input": 2627,
+          "output": 562,
+          "total": 3189
+        }
+      },
+      "artifacts": [
+        "pr-data.json"
+      ],
+      "agent": "reviewer",
+      "action": "github.fetch_pr",
+      "retry_attempt": null,
+      "extensions": {}
+    },
+    {
+      "id": "s2",
+      "name": "check-ci",
+      "status": "ok",
+      "started_at": "2026-06-29T15:33:34Z",
+      "ended_at": "2026-06-29T15:33:34Z",
+      "cost": {
+        "dollars": 0.0119,
+        "minutes": 0.63,
+        "tokens": {
+          "input": 1858,
+          "output": 420,
+          "total": 2278
+        }
+      },
+      "artifacts": [
+        "ci-status.json"
+      ],
+      "agent": "reviewer",
+      "action": "github.check_ci",
+      "retry_attempt": null,
+      "extensions": {}
+    },
+    {
+      "id": "s3",
+      "name": "analyze-changes",
+      "status": "ok",
+      "started_at": "2026-06-29T15:33:34Z",
+      "ended_at": "2026-06-29T15:33:34Z",
+      "cost": {
+        "dollars": 0.0164,
+        "minutes": 1.31,
+        "tokens": {
+          "input": 2346,
+          "output": 622,
+          "total": 2968
+        }
+      },
+      "artifacts": [
+        "analysis.json"
+      ],
+      "agent": "analyst",
+      "action": "code.analyze",
+      "retry_attempt": null,
+      "extensions": {}
+    },
+    {
+      "id": "s4",
+      "name": "write-review",
+      "status": "ok",
+      "started_at": "2026-06-29T15:33:34Z",
+      "ended_at": "2026-06-29T15:33:34Z",
+      "cost": {
+        "dollars": 0.0145,
+        "minutes": 0.4,
+        "tokens": {
+          "input": 2178,
+          "output": 530,
+          "total": 2708
+        }
+      },
+      "artifacts": [
+        "review.md"
+      ],
+      "agent": "analyst",
+      "action": "review.write",
+      "retry_attempt": null,
+      "extensions": {}
+    },
+    {
+      "id": "s5",
+      "name": "verify-review",
+      "status": "ok",
+      "started_at": "2026-06-29T15:33:34Z",
+      "ended_at": "2026-06-29T15:33:34Z",
+      "cost": {
+        "dollars": 0.0081,
+        "minutes": 0.89,
+        "tokens": {
+          "input": 1129,
+          "output": 860,
+          "total": 1989
+        }
+      },
+      "artifacts": [
+        "verify.json"
+      ],
+      "agent": "verifier",
+      "action": "review.verify",
+      "retry_attempt": null,
+      "extensions": {}
+    },
+    {
+      "id": "s1",
+      "name": "fetch-pr",
+      "status": "failed",
+      "started_at": "2026-06-29T15:33:34Z",
+      "ended_at": "2026-06-29T15:33:34Z",
+      "cost": {
+        "dollars": 0.0203,
+        "minutes": 1.62,
+        "tokens": {
+          "input": 2034,
+          "output": 945,
+          "total": 2979
+        }
+      },
+      "artifacts": [
+        "pr-data.json"
+      ],
+      "agent": "reviewer",
+      "action": "github.fetch_pr",
+      "retry_attempt": null,
+      "extensions": {}
+    },
+    {
+      "id": "s2",
+      "name": "check-ci",
+      "status": "ok",
+      "started_at": "2026-06-29T15:33:34Z",
+      "ended_at": "2026-06-29T15:33:34Z",
+      "cost": {
+        "dollars": 0.0218,
+        "minutes": 1.56,
+        "tokens": {
+          "input": 1726,
+          "output": 1108,
+          "total": 2834
+        }
+      },
+      "artifacts": [
+        "ci-status.json"
+      ],
+      "agent": "reviewer",
+      "action": "github.check_ci",
+      "retry_attempt": null,
+      "extensions": {}
+    },
+    {
+      "id": "s3",
+      "name": "analyze-changes",
+      "status": "ok",
+      "started_at": "2026-06-29T15:33:34Z",
+      "ended_at": "2026-06-29T15:33:34Z",
+      "cost": {
+        "dollars": 0.0151,
+        "minutes": 1.62,
+        "tokens": {
+          "input": 2748,
+          "output": 457,
+          "total": 3205
+        }
+      },
+      "artifacts": [
+        "analysis.json"
+      ],
+      "agent": "analyst",
+      "action": "code.analyze",
+      "retry_attempt": null,
+      "extensions": {}
+    },
+    {
+      "id": "s4",
+      "name": "write-review",
+      "status": "ok",
+      "started_at": "2026-06-29T15:33:34Z",
+      "ended_at": "2026-06-29T15:33:34Z",
+      "cost": {
+        "dollars": 0.0233,
+        "minutes": 1.09,
+        "tokens": {
+          "input": 1835,
+          "output": 1188,
+          "total": 3023
+        }
+      },
+      "artifacts": [
+        "review.md"
+      ],
+      "agent": "analyst",
+      "action": "review.write",
+      "retry_attempt": null,
+      "extensions": {}
+    },
+    {
+      "id": "s5",
+      "name": "verify-review",
+      "status": "ok",
+      "started_at": "2026-06-29T15:33:34Z",
+      "ended_at": "2026-06-29T15:33:34Z",
+      "cost": {
+        "dollars": 0.0059,
+        "minutes": 1.73,
+        "tokens": {
+          "input": 1184,
+          "output": 552,
+          "total": 1736
+        }
+      },
+      "artifacts": [
+        "verify.json"
+      ],
+      "agent": "verifier",
+      "action": "review.verify",
+      "retry_attempt": null,
+      "extensions": {}
+    }
+  ],
+  "verifications": [
+    {
+      "check": "pr-data.json:exists",
+      "status": "pass",
+      "confidence": null,
+      "detail": null
+    },
+    {
+      "check": "ci-status.json:valid_json",
+      "status": "pass",
+      "confidence": null,
+      "detail": null
+    },
+    {
+      "check": "analysis.json:valid_json",
+      "status": "pass",
+      "confidence": null,
+      "detail": null
+    },
+    {
+      "check": "review.md:exists",
+      "status": "pass",
+      "confidence": null,
+      "detail": null
+    },
+    {
+      "check": "verify.json:valid_json",
+      "status": "pass",
+      "confidence": null,
+      "detail": null
+    },
+    {
+      "check": "judge:review_quality>=80",
+      "status": "fail",
+      "confidence": 77.0,
+      "detail": null
+    },
+    {
+      "check": "pr-data.json:exists",
+      "status": "pass",
+      "confidence": null,
+      "detail": null
+    },
+    {
+      "check": "ci-status.json:valid_json",
+      "status": "pass",
+      "confidence": null,
+      "detail": null
+    },
+    {
+      "check": "analysis.json:valid_json",
+      "status": "pass",
+      "confidence": null,
+      "detail": null
+    },
+    {
+      "check": "review.md:exists",
+      "status": "pass",
+      "confidence": null,
+      "detail": null
+    },
+    {
+      "check": "verify.json:valid_json",
+      "status": "pass",
+      "confidence": null,
+      "detail": null
+    },
+    {
+      "check": "judge:review_quality>=80",
+      "status": "pass",
+      "confidence": 87.0,
+      "detail": null
+    }
+  ],
+  "budget": {
+    "spent_dollars": 0.1536,
+    "spent_minutes": 12.28
+  },
+  "outcome": "verified",
+  "lessons": [
+    "pr-review shipped at iteration 2 with mean confidence 87.0."
+  ],
+  "provenance": {
+    "engine_signature": "ed25519:placeholder",
+    "artifact_hashes": {}
+  },
+  "extensions": {},
+  "replay_of": null,
+  "replay_from_step": null
+}

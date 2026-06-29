@@ -1,0 +1,346 @@
+{
+  "loopfile": "claim-audit",
+  "loopfile_hash": "sha256:c04959b523e726e09537fc8813a0fc5a8d578faa4499e329575416bcf6c1c1f3",
+  "engine": {
+    "type": "infini-reference",
+    "version": "1.0.0"
+  },
+  "started_at": "2026-06-29T15:33:34Z",
+  "ended_at": "2026-06-29T15:33:34Z",
+  "iterations": 2,
+  "steps": [
+    {
+      "id": "s1",
+      "name": "extract-claims",
+      "status": "ok",
+      "started_at": "2026-06-29T15:33:34Z",
+      "ended_at": "2026-06-29T15:33:34Z",
+      "cost": {
+        "dollars": 0.0188,
+        "minutes": 1.09,
+        "tokens": {
+          "input": 2161,
+          "output": 821,
+          "total": 2982
+        }
+      },
+      "artifacts": [
+        "extracted-claims.json"
+      ],
+      "agent": "extractor",
+      "action": "web.extract_assertions",
+      "retry_attempt": null,
+      "extensions": {}
+    },
+    {
+      "id": "s2",
+      "name": "classify-claims",
+      "status": "ok",
+      "started_at": "2026-06-29T15:33:34Z",
+      "ended_at": "2026-06-29T15:33:34Z",
+      "cost": {
+        "dollars": 0.0193,
+        "minutes": 0.95,
+        "tokens": {
+          "input": 2612,
+          "output": 764,
+          "total": 3376
+        }
+      },
+      "artifacts": [
+        "classified-claims.json"
+      ],
+      "agent": "classifier",
+      "action": "claims.classify",
+      "retry_attempt": null,
+      "extensions": {}
+    },
+    {
+      "id": "s3",
+      "name": "identify-gaps",
+      "status": "ok",
+      "started_at": "2026-06-29T15:33:34Z",
+      "ended_at": "2026-06-29T15:33:34Z",
+      "cost": {
+        "dollars": 0.0121,
+        "minutes": 0.84,
+        "tokens": {
+          "input": 2522,
+          "output": 302,
+          "total": 2824
+        }
+      },
+      "artifacts": [
+        "proof-gaps.json"
+      ],
+      "agent": "analyst",
+      "action": "claims.identify_gaps",
+      "retry_attempt": null,
+      "extensions": {}
+    },
+    {
+      "id": "s4",
+      "name": "audit-review",
+      "status": "ok",
+      "started_at": "2026-06-29T15:33:34Z",
+      "ended_at": "2026-06-29T15:33:34Z",
+      "cost": {
+        "dollars": 0.019,
+        "minutes": 1.75,
+        "tokens": {
+          "input": 970,
+          "output": 1075,
+          "total": 2045
+        }
+      },
+      "artifacts": [
+        "audit-summary.md"
+      ],
+      "agent": "analyst",
+      "action": "claims.audit",
+      "retry_attempt": null,
+      "extensions": {}
+    },
+    {
+      "id": "s5",
+      "name": "emit-findings",
+      "status": "ok",
+      "started_at": "2026-06-29T15:33:34Z",
+      "ended_at": "2026-06-29T15:33:34Z",
+      "cost": {
+        "dollars": 0.0076,
+        "minutes": 0.84,
+        "tokens": {
+          "input": 1310,
+          "output": 245,
+          "total": 1555
+        }
+      },
+      "artifacts": [
+        "findings.md",
+        "findings.json"
+      ],
+      "agent": "extractor",
+      "action": "findings.emit",
+      "retry_attempt": null,
+      "extensions": {}
+    },
+    {
+      "id": "s1",
+      "name": "extract-claims",
+      "status": "ok",
+      "started_at": "2026-06-29T15:33:34Z",
+      "ended_at": "2026-06-29T15:33:34Z",
+      "cost": {
+        "dollars": 0.0095,
+        "minutes": 1.21,
+        "tokens": {
+          "input": 2022,
+          "output": 227,
+          "total": 2249
+        }
+      },
+      "artifacts": [
+        "extracted-claims.json"
+      ],
+      "agent": "extractor",
+      "action": "web.extract_assertions",
+      "retry_attempt": null,
+      "extensions": {}
+    },
+    {
+      "id": "s2",
+      "name": "classify-claims",
+      "status": "ok",
+      "started_at": "2026-06-29T15:33:34Z",
+      "ended_at": "2026-06-29T15:33:34Z",
+      "cost": {
+        "dollars": 0.0187,
+        "minutes": 0.54,
+        "tokens": {
+          "input": 2734,
+          "output": 701,
+          "total": 3435
+        }
+      },
+      "artifacts": [
+        "classified-claims.json"
+      ],
+      "agent": "classifier",
+      "action": "claims.classify",
+      "retry_attempt": null,
+      "extensions": {}
+    },
+    {
+      "id": "s3",
+      "name": "identify-gaps",
+      "status": "ok",
+      "started_at": "2026-06-29T15:33:34Z",
+      "ended_at": "2026-06-29T15:33:34Z",
+      "cost": {
+        "dollars": 0.0194,
+        "minutes": 0.99,
+        "tokens": {
+          "input": 2393,
+          "output": 816,
+          "total": 3209
+        }
+      },
+      "artifacts": [
+        "proof-gaps.json"
+      ],
+      "agent": "analyst",
+      "action": "claims.identify_gaps",
+      "retry_attempt": null,
+      "extensions": {}
+    },
+    {
+      "id": "s4",
+      "name": "audit-review",
+      "status": "ok",
+      "started_at": "2026-06-29T15:33:34Z",
+      "ended_at": "2026-06-29T15:33:34Z",
+      "cost": {
+        "dollars": 0.0163,
+        "minutes": 1.51,
+        "tokens": {
+          "input": 1648,
+          "output": 759,
+          "total": 2407
+        }
+      },
+      "artifacts": [
+        "audit-summary.md"
+      ],
+      "agent": "analyst",
+      "action": "claims.audit",
+      "retry_attempt": null,
+      "extensions": {}
+    },
+    {
+      "id": "s5",
+      "name": "emit-findings",
+      "status": "ok",
+      "started_at": "2026-06-29T15:33:34Z",
+      "ended_at": "2026-06-29T15:33:34Z",
+      "cost": {
+        "dollars": 0.0192,
+        "minutes": 0.59,
+        "tokens": {
+          "input": 2406,
+          "output": 801,
+          "total": 3207
+        }
+      },
+      "artifacts": [
+        "findings.md",
+        "findings.json"
+      ],
+      "agent": "extractor",
+      "action": "findings.emit",
+      "retry_attempt": null,
+      "extensions": {}
+    }
+  ],
+  "verifications": [
+    {
+      "check": "extracted-claims.json:exists",
+      "status": "pass",
+      "confidence": null,
+      "detail": null
+    },
+    {
+      "check": "classified-claims.json:valid_json",
+      "status": "pass",
+      "confidence": null,
+      "detail": null
+    },
+    {
+      "check": "proof-gaps.json:valid_json",
+      "status": "pass",
+      "confidence": null,
+      "detail": null
+    },
+    {
+      "check": "findings.md:exists",
+      "status": "pass",
+      "confidence": null,
+      "detail": null
+    },
+    {
+      "check": "findings.json:valid_json",
+      "status": "pass",
+      "confidence": null,
+      "detail": null
+    },
+    {
+      "check": "judge:extraction_coverage>=80",
+      "status": "fail",
+      "confidence": 72.0,
+      "detail": null
+    },
+    {
+      "check": "judge:classification_accuracy>=85",
+      "status": "fail",
+      "confidence": 73.0,
+      "detail": null
+    },
+    {
+      "check": "extracted-claims.json:exists",
+      "status": "pass",
+      "confidence": null,
+      "detail": null
+    },
+    {
+      "check": "classified-claims.json:valid_json",
+      "status": "pass",
+      "confidence": null,
+      "detail": null
+    },
+    {
+      "check": "proof-gaps.json:valid_json",
+      "status": "pass",
+      "confidence": null,
+      "detail": null
+    },
+    {
+      "check": "findings.md:exists",
+      "status": "pass",
+      "confidence": null,
+      "detail": null
+    },
+    {
+      "check": "findings.json:valid_json",
+      "status": "pass",
+      "confidence": null,
+      "detail": null
+    },
+    {
+      "check": "judge:extraction_coverage>=80",
+      "status": "pass",
+      "confidence": 89.0,
+      "detail": null
+    },
+    {
+      "check": "judge:classification_accuracy>=85",
+      "status": "pass",
+      "confidence": 91.0,
+      "detail": null
+    }
+  ],
+  "budget": {
+    "spent_dollars": 0.1599,
+    "spent_minutes": 10.31
+  },
+  "outcome": "verified",
+  "lessons": [
+    "claim-audit shipped at iteration 2 with mean confidence 90.0."
+  ],
+  "provenance": {
+    "engine_signature": "ed25519:placeholder",
+    "artifact_hashes": {}
+  },
+  "extensions": {},
+  "replay_of": null,
+  "replay_from_step": null
+}

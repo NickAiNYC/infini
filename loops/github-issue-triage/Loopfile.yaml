@@ -1,0 +1,23 @@
+LOOPFILE: "1.0"
+name: github-issue-triage
+version: 1.0.0
+OBJECTIVE: Triage new GitHub issues — classify, prioritize, and route to the right team.
+AGENTS:
+  - { name: triager, role: researcher, model_tier: sonnet, tools: [github] }
+  - { name: labeler, role: builder, model_tier: haiku, tools: [github] }
+  - { name: verifier, role: verifier, model_tier: haiku, tools: [github] }
+STEPS:
+  - { id: s1, name: fetch-issues, action: github.fetch_issues, uses: triager, produces: [issues.json] }
+  - { id: s2, name: classify-issues, action: github.classify, uses: labeler, depends_on: [s1], produces: [classified.json] }
+  - { id: s3, name: apply-labels, action: github.apply_labels, uses: labeler, depends_on: [s2], produces: [applied.json] }
+  - { id: s4, name: verify-labels, action: github.verify, uses: verifier, depends_on: [s3], produces: [verify.json] }
+VERIFY:
+  syntactic:
+    - "issues.json:exists"
+    - "classified.json:valid_json"
+    - "verify.json:valid_json"
+  semantic:
+    - "judge:classification_rate>=85"
+  confidence_threshold: 80
+BUDGET: { dollars: 2, minutes: 10 }
+STOP_WHEN: [all_verify_passed, iterations>=2]

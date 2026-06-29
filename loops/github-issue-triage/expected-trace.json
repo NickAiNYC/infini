@@ -1,0 +1,262 @@
+{
+  "loopfile": "github-issue-triage",
+  "loopfile_hash": "sha256:45ebe00428f974c52cc1633d296affce6b37a3f2aadbe68ed7a6a3051caedc14",
+  "engine": {
+    "type": "infini-reference",
+    "version": "1.0.0"
+  },
+  "started_at": "2026-06-29T15:33:33Z",
+  "ended_at": "2026-06-29T15:33:33Z",
+  "iterations": 2,
+  "steps": [
+    {
+      "id": "s1",
+      "name": "fetch-issues",
+      "status": "ok",
+      "started_at": "2026-06-29T15:33:33Z",
+      "ended_at": "2026-06-29T15:33:33Z",
+      "cost": {
+        "dollars": 0.0139,
+        "minutes": 1.18,
+        "tokens": {
+          "input": 2035,
+          "output": 519,
+          "total": 2554
+        }
+      },
+      "artifacts": [
+        "issues.json"
+      ],
+      "agent": "triager",
+      "action": "github.fetch_issues",
+      "retry_attempt": null,
+      "extensions": {}
+    },
+    {
+      "id": "s2",
+      "name": "classify-issues",
+      "status": "ok",
+      "started_at": "2026-06-29T15:33:33Z",
+      "ended_at": "2026-06-29T15:33:33Z",
+      "cost": {
+        "dollars": 0.0107,
+        "minutes": 1.53,
+        "tokens": {
+          "input": 1568,
+          "output": 1116,
+          "total": 2684
+        }
+      },
+      "artifacts": [
+        "classified.json"
+      ],
+      "agent": "labeler",
+      "action": "github.classify",
+      "retry_attempt": null,
+      "extensions": {}
+    },
+    {
+      "id": "s3",
+      "name": "apply-labels",
+      "status": "ok",
+      "started_at": "2026-06-29T15:33:33Z",
+      "ended_at": "2026-06-29T15:33:33Z",
+      "cost": {
+        "dollars": 0.0072,
+        "minutes": 0.5,
+        "tokens": {
+          "input": 2797,
+          "output": 404,
+          "total": 3201
+        }
+      },
+      "artifacts": [
+        "applied.json"
+      ],
+      "agent": "labeler",
+      "action": "github.apply_labels",
+      "retry_attempt": null,
+      "extensions": {}
+    },
+    {
+      "id": "s4",
+      "name": "verify-labels",
+      "status": "ok",
+      "started_at": "2026-06-29T15:33:33Z",
+      "ended_at": "2026-06-29T15:33:33Z",
+      "cost": {
+        "dollars": 0.0045,
+        "minutes": 1.49,
+        "tokens": {
+          "input": 1179,
+          "output": 361,
+          "total": 1540
+        }
+      },
+      "artifacts": [
+        "verify.json"
+      ],
+      "agent": "verifier",
+      "action": "github.verify",
+      "retry_attempt": null,
+      "extensions": {}
+    },
+    {
+      "id": "s1",
+      "name": "fetch-issues",
+      "status": "ok",
+      "started_at": "2026-06-29T15:33:33Z",
+      "ended_at": "2026-06-29T15:33:33Z",
+      "cost": {
+        "dollars": 0.017,
+        "minutes": 0.38,
+        "tokens": {
+          "input": 1116,
+          "output": 909,
+          "total": 2025
+        }
+      },
+      "artifacts": [
+        "issues.json"
+      ],
+      "agent": "triager",
+      "action": "github.fetch_issues",
+      "retry_attempt": null,
+      "extensions": {}
+    },
+    {
+      "id": "s2",
+      "name": "classify-issues",
+      "status": "ok",
+      "started_at": "2026-06-29T15:33:33Z",
+      "ended_at": "2026-06-29T15:33:33Z",
+      "cost": {
+        "dollars": 0.0047,
+        "minutes": 0.49,
+        "tokens": {
+          "input": 1807,
+          "output": 269,
+          "total": 2076
+        }
+      },
+      "artifacts": [
+        "classified.json"
+      ],
+      "agent": "labeler",
+      "action": "github.classify",
+      "retry_attempt": null,
+      "extensions": {}
+    },
+    {
+      "id": "s3",
+      "name": "apply-labels",
+      "status": "ok",
+      "started_at": "2026-06-29T15:33:33Z",
+      "ended_at": "2026-06-29T15:33:33Z",
+      "cost": {
+        "dollars": 0.0046,
+        "minutes": 0.95,
+        "tokens": {
+          "input": 860,
+          "output": 443,
+          "total": 1303
+        }
+      },
+      "artifacts": [
+        "applied.json"
+      ],
+      "agent": "labeler",
+      "action": "github.apply_labels",
+      "retry_attempt": null,
+      "extensions": {}
+    },
+    {
+      "id": "s4",
+      "name": "verify-labels",
+      "status": "failed",
+      "started_at": "2026-06-29T15:33:33Z",
+      "ended_at": "2026-06-29T15:33:33Z",
+      "cost": {
+        "dollars": 0.0084,
+        "minutes": 1.69,
+        "tokens": {
+          "input": 2957,
+          "output": 527,
+          "total": 3484
+        }
+      },
+      "artifacts": [
+        "verify.json"
+      ],
+      "agent": "verifier",
+      "action": "github.verify",
+      "retry_attempt": null,
+      "extensions": {}
+    }
+  ],
+  "verifications": [
+    {
+      "check": "issues.json:exists",
+      "status": "pass",
+      "confidence": null,
+      "detail": null
+    },
+    {
+      "check": "classified.json:valid_json",
+      "status": "pass",
+      "confidence": null,
+      "detail": null
+    },
+    {
+      "check": "verify.json:valid_json",
+      "status": "pass",
+      "confidence": null,
+      "detail": null
+    },
+    {
+      "check": "judge:classification_rate>=85",
+      "status": "fail",
+      "confidence": 74.0,
+      "detail": null
+    },
+    {
+      "check": "issues.json:exists",
+      "status": "pass",
+      "confidence": null,
+      "detail": null
+    },
+    {
+      "check": "classified.json:valid_json",
+      "status": "pass",
+      "confidence": null,
+      "detail": null
+    },
+    {
+      "check": "verify.json:valid_json",
+      "status": "pass",
+      "confidence": null,
+      "detail": null
+    },
+    {
+      "check": "judge:classification_rate>=85",
+      "status": "pass",
+      "confidence": 81.0,
+      "detail": null
+    }
+  ],
+  "budget": {
+    "spent_dollars": 0.071,
+    "spent_minutes": 8.21
+  },
+  "outcome": "verified",
+  "lessons": [
+    "github-issue-triage shipped at iteration 2 with mean confidence 81.0."
+  ],
+  "provenance": {
+    "engine_signature": "ed25519:placeholder",
+    "artifact_hashes": {}
+  },
+  "extensions": {},
+  "replay_of": null,
+  "replay_from_step": null
+}
