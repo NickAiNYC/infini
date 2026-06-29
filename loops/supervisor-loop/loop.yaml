@@ -1,0 +1,84 @@
+# Supervisor Loop — Hermes supervises OpenClaw execution
+
+LOOPFILE: "1.0"
+name: hermes-openclaw-supervisor
+version: 1.0.0
+description: >
+  Hermes supervises OpenClaw execution with a learning loop.
+  Hermes plans, OpenClaw executes, Hermes reviews and learns.
+  The canonical reference for multi-agent supervision.
+
+OBJECTIVE: >
+  Execute a task under Hermes supervision: plan the work, execute
+  with OpenClaw skills, review the results, and learn from the
+  execution pattern. All semantic verification routed to Hermes's
+  autonomous curator.
+
+AGENTS:
+  - { name: hermes_verifier, role: planner, model_tier: opus, tools: [memory.recall, memory.append] }
+  - { name: openclaw_builder, role: builder, model_tier: sonnet, tools: [terminal.run, file_system.write, browser.navigate] }
+
+STEPS:
+  - id: s1_plan
+    name: plan
+    action: memory.recall
+    uses: hermes_verifier
+    produces: [plan.md, required-skills.json]
+
+  - id: s2_execute
+    name: execute
+    action: terminal.run
+    uses: openclaw_builder
+    depends_on: [s1_plan]
+    produces: [output/, execution-log.json]
+    retry: { max: 3, backoff: exponential }
+
+  - id: s3_review
+    name: review
+    action: memory.append
+    uses: hermes_verifier
+    depends_on: [s2_execute]
+    produces: [review.md, learned-pattern.json]
+
+VERIFY:
+  syntactic:
+    - "plan.md:exists"
+    - "output/:non_empty"
+    - "execution-log.json:valid_json"
+    - "review.md:exists"
+    - "learned-pattern.json:exists"
+  semantic:
+    # Hermes curator provides real verification
+    - "judge:hermes/curator:correctness>=90"
+    - "judge:hermes/curator:consistency>=85"
+    - "judge:hermes/memory:pattern_learned==true"
+    # OpenClaw execution checks
+    - "judge:openclaw/status:all_skills_succeeded"
+  confidence_threshold: 85
+
+BUDGET: { dollars: 100, minutes: 60, tokens: 5000000 }
+
+STOP_WHEN:
+  - all_verify_passed
+  - iterations>=5
+
+TOOLS:
+  - mcp: "openclaw/web-research"
+    config:
+      version: "1.2.0"
+      parameters:
+        depth: "deep"
+        sources: 5
+  - mcp: "openclaw/github-pr"
+    config:
+      version: "latest"
+  - mcp: "openclaw/slack-notify"
+    config:
+      version: "2.0.0"
+
+memory:
+  persist: true
+  context_window: 200
+
+LESSONS: { path: memory/supervisor-loop.md, append: true }
+STATE: { path: state/supervisor-loop/, resume: true }
