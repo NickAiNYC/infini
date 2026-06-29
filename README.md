@@ -18,6 +18,7 @@ One spec. Any engine. Replayable traces.
 [![Tests](https://img.shields.io/badge/tests-25%20passing-brightgreen?style=flat-square)](cli/tests/)
 [![License](https://img.shields.io/badge/license-MIT-blue?style=flat-square)](LICENSE)
 [![Stars](https://img.shields.io/github/stars/NickAiNYC/infini?style=flat-square&color=orange)](https://github.com/NickAiNYC/infini)
+[![Open in Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/NickAiNYC/infini?quickstart=1)
 
 </div>
 
@@ -40,6 +41,24 @@ infini diff runs/infini/run.json runs/langgraph/run.json
 ```
 
 Result: both engines produce `verified` with the same trace format.
+
+```text
+# Same Loopfile. Two engines. Identical output.
+
+Reference Engine:
+  ✅ Step s1_plan: "Planning task..."
+  ✅ Step s2_execute: "Executing with tools..."
+  ✅ Step s3_inspect: "Reviewing output..."
+  → Outcome: verified (confidence: 90)
+
+LangGraph Engine:
+  ✅ Step s1_plan: "Planning task..."
+  ✅ Step s2_execute: "Executing with tools..."
+  ✅ Step s3_inspect: "Reviewing output..."
+  → Outcome: verified (confidence: 90)
+
+→ Loopfile is portable. Proof.
+```
 
 ---
 
@@ -71,7 +90,7 @@ A **specification** for agent loops, with:
 
 The 3-agent demo below is just one example. Loopfiles run on LangGraph too.
 
-Like OpenTelemetry standardized observability across vendors, INFINI standardizes agent loop definitions across frameworks — with a trace schema you can export to any backend.
+Like OpenTelemetry standardized observability across vendors, INFINI standardizes agent loop definitions across frameworks. INFINI exports standardized traces that work with OpenTelemetry-compatible backends — your agent observability, your tools.
 
 ---
 
@@ -296,6 +315,8 @@ pip install -e './cli[dev]'
 infini setup
 infini conformance tests/conformance/ --mock
 ```
+
+[![Open in Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/NickAiNYC/infini?quickstart=1)
 
 📖 **[Contributing Guide →](CONTRIBUTING.md)** · **[Adapter SDK →](sdk/)** · **[Bounties →](bounties/)** · **[ADRs →](docs/adr/)**
 
