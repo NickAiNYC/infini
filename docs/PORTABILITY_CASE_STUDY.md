@@ -2,7 +2,7 @@
 
 ## Source workflow
 
-This Loopfile is modeled on Scrutexity's production **Claim Audit Prompt Chain** — a 5-step pipeline that audits med-spa websites for claim intelligence:
+This Loopfile is modeled on an internal Scrutexity **Claim Audit Prompt Chain** — a 5-step workflow for auditing public website claims:
 
 1. **Extract** — List every assertion from the target page verbatim
 2. **Classify** — Label each claim per the Claim Classification Standard
@@ -10,7 +10,7 @@ This Loopfile is modeled on Scrutexity's production **Claim Audit Prompt Chain**
 4. **AI reality check** — Run the AI distortion detection
 5. **Emit findings** — Output 3-5 prioritized findings
 
-Production implementation: `GEM/02-PROMPTS/Claim Audit Prompt Chain.md`
+Source: `GEM/02-PROMPTS/Claim Audit Prompt Chain.md`
 
 ## Loopfile
 
@@ -91,40 +91,29 @@ infini diff runs/reference/run.json runs/langgraph/run.json
 
 ## What matched
 
-| Aspect | Result |
-|--------|--------|
-| **Outcome** | Both: `verified` ✅ |
-| **Step IDs** | Both: s1–s5 in same order ✅ |
-| **Artifacts declared** | Both: same produces list ✅ |
-| **Verification checks** | Both: all 9 checks passed ✅ |
-| **Verification results** | Both: same pass/fail per check ✅ |
-| **Trace schema** | Both: identical `run.json` structure ✅ |
-| **Budget enforcement** | Both: under $5 / 30m ✅ |
+- Same Loopfile executed on both engines
+- Same step graph
+- Same dependency order
+- Same artifact names
+- Same verification outcome
+- Same trace schema
 
 ## What differed
 
-| Aspect | Reference | LangGraph | Why |
-|--------|-----------|-----------|-----|
-| Iterations | 2 | 1 | Reference retried failed steps (15% mock failure rate); LangGraph adapter doesn't implement step retry |
-| Total steps | 10 | 5 | Reference re-executes all steps per iteration |
-| Cost | $0.17 | $0.09 | More iterations = more mock token consumption |
-| Wall time | 11.2m | 6.4m | More iterations = more simulated runtime |
+- Runtime implementation
+- Timing
+- Engine metadata
+- Mock output text
 
-## Analysis
+## What this proves
 
-The portability claim holds at the **trace schema and outcome** level. Both engines:
-- Parsed the same Loopfile
-- Executed the same 5-step DAG in the same order
-- Ran the same 9 verification checks
-- Reached `verified` outcome
-- Produced structurally identical traces
+A real-world, multi-step workflow can be represented once as a Loopfile and executed across supported runtimes while preserving comparable traces.
 
-The observed divergence (iteration count) is **expected behavior**: the Reference engine implements step-level retries (configurable via `step.retry`), while the LangGraph adapter's mock executor runs each step once. This is a runtime implementation detail, not a spec divergence.
+## What this does not prove yet
 
-In live mode, both engines would call a real LLM for each step, so the retry difference would not apply — the iteration count would match.
-
-## Verdict
-
-**The Loopfile spec is portable across engines for a production-inspired 4-agent, 5-step, 9-verification workflow.** The trace schema is stable. The outcome is identical. The only divergence is a known implementation difference (retry policy) that does not affect spec conformance.
+- Live LLM parity
+- Tool-call parity
+- Production readiness
+- Equivalence across CrewAI, AutoGen, or Mastra
 
 Full traces: [reference](runs/reference/run.json), [langgraph](runs/langgraph/run.json)
