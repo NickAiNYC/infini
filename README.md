@@ -4,38 +4,61 @@
   <img alt="INFINI" src="assets/banner.png" width="100%">
 </picture>
 
-# INFINI — Portable Agent Loop Spec
+# INFINI — Debug Any Agent Loop
 
-**Experimental.** Define a workflow once as a Loopfile. Run it on three engines.
-Compare the traces. They match.
+**Experimental.** Run an AI workflow, record every step, replay any moment.
+Diff traces across engines. Verify outputs against real filesystem checks.
 
 [![Tests](https://img.shields.io/badge/tests-25%20passing-brightgreen?style=flat-square)](cli/tests/)
 [![Conformance](https://img.shields.io/badge/conformance-8%2F8-brightgreen?style=flat-square)](tests/conformance/)
-[![Portability](https://img.shields.io/badge/portability-3%20engines-blue?style=flat-square)](proof/)
+[![Portability](https://img.shields.io/badge/portability-4%20engines-blue?style=flat-square)](proof/)
 [![License](https://img.shields.io/badge/license-MIT-blue?style=flat-square)](LICENSE)
 
-**Status: early alpha.** Reference, LangGraph, and Local engines working.
-Other adapters planned. Do not use in production.
+**Status: early alpha.** 4 engines working, real verification, time-travel replay.
+Do not use in production.
 
 ---
 
-## Three engines. One Loopfile. Identical traces.
+## Time-travel debug any agent loop
 
 ```bash
-infini run loop.yaml --engine infini --trace ref.json    # Reference engine
-infini run loop.yaml --engine langgraph --trace lg.json   # LangGraph
-infini run loop.yaml --engine local --trace local.json    # Local LLM (Qwythos)
+# Run a Loopfile — records every step, token, and decision
+infini run loop.yaml --live
 
-infini diff ref.json local.json   # → Identical structure
-infini diff lg.json local.json    # → Identical structure
+# Inspect the full trace
+infini inspect runs/latest/
+
+# Replay from any step (time-travel debug)
+infini replay runs/latest/ --step s3
+
+# Diff two traces side-by-side
+infini diff runs/reference/run.json runs/langgraph/run.json
 ```
 
-| Engine | Mock Mode | Live Mode | Open-Weight | Offline | Cost |
-|--------|-----------|-----------|-------------|---------|------|
-| Reference | ✅ | ⚠️ (via MCP) | ❌ | ✅ | $0 |
+Every run produces a structured `run.json` trace. Every step, token,
+cost, and verification result is recorded. Replay from any step with
+identical inputs. Diff across engines, models, or prompt versions.
+
+## Also runs on 4 engines
+
+Write once. Run on Reference, LangGraph, Local (Qwythos), or Codemap.
+Same Loopfile. Identical trace structure. Real verification.
+
+```bash
+infini run loop.yaml --engine infini --trace ref.json
+infini run loop.yaml --engine langgraph --trace lg.json
+infini run loop.yaml --engine local --trace local.json
+infini run loop.yaml --engine codemap --trace codemap.json
+
+infini diff ref.json local.json   # → Identical structure
+```
+
+| Engine | Mock | Live | Context-Aware | Offline | Cost |
+|--------|------|------|---------------|---------|------|
+| Reference | ✅ | ⚠️ (thin wrapper) | ❌ | ✅ | $0 |
 | LangGraph | ✅ | ✅ | ❌ | ❌ | $ |
-| **Local (Qwythos)** | ❌ | ✅ | ✅ | **✅** | **$0** |
-| **Codemap** | ❌ | ✅ | **Context-Aware** | **✅** | **$0** |
+| **Local (Qwythos)** | ❌ | ✅ | ❌ | ✅ | **$0** |
+| **Codemap** | ❌ | ✅ | **✅** | ✅ | **$0** |
 
 The **Local engine** runs a real LLM (Qwythos-9B GGUF) on consumer hardware.
 No API key. No internet. Deterministic output at `--temp 0.0`.
