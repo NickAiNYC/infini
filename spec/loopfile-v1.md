@@ -77,7 +77,8 @@ AGENTS:
 - `name` is referenced by `STEPS[].uses`.
 - `role` is one of: `builder`, `verifier`, `critic`, `researcher`, `planner`.
 - `model_tier` is engine-resolved. The Loopfile does not pin a specific model.
-- `tools` is engine-resolved. The Loopfile declares intent; the engine maps to real tools.
+| `tools`       | list     | yes      | Engine-resolved. Declares intent; the engine maps to real tools. |
+| `prompt`      | string   | no       | Optional instruction. When present, the engine uses it as the agent's directive, run against accumulated context. |
 
 ## 5b. TOOLS (MCP — Model Context Protocol)
 

@@ -1,0 +1,134 @@
+# squad-loop.yaml — Declarative multi-agent pipeline
+# Maps the Squad CLI imperative flow to a portable Loopfile.
+# Run: infini run examples/squad-loop/Loopfile.yaml --live
+#
+# References: https://github.com/tom-doerr/squad_cli
+
+LOOPFILE: "1.0"
+name: squad-collab
+version: 1.0.0
+description: >
+  Declarative mapping of a multi-agent handoff pattern.
+  Plan, expand, implement, verify. Inspired by Squad CLI's
+  imperative multi-agent collaboration workflow.
+
+OBJECTIVE: "Given a feature spec, produce working code with docs, tests, and review."
+
+AGENTS:
+  - name: planner
+    role: planner
+    model_tier: sonnet
+    tools: [read, write]
+    prompt: |
+      You are the planner. Read the spec from the context.
+      Write a detailed plan.md with:
+      - Architecture overview
+      - File structure
+      - Implementation steps
+      - Tests needed
+
+  - name: expander
+    role: researcher
+    model_tier: haiku
+    tools: [read, write, bash]
+    prompt: |
+      You are the expander. Read plan.md.
+      Add research notes to research.md:
+      - Dependencies and versions
+      - API references
+      - Security considerations
+
+  - name: implementer
+    role: builder
+    model_tier: codex
+    tools: [write, bash]
+    prompt: |
+      You are the implementer. Read plan.md and research.md.
+      Write:
+      - Implementation code in src/
+      - Tests in tests/
+      - README.md with usage
+
+  - name: verifier
+    role: verifier
+    model_tier: haiku
+    tools: [read, bash]
+    prompt: |
+      You are the verifier. Run the tests.
+      Return a JSON with:
+      - test_results: pass/fail
+      - coverage: percentage
+      - quality_score: 0-100
+
+STEPS:
+  - id: s1
+    name: plan
+    uses: planner
+    action: write_spec
+    produces:
+      - plan.md
+
+  - id: s2
+    name: research
+    uses: expander
+    action: write_research
+    depends_on: [s1]
+    produces:
+      - research.md
+
+  - id: s3
+    name: implement
+    uses: implementer
+    action: write_code
+    depends_on: [s2]
+    produces:
+      - src/main.py
+      - tests/test_main.py
+      - README.md
+
+  - id: s4
+    name: verify
+    uses: verifier
+    action: run_tests
+    depends_on: [s3]
+    produces:
+      - verify-report.json
+
+  - id: s5
+    name: final-check
+    uses: verifier
+    action: shell
+    command: >
+      python -c 'import json;
+      r=json.load(open("verify-report.json"));
+      exit(0 if r["test_results"]=="pass" and r["quality_score"]>=80 else 1)'
+    depends_on: [s4]
+
+VERIFY:
+  syntactic:
+    - "plan.md:exists"
+    - "research.md:exists"
+    - "src/main.py:exists"
+    - "tests/test_main.py:exists"
+    - "README.md:exists"
+    - "verify-report.json:exists"
+    - "verify-report.json:contains:pass"
+  semantic:
+    - "verifier:quality_score>=80"
+    - "verifier:coverage>=70"
+  confidence_threshold: 85
+
+BUDGET: { dollars: 5, minutes: 10 }
+
+STOP_WHEN: ["all_verify_passed"]
+
+memory:
+  persist: true
+  context_window: 5
+  artifacts:
+    - plan.md
+    - research.md
+    - src/main.py
+    - tests/test_main.py
+    - README.md
+    - verify-report.json

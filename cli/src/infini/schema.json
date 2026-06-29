@@ -84,6 +84,10 @@
         "tools": {
           "type": "array",
           "items": { "type": "string" }
+        },
+        "prompt": {
+          "type": "string",
+          "description": "Engine instruction for this agent. The engine runs the prompt against accumulated context."
         }
       }
     },
@@ -99,7 +103,8 @@
         "uses":       { "type": "string" },
         "produces":   { "type": "array", "items": { "type": "string" } },
         "depends_on": { "type": "array", "items": { "type": "string" } },
-        "retry":      { "$ref": "#/$defs/retry" }
+        "retry":      { "$ref": "#/$defs/retry" },
+        "command":    { "type": "string", "description": "Shell escape hatch. Use when a step requires literal shell logic (parsing output, exit codes). Alternative to the agent-running-prompt path." }
       }
     },
 
@@ -208,7 +213,8 @@
       "additionalProperties": false,
       "properties": {
         "persist": { "type": "boolean", "description": "Store all output verbatim in the lessons table." },
-        "context_window": { "type": "integer", "description": "Number of recent lessons to inject as context.", "minimum": 0, "maximum": 10000 }
+        "context_window": { "type": "integer", "description": "Number of recent lessons to inject as context.", "minimum": 0, "maximum": 10000 },
+        "artifacts": { "type": "array", "items": { "type": "string" }, "description": "Artifact paths to persist across loop runs." }
       }
     }
   }
