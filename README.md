@@ -54,6 +54,30 @@ pip install infini-cli && infini setup && infini run my-loop.yaml --plan
 
 ---
 
+## Ecosystem Integration Status
+
+| Integration | Status | What Works | What's Missing |
+|-------------|--------|------------|----------------|
+| **LangGraph Adapter** | ✅ Implemented | Full adapter, 5 tests, `--engine langgraph` CLI | Live mode (mock only), replay |
+| **OpenClaw Skill Adapter** | 🚧 In Progress | 5-skill resolver, export to Loopfile, mock execution | Live API calls, marketplace integration |
+| **Hermes Verify Adapter** | 🚧 In Progress | Condition parser, mock confidence scoring | `hermes judge` CLI integration, live curator |
+| **Supervisor Loop** | ✅ Reference Example | Loopfile validates, real trace generated (2 iters, 18 checks) | Live execution (mock mode works) |
+| **Anthropic 3-Agent Harness** | ✅ Implemented | 7-step Loopfile, premature-victory prevention | Live execution (mock mode works) |
+
+## Integration Compatibility Matrix
+
+| Integration | Parse | Resolve | Execute | Trace | Verify | Replay | Status |
+|-------------|:-----:|:-------:|:-------:|:-----:|:------:|:------:|--------|
+| **Reference Engine** | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | Stable |
+| **LangGraph Adapter** | ✅ | ✅ | ✅ | ✅ | ✅ | ⚠️ | Stable |
+| **OpenClaw Skill Adapter** | ✅ | ⚠️ | ⚠️ | ⚠️ | N/A | ❌ | Experimental |
+| **Hermes Verify Adapter** | ✅ | N/A | N/A | ✅ | ⚠️ | N/A | Experimental |
+| **Supervisor Loop** | ✅ | N/A | ⚠️ | ✅ | ✅ | ⚠️ | Reference |
+
+**Legend:** ✅ = Fully implemented and tested · ⚠️ = Partial · ❌ = Not yet · N/A = Not applicable
+
+---
+
 ## Why INFINI?
 
 | Problem | INFINI Solution |
