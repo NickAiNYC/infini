@@ -1,0 +1,87 @@
+name: 'INFINI Guard'
+description: 'Audit your agent project for loop portability on every PR. Fails if the audit score drops below your threshold or if any Loopfile is invalid.'
+author: 'NickAiNYC'
+
+inputs:
+  project-dir:
+    description: 'Directory to audit (relative to repo root)'
+    required: false
+    default: '.'
+  min-score:
+    description: 'Minimum audit score (0-100) required to pass. Default 50 = L2 Assisted.'
+    required: false
+    default: '50'
+  fail-on-validate:
+    description: 'Fail the build if any Loopfile.yaml fails validation'
+    required: false
+    default: 'true'
+
+branding:
+  icon: 'shield'
+  color: 'blue'
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+
+    - name: Install INFINI
+      shell: bash
+      run: pip install git+https://github.com/NickAiNYC/infini.git@main
+
+    - name: Run INFINI audit
+      id: audit
+      shell: bash
+      run: |
+        echo "::group::INFINI Audit"
+        infini audit "${{ inputs.project-dir }}" --json > /tmp/audit-result.json
+        cat /tmp/audit-result.json
+        echo "::endgroup::"
+
+        SCORE=$(python3 -c "import json; print(json.load(open('/tmp/audit-result.json'))['score'])")
+        MATURITY=$(python3 -c "import json; print(json.load(open('/tmp/audit-result.json'))['maturity_level'])")
+        echo "Audit score: $SCORE / 100 ($MATURITY)"
+        echo "score=$SCORE" >> $GITHUB_OUTPUT
+        echo "maturity=$MATURITY" >> $GITHUB_OUTPUT
+
+        if [ "$SCORE" -lt "${{ inputs.min-score }}" ]; then
+          echo "::error::INFINI audit score $SCORE is below minimum ${{ inputs.min-score }} ($MATURITY)"
+          echo "::error::Run 'infini audit .' locally to see missing signals and fixes"
+          exit 1
+        fi
+
+        echo "::notice::INFINI audit passed: $SCORE / 100 ($MATURITY)"
+
+    - name: Validate Loopfiles
+      if: ${{ inputs.fail-on-validate == 'true' }}
+      shell: bash
+      run: |
+        echo "::group::INFINI Validate"
+        cd "${{ inputs.project-dir }}"
+        FOUND=0
+        FAILURES=0
+
+        for f in $(find . -name "Loopfile.yaml" -o -name "loop.yaml" -o -name "loop.yml" 2>/dev/null); do
+          FOUND=$((FOUND + 1))
+          echo "Validating: $f"
+          if infini validate "$f"; then
+            echo "  ✓ valid"
+          else
+            echo "  ✗ invalid"
+            FAILURES=$((FAILURES + 1))
+          fi
+        done
+
+        echo "::endgroup::"
+
+        if [ "$FOUND" -eq 0 ]; then
+          echo "::warning::No Loopfile.yaml found in ${{ inputs.project-dir }}"
+        fi
+
+        if [ "$FAILURES" -gt 0 ]; then
+          echo "::error::$FAILURES Loopfile(s) failed validation"
+          exit 1
+        fi

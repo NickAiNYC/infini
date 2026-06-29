@@ -1,0 +1,39 @@
+# .github/workflows/infini-guard.yml
+#
+# INFINI Guard — audit your agent project on every PR.
+#
+# This workflow runs `infini audit` and `infini validate` on every
+# pull request. If the audit score drops below 50 (L2 Assisted) or
+# any Loopfile is invalid, the build fails.
+#
+# To use in your own repo:
+#   1. Copy this file to .github/workflows/infini-guard.yml
+#   2. Adjust min-score if you want a higher bar
+#   3. That's it — the action installs INFINI automatically
+#
+name: INFINI Guard
+
+on:
+  pull_request:
+    paths:
+      - '**/Loopfile.yaml'
+      - '**/loop.yaml'
+      - '.github/workflows/infini-guard.yml'
+      - 'loops/**'
+      - 'adapters/**'
+  push:
+    branches: [main]
+
+jobs:
+  audit:
+    name: Audit loop portability
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run INFINI Guard
+        uses: NickAiNYC/infini/.github/actions/infini-guard@main
+        with:
+          project-dir: '.'
+          min-score: '50'
+          fail-on-validate: 'true'

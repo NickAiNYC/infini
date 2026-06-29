@@ -74,6 +74,26 @@ producing comparable execution traces.
 
 ---
 
+## CI Integration (30 seconds)
+
+Add INFINI Guard to your repo — audit every PR for loop portability.
+
+```yaml
+# .github/workflows/infini-guard.yml
+name: INFINI Guard
+on: [pull_request]
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: NickAiNYC/infini/.github/actions/infini-guard@main
+        with:
+          min-score: '50'  # L2 Assisted. Use '75' for L3 Unattended.
+```
+
+Fails the build if the audit score drops below your threshold or any Loopfile is invalid.
+
 ## 60-second install
 
 ```bash
