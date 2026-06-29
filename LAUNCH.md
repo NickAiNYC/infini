@@ -105,6 +105,27 @@ Over the last week, every one of those has been addressed:
 
 Score today: **~75/100**.
 
+## Market validation
+
+The "loop engineering" thesis has over **2.2M views** on X. The community
+is already thinking in INFINI terms — they just don't have a portable
+format for it yet.
+
+| Loop Engineering Concept | INFINI Implementation |
+|--------------------------|----------------------|
+| "Define the goal; the loop discovers, plans, executes, verifies" | `OBJECTIVE` + `STEPS` + `VERIFY` |
+| "Maker and checker should not be the same agent" | `AGENTS` list + `VERIFY` block separates executor from reviewer |
+| "Memory lets a loop continue across runs" | `memory: persist: true` + FTS5 retrieval |
+| "Skills are reusable project knowledge" | `SKILL.md` files imported via `skills:` field |
+| "Worktrees for parallel agents" | `--work-dir` + `--engine codemap` for context isolation |
+| "Plugins and connectors" | MCP tools + `tools:` in Loopfile |
+| "The loop starts automatically" | INFINI Guard GitHub Action |
+| "Cheap long-context models make loops practical" | Local engine (Qwythos) for $0 dev, `BUDGET` caps live costs |
+
+Loop engineering is the AI skill every builder needs in 2026.
+**INFINI is the open standard that makes it portable, verifiable,
+and affordable.**
+
 ## What's NOT ready
 
 - 3 of 6 adapters (CrewAI, AutoGen, Mastra) — CLI accepts `--engine`
