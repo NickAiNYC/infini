@@ -12,6 +12,7 @@ Goal: make agent workflows portable, replayable, and inspectable across runtimes
 
 [![Tests](https://img.shields.io/badge/tests-25%20passing-brightgreen?style=flat-square)](cli/tests/)
 [![Conformance](https://img.shields.io/badge/conformance-8%2F8-brightgreen?style=flat-square)](tests/conformance/)
+[![Portability](https://img.shields.io/badge/portability-proven-blue?style=flat-square)](proof/)
 [![License](https://img.shields.io/badge/license-MIT-blue?style=flat-square)](LICENSE)
 
 **Status: early alpha.** Reference + LangGraph work in mock mode. Other adapters are planned / help wanted. Do not use in production.
@@ -20,9 +21,14 @@ Goal: make agent workflows portable, replayable, and inspectable across runtimes
 
 ## Why
 
-Every agent framework has its own workflow format. Switching frameworks means rewriting orchestration logic. INFINI separates the workflow from the runtime — one Loopfile, multiple engines, comparable traces.
+Today, moving an agent workflow between frameworks usually means rewriting orchestration logic. INFINI separates the workflow specification from the runtime so the same Loopfile can execute across supported engines while producing comparable execution traces.
 
 ## 60-second install
+
+```bash
+pip install infini-cli
+```
+(Currently install from source while the package stabilizes.)
 
 ```bash
 git clone https://github.com/NickAiNYC/infini
@@ -86,7 +92,7 @@ Both engines produce `verified` with the same trace schema. Full proof: [PORTABI
 |---------|--------|
 | Loopfile spec v1.0 | Stable — full JSON Schema + EBNF grammar |
 | `infini run --mock` | Deterministic, no API keys needed |
-| `infini run --engine langgraph --mock` | LangGraph adapter, identical traces |
+| `infini run --engine langgraph --mock` | LangGraph runtime, identical traces |
 | `infini audit .` | Scans project for 12 loop-readiness signals, returns 0-100 score |
 | `infini init --pattern daily-triage` | Scaffolds 5 canonical patterns |
 | `infini run --work-dir` | Real filesystem verification (stats files, checks content, runs subprocesses) |
