@@ -67,10 +67,22 @@ No API key. No internet. Deterministic output at `--temp 0.0`.
 
 ## Why
 
-Today, moving an agent workflow between frameworks usually means rewriting
-orchestration logic. INFINI separates the workflow specification from the
-runtime so the same Loopfile can execute across supported engines while
-producing comparable execution traces.
+**The old way:** You prompt. The agent answers. You review. You fix.
+You prompt again. It feels productive because something is happening,
+but zoom out and it's still you doing the work.
+
+**The new way:** You define the goal. The loop discovers what's needed.
+The agent executes. A checker verifies. The loop fixes failures.
+The system stops when the goal is reached.
+
+That's **loop engineering** — the AI skill every builder needs in 2026.
+INFINI is the open standard for it.
+
+> "Stop prompting. Start looping."
+
+Practically: INFINI separates the workflow specification from the
+runtime so the same Loopfile can execute across supported engines
+while producing comparable execution traces.
 
 ---
 
