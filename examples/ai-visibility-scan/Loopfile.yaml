@@ -1,0 +1,90 @@
+# ai-visibility-scan.yaml — AuditGPT AI Visibility Scan
+# Uses the seo-geo skill from OPC Skills (ReScienceLab/opc-skills)
+# to check how a clinic appears in AI search engines.
+#
+# Run: infini run examples/ai-visibility-scan/Loopfile.yaml --live
+#
+# Prerequisites:
+#   npx skills add ReScienceLab/opc-skills --skill seo-geo
+#   pip install infini-cli
+
+LOOPFILE: "1.0"
+name: ai-visibility-scan
+version: 1.0.0
+description: >
+  AuditGPT AI Visibility Scan. Checks how a business appears in
+  ChatGPT, Perplexity, Gemini, Copilot, and Google. Uses the
+  seo-geo skill from OPC Skills for AI search engine analysis.
+
+OBJECTIVE: "Scan a clinic website for AI search visibility and produce a visibility report."
+
+AGENTS:
+  - name: scanner
+    role: researcher
+    model_tier: sonnet
+    tools: [bash, read, write]
+    skills: ["seo-geo"]
+    prompt: |
+      You are an AI visibility analyst. Use the seo-geo skill to:
+
+      1. Check robots.txt for AI bot access (ChatGPT-User, PerplexityBot,
+         ClaudeBot, GPTBot, Googlebot, Bingbot)
+      2. Check schema markup (JSON-LD) for AI answer extraction
+      3. Check meta tags, Open Graph, and Twitter Card tags
+      4. Run a basic SEO audit
+      5. Check if the site appears in AI search engines
+
+      Write the results to visibility-report.md.
+
+  - name: reviewer
+    role: verifier
+    model_tier: haiku
+    tools: [read]
+    prompt: |
+      You are a quality reviewer. Read visibility-report.md and verify
+      it contains:
+      - AI bot access status
+      - Schema markup findings
+      - Meta tag analysis
+      - Actionable recommendations
+
+      Write your review to review.json.
+
+STEPS:
+  - id: s1
+    name: scan-visibility
+    uses: scanner
+    action: analyze_visibility
+    produces:
+      - visibility-report.md
+      - robots-audit.txt
+      - schema-findings.json
+
+  - id: s2
+    name: review-results
+    uses: reviewer
+    action: verify_report
+    depends_on: [s1]
+    produces:
+      - review.json
+
+VERIFY:
+  syntactic:
+    - "visibility-report.md:exists"
+    - "visibility-report.md:non_empty"
+    - "review.json:exists"
+    - "review.json:valid_json"
+  semantic:
+    - "reviewer:coverage>=70"
+  confidence_threshold: 80
+
+BUDGET: { dollars: 3, minutes: 8 }
+
+STOP_WHEN: ["all_verify_passed"]
+
+memory:
+  persist: true
+  context_window: 3
+  artifacts:
+    - visibility-report.md
+    - review.json
