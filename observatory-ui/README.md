@@ -72,7 +72,7 @@ Drei (`@react-three/drei`). The trace format is defined in
 Run a loop:
 
 ```bash
-infini run examples/openclaw-agent-loop/coding-loop.yaml --mock
+infini run examples/github-pr-review/coding-loop.yaml --mock
 ```
 
 This produces `runs/latest/run.json`. Open the Observatory UI and click

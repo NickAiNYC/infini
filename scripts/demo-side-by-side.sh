@@ -12,15 +12,15 @@ echo "════════════════════════�
 echo ""
 
 # 0. Show the Loopfile
-echo "The Loopfile: examples/hello-world.yaml"
-echo "─────────────────────────────────────────"
-cat examples/hello-world.yaml
+echo "The Loopfile: examples/hello-world/Loopfile.yaml"
+echo ""
+cat examples/hello-world/Loopfile.yaml
 echo ""
 
 # 1. Run on Reference Engine
 echo "Running on INFINI Reference Engine..."
 echo "─────────────────────────────────────────"
-infini run examples/hello-world.yaml --mock --engine infini -o runs/reference/ -q
+infini run examples/hello-world/Loopfile.yaml --mock --engine infini -o runs/reference/ -q
 echo ""
 echo "Trace summary:"
 python3 -c "
@@ -36,7 +36,7 @@ echo ""
 # 2. Run on LangGraph
 echo "Running on LangGraph Adapter..."
 echo "─────────────────────────────────────────"
-infini run examples/hello-world.yaml --mock --engine langgraph -o runs/langgraph/ -q
+infini run examples/hello-world/Loopfile.yaml --mock --engine langgraph -o runs/langgraph/ -q
 echo ""
 echo "Trace summary:"
 python3 -c "

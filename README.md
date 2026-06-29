@@ -62,20 +62,20 @@ Full spec: [loopfile-v1.md](spec/loopfile-v1.md)
 ## Run on reference engine
 
 ```bash
-infini run examples/hello-world.yaml --mock
+infini run examples/hello-world/Loopfile.yaml --mock
 ```
 
 ## Run on LangGraph
 
 ```bash
-infini run examples/hello-world.yaml --mock --engine langgraph
+infini run examples/hello-world/Loopfile.yaml --mock --engine langgraph
 ```
 
 ## Diff the traces
 
 ```bash
-infini run examples/hello-world.yaml --mock -o runs/reference
-infini run examples/hello-world.yaml --mock --engine langgraph -o runs/langgraph
+infini run examples/hello-world/Loopfile.yaml --mock -o runs/reference
+infini run examples/hello-world/Loopfile.yaml --mock --engine langgraph -o runs/langgraph
 infini diff runs/reference/run.json runs/langgraph/run.json
 ```
 

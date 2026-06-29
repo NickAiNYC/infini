@@ -1,10 +1,10 @@
-# Demo: OpenClaw Execution
+# GitHub PR Review
 
-> **OpenClaw executes. INFINI records.**
+> **Execution runtime: file edits, tests, PR creation.**
 >
 > Run a coding loop that edits files, runs tests, verifies output, and opens a PR.
 
-This demo runs a coding loop through OpenClaw. OpenClaw agents do the work — file edits, terminal commands, GitHub PRs — while INFINI records every tool call, verifies the output, and makes the whole run replayable.
+This is the **execution runtime** demo. For governance, see [Claim Audit](../claim-audit/). For both together, see [Hybrid (deprecated)](../_deprecated/hybrid-hermes-openclaw/).
 
 ---
 
@@ -15,7 +15,7 @@ This demo runs a coding loop through OpenClaw. OpenClaw agents do the work — f
 - **Semantic verification.** A judge agent scores feature completeness and test coverage.
 - **Replay.** If a test fails, INFINI replays from the failing step with the same inputs.
 
-This is the **execution runtime** demo. For governance, see [Hermes Governance](../hermes-governed-growth/). For both together, see [Hybrid](../hybrid-hermes-openclaw/).
+This is the **execution runtime** demo. For governance, see [Claim Audit](../claim-audit/). For both together, see [Hybrid (deprecated)](../_deprecated/hybrid-hermes-openclaw/).
 
 ---
 
@@ -42,7 +42,7 @@ Trace + Verification + Replay (in INFINI)
 
 ```bash
 # From the repo root
-infini run examples/openclaw-agent-loop/coding-loop.yaml
+infini run examples/github-pr-review/coding-loop.yaml
 
 # Inspect the trace
 infini inspect runs/latest/
@@ -60,7 +60,7 @@ infini replay runs/latest/ --step s3
 ## What you'll see
 
 ```text
-$ infini run examples/openclaw-agent-loop/coding-loop.yaml
+$ infini run examples/github-pr-review/coding-loop.yaml
 ▶ engine: openclaw
 ▶ tools: file_system, terminal, github
 ▶ reading state... none found, starting fresh

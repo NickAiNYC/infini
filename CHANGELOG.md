@@ -104,8 +104,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) 
 - **INFINI × OpenClaw adapter** (`adapters/openclaw/`) — execution runtime: browser, GitHub, terminal, filesystem tools.
 - **Hybrid mode** — a Loopfile can declare `ENGINE.delegates.execution` to combine Hermes governance with OpenClaw execution.
 - Three runnable demos:
-  - `examples/hermes-governed-growth/` — claim-audit loop with policy, budget, escalation, audit.
-  - `examples/openclaw-agent-loop/` — coding loop with file edits, tests, PR.
+  - `examples/claim-audit/` — claim-audit loop with policy, budget, escalation, audit.
+  - `examples/github-pr-review/` — coding loop with file edits, tests, PR.
   - `examples/hybrid-hermes-openclaw/` — the killer demo: Hermes governs, OpenClaw executes, INFINI records.
 - **Loop Observatory** section in README. Status: preview.
 - Lineage statement in README: *Docker standardized containers. … INFINI standardizes autonomous work.*

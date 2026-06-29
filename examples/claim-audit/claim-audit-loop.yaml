@@ -1,6 +1,6 @@
 # claim-audit-loop.yaml — Demo copy
 # Pinned version of adapters/hermes/examples/claim-audit-loop.yaml.
-# Used by examples/hermes-governed-growth/ so the demo is reproducible.
+# Used by examples/claim-audit/ so the demo is reproducible.
 
 LOOPFILE: "1.0"
 name: claim-audit-loop

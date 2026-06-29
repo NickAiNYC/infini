@@ -1,10 +1,10 @@
-# Demo: Hermes Governance
+# Claim Audit
 
-> **Hermes governs. INFINI records.**
+> **Governance brain: policy, budget, escalation, audit trail.**
 >
 > Run a claim-audit loop with policy, budget, escalation, and audit trail.
 
-This demo runs an insurance-claims audit loop under Hermes governance. Every decision is policy-checked, audit-signed, and replayable through INFINI.
+This is the **governance brain** demo. For pure execution, see [GitHub PR Review](../github-pr-review/). For both together, see [Hybrid (deprecated)](../_deprecated/hybrid-hermes-openclaw/).
 
 ---
 
@@ -16,7 +16,7 @@ This demo runs an insurance-claims audit loop under Hermes governance. Every dec
 - **Audit trail.** Every step is signed; the audit log is append-only.
 - **Memory.** Prior claim decisions are recalled to inform the current one.
 
-This is the **governance brain** demo. For pure execution, see [OpenClaw Execution](../openclaw-agent-loop/). For both together, see [Hybrid](../hybrid-hermes-openclaw/).
+This is the **governance brain** demo. For pure execution, see [GitHub PR Review](../github-pr-review/). For both together, see [Hybrid (deprecated)](../_deprecated/hybrid-hermes-openclaw/).
 
 ---
 
@@ -43,7 +43,7 @@ Trace + Verification + Replay (in INFINI)
 
 ```bash
 # From the repo root
-infini run examples/hermes-governed-growth/claim-audit-loop.yaml
+infini run examples/claim-audit/claim-audit-loop.yaml
 
 # Inspect the trace
 infini inspect runs/latest/
@@ -61,7 +61,7 @@ infini replay runs/latest/ --step s3
 ## What you'll see
 
 ```text
-$ infini run examples/hermes-governed-growth/claim-audit-loop.yaml
+$ infini run examples/claim-audit/claim-audit-loop.yaml
 ▶ engine: hermes
 ▶ governance: memory=on audit=on budget=strict escalation=on
 ▶ reading state... none found, starting fresh

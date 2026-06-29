@@ -1,6 +1,6 @@
 # coding-loop.yaml — Demo copy
 # Pinned version of adapters/openclaw/examples/coding-loop.yaml.
-# Used by examples/openclaw-agent-loop/ so the demo is reproducible.
+# Used by examples/github-pr-review/ so the demo is reproducible.
 
 LOOPFILE: "1.0"
 name: coding-loop

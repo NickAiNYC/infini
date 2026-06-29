@@ -1,5 +1,5 @@
-# hello-world.yaml — the simplest possible Loopfile
-# Run: infini run examples/hello-world.yaml --mock
+# hello-world/Loopfile.yaml — the simplest possible Loopfile
+# Run: infini run examples/hello-world/Loopfile.yaml --mock
 
 LOOPFILE: "1.0"
 name: hello-world

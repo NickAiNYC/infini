@@ -70,7 +70,7 @@ infini conformance tests/conformance/ --engine infini --mock
 python -m pytest cli/tests/ -q
 
 # Try an example
-infini run examples/hello-world.yaml --mock
+infini run examples/hello-world/Loopfile.yaml --mock
 
 # Or use the Makefile
 make setup    # creates venv + installs
