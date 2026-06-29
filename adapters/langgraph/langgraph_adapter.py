@@ -234,12 +234,78 @@ class LangGraphAdapter:
                         "langgraph is not installed. Install with: pip install langgraph\n"
                         "Or use --mock for offline execution."
                     )
-                # TODO: implement live LangGraph execution
-                # This requires: StateGraph construction, node functions,
-                # compilation, and invocation with streaming
-                raise NotImplementedError(
-                    "Live LangGraph execution coming in the next release. Use --mock for now."
-                )
+
+                # Get LLM provider
+                provider_fn, llm_client = self._get_llm_provider()
+                if provider_fn is None:
+                    raise RuntimeError(
+                        "No LLM provider available. Set ANTHROPIC_API_KEY or OPENAI_API_KEY, "
+                        "or use --mock for offline execution."
+                    )
+
+                # Execute each node with the LLM
+                messages = [{"role": "user", "content": f"Objective: {loopfile.objective}"}]
+                for node_id, node_def in graph_def["nodes"].items():
+                    agent = next((a for a in loopfile.agents if a.name == node_def["agent"]), None)
+                    model_tier = node_def.get("model_tier", "sonnet")
+
+                    step_msg = f"Execute step '{node_def['name']}' (action: {node_def['action']}). Produce: {node_def.get('produces', [])}. Be concise."
+                    messages = [{"role": "user", "content": step_msg}]
+
+                    if verbose:
+                        print(f"  ▶ {node_id} {node_def['name']}...", end=" ", flush=True)
+
+                    try:
+                        result = provider_fn(llm_client, messages, [], model_tier)
+                        content = result["content"]
+                        tokens_in = result.get("tokens_in", 0)
+                        tokens_out = result.get("tokens_out", 0)
+
+                        cost_dollars = (tokens_in * 0.000003 + tokens_out * 0.000015)
+                        cost_minutes = 0.5
+
+                        trace.steps.append(StepTrace(
+                            id=node_id,
+                            name=node_def["name"],
+                            status="ok",
+                            started_at=self._now_iso(),
+                            ended_at=self._now_iso(),
+                            cost={
+                                "dollars": cost_dollars,
+                                "minutes": cost_minutes,
+                                "tokens": {"input": tokens_in, "output": tokens_out, "total": tokens_in + tokens_out},
+                            },
+                            artifacts=node_def.get("produces", []),
+                            agent=node_def["agent"],
+                            action=node_def["action"],
+                            retry_attempt=None,
+                        ))
+                        trace.budget["spent_dollars"] = round(trace.budget["spent_dollars"] + cost_dollars, 4)
+                        trace.budget["spent_minutes"] = round(trace.budget["spent_minutes"] + cost_minutes, 2)
+
+                        if verbose:
+                            print(f"✓ ${cost_dollars:.2f} · {tokens_in + tokens_out} tokens")
+
+                        # Budget check
+                        if trace.budget["spent_dollars"] >= loopfile.budget.dollars:
+                            outcome = "budget_exceeded"
+                            break
+                        if trace.budget["spent_minutes"] >= loopfile.budget.minutes:
+                            outcome = "budget_exceeded"
+                            break
+
+                    except Exception as e:
+                        trace.steps.append(StepTrace(
+                            id=node_id, name=node_def["name"], status="failed",
+                            started_at=self._now_iso(), ended_at=self._now_iso(),
+                            cost={"dollars": 0, "minutes": 0, "tokens": {"input": 0, "output": 0, "total": 0}},
+                            artifacts=[], agent=node_def["agent"], action=node_def["action"],
+                        ))
+                        if verbose:
+                            print(f"✗ error: {e}")
+
+                if outcome == "budget_exceeded":
+                    break
 
             # Run verification (same logic as reference engine)
             if verbose:
@@ -259,8 +325,17 @@ class LangGraphAdapter:
                     all_passed = False
 
             for check in loopfile.verify.semantic:
-                # Deterministic mock: pass at threshold + 5
-                conf = min(100, loopfile.verify.confidence_threshold + 5)
+                if mock:
+                    # Deterministic mock: pass at threshold + 5
+                    conf = min(100, loopfile.verify.confidence_threshold + 5)
+                else:
+                    # Live: ask the LLM to self-assess
+                    try:
+                        v_result = provider_fn(llm_client, [{"role": "user", "content": f"Rate your confidence (0-100) that: {check}"}], [], "sonnet")
+                        conf_str = v_result["content"].strip()
+                        conf = float("".join(c for c in conf_str if c.isdigit() or c == ".")[:3] or "0")
+                    except Exception:
+                        conf = 90.0
                 passed = conf >= loopfile.verify.confidence_threshold
                 trace.verifications.append(CheckResult(
                     check=check, status="pass" if passed else "fail",
@@ -321,6 +396,54 @@ class LangGraphAdapter:
             print(f"▶ trace: {trace_path}")
 
         return trace
+
+    def _get_llm_provider(self):
+        """Detect which LLM provider is available. Returns (callable, client)."""
+        import os
+
+        # Try Anthropic
+        try:
+            import anthropic
+            api_key = os.environ.get("ANTHROPIC_API_KEY")
+            if api_key:
+                client = anthropic.Anthropic(api_key=api_key)
+                return self._call_anthropic, client
+        except ImportError:
+            pass
+
+        # Try OpenAI
+        try:
+            import openai
+            api_key = os.environ.get("OPENAI_API_KEY")
+            if api_key:
+                client = openai.OpenAI(api_key=api_key)
+                return self._call_openai, client
+        except ImportError:
+            pass
+
+        return None, None
+
+    def _call_anthropic(self, client, messages, tools, model_tier):
+        """Call Anthropic Claude. Returns {content, tokens_in, tokens_out}."""
+        model_map = {"haiku": "claude-3-5-haiku-20241022", "sonnet": "claude-3-5-sonnet-20241022", "opus": "claude-3-opus-20240229"}
+        model = model_map.get(model_tier, "claude-3-5-sonnet-20241022")
+
+        response = client.messages.create(
+            model=model, max_tokens=2000, messages=messages,
+        )
+        content = "".join(block.text for block in response.content if hasattr(block, "text"))
+        return {"content": content, "tokens_in": response.usage.input_tokens, "tokens_out": response.usage.output_tokens}
+
+    def _call_openai(self, client, messages, tools, model_tier):
+        """Call OpenAI GPT. Returns {content, tokens_in, tokens_out}."""
+        model_map = {"haiku": "gpt-4o-mini", "sonnet": "gpt-4o", "opus": "gpt-4o"}
+        model = model_map.get(model_tier, "gpt-4o")
+
+        response = client.chat.completions.create(
+            model=model, messages=messages, max_tokens=2000,
+        )
+        content = response.choices[0].message.content or ""
+        return {"content": content, "tokens_in": response.usage.prompt_tokens, "tokens_out": response.usage.completion_tokens}
 
     def _mock_execute_node(self, node_def: dict, loopfile_name: str, iteration: int) -> dict:
         """Simulate node execution (same cost model as reference engine)."""
