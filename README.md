@@ -65,6 +65,16 @@ pip install infini-cli && infini setup && infini run my-loop.yaml --plan
 | **Complex setup** | One CLI, auto-installs `/infini` slash commands for Claude/Gemini/Codex |
 | **Vendor lock-in** | Write a Loopfile once, run on any engine — same YAML, any framework |
 
+<div align="center">
+
+### Spaghetti → Spec
+
+<img src="assets/spaghetti-to-spec.png" alt="150 lines of tangled framework code becomes 15 lines of declarative Loopfile YAML" width="800">
+
+<sub>Stop hardcoding your agent logic into frameworks. Write it once as a standard spec, run it anywhere.</sub>
+
+</div>
+
 ---
 
 ## 🎬 See It In Action

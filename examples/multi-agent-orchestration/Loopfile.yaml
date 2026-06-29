@@ -1,0 +1,75 @@
+LOOPFILE: "1.0"
+name: multi-agent-orchestration
+version: 1.0.0
+description: >
+  Golden example: Multi-agent orchestration with parallel fan-out,
+  fan-in merge, and cross-verification. Demonstrates DAG parallelism.
+
+OBJECTIVE: >
+  Process an input through three parallel workers, merge results,
+  and verify the merged output meets quality standards.
+
+AGENTS:
+  - { name: coordinator, role: planner, model_tier: sonnet }
+  - { name: worker_a, role: builder, model_tier: haiku, tools: [terminal.run] }
+  - { name: worker_b, role: builder, model_tier: haiku, tools: [terminal.run] }
+  - { name: worker_c, role: builder, model_tier: haiku, tools: [terminal.run] }
+  - { name: merger, role: builder, model_tier: sonnet, tools: [file_system.write] }
+  - { name: verifier, role: verifier, model_tier: sonnet }
+
+STEPS:
+  - id: s1
+    name: prepare_input
+    action: prepare
+    uses: coordinator
+    produces: [input.json]
+  - id: s2a
+    name: worker_a_process
+    action: terminal.run
+    uses: worker_a
+    depends_on: [s1]
+    produces: [result-a.json]
+  - id: s2b
+    name: worker_b_process
+    action: terminal.run
+    uses: worker_b
+    depends_on: [s1]
+    produces: [result-b.json]
+  - id: s2c
+    name: worker_c_process
+    action: terminal.run
+    uses: worker_c
+    depends_on: [s1]
+    produces: [result-c.json]
+  - id: s3
+    name: merge_results
+    action: file_system.write
+    uses: merger
+    depends_on: [s2a, s2b, s2c]
+    produces: [merged.json]
+  - id: s4
+    name: verify_merged
+    action: verify
+    uses: verifier
+    depends_on: [s3]
+    produces: [verification.json]
+
+VERIFY:
+  syntactic:
+    - "input.json:exists"
+    - "result-a.json:exists"
+    - "result-b.json:exists"
+    - "result-c.json:exists"
+    - "merged.json:valid_json"
+    - "verification.json:valid_json"
+  semantic:
+    - "judge:merge_quality>=85"
+    - "judge:completeness>=80"
+  confidence_threshold: 85
+
+BUDGET: { dollars: 5, minutes: 12 }
+STOP_WHEN: ["all_verify_passed", "iterations>=2"]
+
+memory:
+  persist: true
+  context_window: 50

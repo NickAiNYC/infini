@@ -158,6 +158,7 @@ the same idea can come back as a new RFC with new evidence.
 | [RFC-0008](RFC-0008-observatory.md) | Loop Observatory | draft |
 | [RFC-0009](RFC-0009-provenance.md) | Provenance and Signing | draft |
 | [RFC-0010](RFC-0010-cost-accounting.md) | Cost Accounting | draft |
+| [RFC-0011](RFC-0011-agentic-loop-primitives.md) | Agentic Loop Primitives (REVISE/SWARM/COMPOSE) | draft |
 
 ---
 

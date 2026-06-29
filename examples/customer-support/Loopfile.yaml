@@ -1,0 +1,59 @@
+LOOPFILE: "1.0"
+name: customer-support-agent
+version: 1.0.0
+description: >
+  Golden example: Customer support agent that recalls past tickets,
+  researches the issue, drafts a response, and verifies quality.
+  Demonstrates memory recall, sequential pipeline, and escalation.
+
+OBJECTIVE: >
+  Resolve a customer support ticket with an accurate, empathetic
+  response that references similar past cases.
+
+AGENTS:
+  - { name: triager, role: researcher, model_tier: sonnet, tools: [memory.recall, browser.navigate] }
+  - { name: resolver, role: builder, model_tier: sonnet, tools: [file_system.write, terminal.run] }
+  - { name: verifier, role: verifier, model_tier: haiku }
+
+STEPS:
+  - id: s1
+    name: recall_past
+    action: memory.recall
+    uses: triager
+    produces: [past-tickets.json]
+  - id: s2
+    name: research_issue
+    action: browser.navigate
+    uses: triager
+    depends_on: [s1]
+    produces: [research.json]
+  - id: s3
+    name: draft_response
+    action: file_system.write
+    uses: resolver
+    depends_on: [s1, s2]
+    produces: [response.md]
+  - id: s4
+    name: verify_quality
+    action: verify
+    uses: verifier
+    depends_on: [s3]
+    produces: [quality-check.json]
+
+VERIFY:
+  syntactic:
+    - "past-tickets.json:exists"
+    - "response.md:exists"
+    - "quality-check.json:valid_json"
+  semantic:
+    - "judge:empathy>=85"
+    - "judge:accuracy>=90"
+    - "judge:references_past_cases>=1"
+  confidence_threshold: 85
+
+BUDGET: { dollars: 3, minutes: 10 }
+STOP_WHEN: ["all_verify_passed", "iterations>=2"]
+
+memory:
+  persist: true
+  context_window: 50
