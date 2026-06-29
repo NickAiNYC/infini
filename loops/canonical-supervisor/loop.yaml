@@ -1,0 +1,59 @@
+# canonical-supervisor: the universal supervision pattern
+# Planner → Worker → Inspector — runs on any INFINI-conformant engine
+
+LOOPFILE: "1.0"
+name: canonical-supervisor
+version: 1.0.0
+description: "Planner → Worker → Inspector — the universal supervision pattern"
+
+OBJECTIVE: >
+  Given a task, plan the work, execute it with available tools,
+  and inspect the results for correctness. The canonical INFINI
+  portability demo — runs on both the reference engine and LangGraph.
+
+AGENTS:
+  - { name: planner, role: planner, model_tier: sonnet, tools: [file_system.write] }
+  - { name: worker, role: builder, model_tier: sonnet, tools: [terminal.run, file_system.write] }
+  - { name: inspector, role: verifier, model_tier: sonnet, tools: [file_system.read] }
+
+STEPS:
+  - id: s1_plan
+    name: plan
+    action: file_system.write
+    uses: planner
+    produces: [plan.md, task-breakdown.json]
+
+  - id: s2_execute
+    name: execute
+    action: terminal.run
+    uses: worker
+    depends_on: [s1_plan]
+    produces: [execution-log.json, output.md]
+    retry: { max: 3, backoff: exponential }
+
+  - id: s3_inspect
+    name: inspect
+    action: verify
+    uses: inspector
+    depends_on: [s2_execute]
+    produces: [inspection-report.json]
+
+VERIFY:
+  syntactic:
+    - "plan.md:exists"
+    - "task-breakdown.json:exists"
+    - "execution-log.json:exists"
+    - "output.md:exists"
+    - "inspection-report.json:exists"
+  semantic:
+    - "judge:plan_completeness>=85"
+    - "judge:execution_accuracy>=85"
+    - "judge:inspection_thoroughness>=85"
+  confidence_threshold: 85
+
+BUDGET: { dollars: 100, minutes: 60 }
+STOP_WHEN: ["all_verify_passed", "iterations>=3"]
+
+memory:
+  persist: true
+  context_window: 50
