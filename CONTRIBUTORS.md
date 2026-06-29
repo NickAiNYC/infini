@@ -12,8 +12,8 @@ This project exists because of the people who contribute to it.
 | --- | --- | --- |
 | `adapters/hermes/` | INFINI team | reference |
 | `adapters/openclaw/` | INFINI team | reference |
+| `adapters/langgraph/` | INFINI team | preview |
 | `adapters/crewai/` | — | help wanted |
-| `adapters/langgraph/` | — | help wanted |
 | `adapters/mastra/` | — | help wanted |
 | `adapters/goose/` | — | help wanted |
 | `adapters/codex/` | — | help wanted |

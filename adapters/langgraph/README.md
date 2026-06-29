@@ -1,66 +1,74 @@
 # INFINI × LangGraph Adapter
 
-> **Status: Help Wanted.** This adapter is not yet implemented.
-> This is a community adapter — see [Contributing](../../CONTRIBUTING.md)
-> and the [Adapter SDK](../../sdk/) to get started.
+> **The proof of portability.** The same Loopfile runs on both the INFINI reference engine and LangGraph, producing equivalent traces.
 
-## What this adapter does
+## Status: Preview
 
-LangGraph (https://github.com/langchain-ai/langgraph) is Graph-based agent orchestration from the LangChain team. Stateful, cyclic, controllable.
+- ✅ `parse_loopfile` — parses any v1.0 Loopfile
+- ✅ `run_loop` — executes in mock mode (deterministic, no API key)
+- ✅ `verify` — runs syntactic + semantic checks
+- ✅ `inspect_trace` — produces INFINI-format `run.json`
+- 🚧 `replay` — planned
+- 🚧 `diff` — planned
+- 🚧 Live mode (requires `langgraph` installed) — planned
 
-This adapter would let any Loopfile run as a langgraph workflow, with
-full conformance to the INFINI spec: Parse, Run, Verify, Inspect, Replay.
+## Install
 
-## Why build this?
-
-- **It's the easiest external contribution.** The Adapter SDK gives you
-  the base class; you implement the six capabilities.
-- **It proves the portability claim.** A Loopfile that runs on both
-  Hermes and LangGraph is the demonstration that INFINI is real.
-- **It grows the ecosystem.** Every new adapter in the matrix makes the
-  standard more valuable to adopters.
-
-## How to start
-
-1. Read the [Adapter SDK README](../../sdk/README.md).
-2. Read the [Adapter Interface Reference](../../sdk/adapter-interface.md).
-3. Copy [`sdk/examples/minimal-adapter.md`](../../sdk/examples/minimal-adapter.md)
-   as a starting point — it's a working PARSE-only adapter in ~50 lines.
-4. Implement `RUN`, then `VERIFY`, then `INSPECT`, then `REPLAY`.
-5. Run `infini conformance tests/conformance/ --engine=langgraph` to verify.
-6. PR to this directory with your adapter + at least one example Loopfile.
-
-## Conformance target
-
-| Capability | Required |
-| --- | :---: |
-| Parse Loopfile | ✅ (minimum to be listed) |
-| Run Loop | ✅ |
-| Verify | ✅ |
-| Inspect Trace | 🚧 (next) |
-| Replay | 🚧 (later) |
-| Diff | 🚧 (later) |
-
-See [`spec/compatibility.md`](../../spec/compatibility.md) for the full
-matrix and the conformance test suite.
-
-## Files to create
-
-```
-adapters/langgraph/
-├── README.md          ← this file (replace with real docs when implemented)
-├── adapter.yaml       ← the adapter manifest (name, version, capabilities)
-├── __init__.py        ← the adapter module
-└── examples/
-    └── langgraph-loop.yaml   ← at least one runnable example Loopfile
+```bash
+pip install infini-cli[langgraph]
 ```
 
-## Questions?
+## Use
 
-Open a Discussion at https://github.com/NickAiNYC/infini/discussions
-with the `adapters` label.
+```bash
+# Run a Loopfile on LangGraph (mock mode)
+infini run loop.yaml --engine langgraph --mock
 
----
+# Compare traces between engines
+infini run loop.yaml --mock -o runs/reference/
+infini run loop.yaml --engine langgraph --mock -o runs/langgraph/
+infini diff runs/reference/run.json runs/langgraph/run.json
+```
 
-**Help wanted.** If you build this, you become the maintainer of the
-LangGraph adapter. Your name goes in CONTRIBUTORS.md.
+## How it works
+
+```text
+Loopfile (YAML)
+  ↓
+LangGraphAdapter.parse()
+  ↓
+LangGraphAdapter.to_state_graph()
+  ├─ STEPS → LangGraph nodes
+  ├─ depends_on → LangGraph edges
+  ├─ VERIFY → conditional edges (pass → exit, fail → retry)
+  └─ BUDGET → recursion limit + cost tracking
+  ↓
+LangGraphAdapter.run()
+  ↓
+INFINI Trace (run.json — same format as reference engine)
+```
+
+## Architecture
+
+The adapter translates Loopfile primitives to LangGraph primitives:
+
+| Loopfile | LangGraph |
+|----------|-----------|
+| `STEPS` | Nodes in a `StateGraph` |
+| `depends_on` | Edges between nodes |
+| `VERIFY` | Conditional edge after last node |
+| `BUDGET` | Recursion limit + cost tracking |
+| `STOP_WHEN` | Graph termination conditions |
+| `AGENTS` | Node functions with model tier resolution |
+
+## Tests
+
+```bash
+python -m pytest cli/tests/test_langgraph_adapter.py -q
+```
+
+5 tests covering: parsing, graph translation, mock execution, trace format compatibility, and budget enforcement.
+
+## Attribution
+
+Pattern adapted from LangGraph's StateGraph architecture.

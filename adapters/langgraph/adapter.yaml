@@ -1,24 +1,26 @@
 # LangGraph Adapter Manifest
-# Status: Help Wanted — not yet implemented
+# Status: Preview — mock mode working, live mode coming
 
 adapter:
   name: langgraph
   version: 0.1.0
   spec: LOOPFILE-1.0
-  type: community
+  type: execution
   description: >
-    Community adapter for LangChain's LangGraph. Not yet implemented.
+    LangGraph adapter — runs INFINI Loopfiles as LangGraph StateGraphs.
+    Mock mode works today (deterministic, no API key). Live mode
+    requires langgraph installed.
 
 engine:
   type: langgraph
   runtime: langgraph
-  min_version: "0.0.0"
+  min_version: "0.2.0"
 
 capabilities:
-  parse_loopfile: false
-  run_loop: false
-  verify: false
-  inspect_trace: false
+  parse_loopfile: true
+  run_loop: true
+  verify: true
+  inspect_trace: true
   replay: false
   diff: false
 

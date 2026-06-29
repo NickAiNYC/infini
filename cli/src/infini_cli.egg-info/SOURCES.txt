@@ -31,5 +31,6 @@ src/infini_cli.egg-info/entry_points.txt
 src/infini_cli.egg-info/requires.txt
 src/infini_cli.egg-info/top_level.txt
 tests/test_certify.py
+tests/test_langgraph_adapter.py
 tests/test_mock.py
 tests/test_parse.py
