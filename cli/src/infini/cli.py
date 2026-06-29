@@ -88,11 +88,14 @@ def validate(loopfile: str):
 @click.argument("loopfile", type=click.Path(exists=True))
 @click.option("--mock/--live", default=True, help="Use mock LLM (default) or live execution.")
 @click.option("--plan", is_flag=True, help="Use 3-agent orchestration (Planner/Worker/Inspector).")
+@click.option("--engine", "-e", default="infini",
+              type=click.Choice(["infini", "reference", "langgraph"]),
+              help="Execution engine: infini (default), reference, langgraph.")
 @click.option("-o", "--output", default="runs/latest", help="Output directory for the trace.")
 @click.option("--max-iterations", default=5, help="Hard cap on iterations.")
 @click.option("-q", "--quiet", is_flag=True, help="Suppress progress output.")
-def run(loopfile: str, mock: bool, plan: bool, output: str, max_iterations: int, quiet: bool):
-    """Run a Loopfile. Use --plan for 3-agent orchestration."""
+def run(loopfile: str, mock: bool, plan: bool, engine: str, output: str, max_iterations: int, quiet: bool):
+    """Run a Loopfile. Use --engine langgraph for the LangGraph adapter."""
     try:
         lf = parse_file(loopfile)
     except ParseError as e:
@@ -105,6 +108,41 @@ def run(loopfile: str, mock: bool, plan: bool, output: str, max_iterations: int,
         init_db()
     except Exception:
         pass
+
+    # ── Engine routing ──
+    if engine == "langgraph":
+        import sys as _sys
+        from pathlib import Path as _Path
+        # Add adapters/langgraph to path
+        _repo_root = _Path(__file__).parent.parent.parent.parent
+        _sys.path.insert(0, str(_repo_root / "adapters" / "langgraph"))
+        from langgraph_adapter import LangGraphAdapter
+
+        adapter = LangGraphAdapter()
+        trace = adapter.run(
+            lf, mock=mock, output_dir=output,
+            max_iterations=max_iterations, verbose=not quiet,
+        )
+
+        # Store to memory
+        try:
+            for step_trace in trace.steps:
+                memory.store_run_output(
+                    lf.name, step_trace.id, step_trace.name,
+                    f"status={step_trace.status} cost=${step_trace.cost['dollars']:.2f}"
+                )
+        except Exception:
+            pass
+
+        if trace.outcome == "verified":
+            console.print(f"\n[green]✓ shipped (langgraph).[/green] trace: {Path(output) / 'run.json'}")
+        elif trace.outcome == "budget_exceeded":
+            console.print(f"\n[red]✗ budget exceeded.[/red] trace: {Path(output) / 'run.json'}")
+            sys.exit(1)
+        else:
+            console.print(f"\n[yellow]⚠ unverified.[/yellow] trace: {Path(output) / 'run.json'}")
+            sys.exit(1)
+        return
 
     if plan:
         # 3-agent orchestration mode
