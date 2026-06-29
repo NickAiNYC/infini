@@ -74,10 +74,12 @@ infini run examples/hello-world.yaml --mock --engine langgraph
 ## Diff the traces
 
 ```bash
-infini diff runs/latest/run.json runs/latest/run.json
+infini run examples/hello-world.yaml --mock -o runs/reference
+infini run examples/hello-world.yaml --mock --engine langgraph -o runs/langgraph
+infini diff runs/reference/run.json runs/langgraph/run.json
 ```
 
-Both engines produce `verified` with the same trace schema. Full proof: [PORTABILITY_PROOF.md](docs/PORTABILITY_PROOF.md)
+Both engines produce `verified` with the same trace schema. Full proof: [proof/](proof/) — run the reproducible portability proof yourself.
 
 ## What's NOT ready
 
