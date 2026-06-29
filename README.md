@@ -40,7 +40,7 @@ pip install infini-cli && infini setup && infini run my-loop.yaml --plan
 
 <img src="assets/demo.gif" alt="INFINI Demo" width="700">
 
-[![INFINI Demo](https://asciinema.org/a/tUpN3e7GjlC4Fs1k.svg)](https://asciinema.org/a/tUpN3e7GjlC4Fs1k)
+[![INFINI Demo](https://asciinema.org/a/f0AuaBa237gzdT2K.svg)](https://asciinema.org/a/f0AuaBa237gzdT2K)
 
 ### Works with
 
