@@ -89,8 +89,8 @@ def validate(loopfile: str):
 @click.option("--mock/--live", default=True, help="Use mock LLM (default) or live execution.")
 @click.option("--plan", is_flag=True, help="Use 3-agent orchestration (Planner/Worker/Inspector).")
 @click.option("--engine", "-e", default="infini",
-              type=click.Choice(["infini", "reference", "langgraph", "crewai", "autogen", "mastra", "openai-agents"]),
-              help="Execution engine: infini (default), reference, langgraph, crewai, autogen, mastra, openai-agents.")
+              type=click.Choice(["infini", "reference", "langgraph", "crewai", "autogen", "mastra", "openai-agents", "codemap"]),
+              help="Execution engine: infini (default), reference, langgraph, crewai, autogen, mastra, openai-agents, codemap.")
 @click.option("-o", "--output", default="runs/latest", help="Output directory for the trace.")
 @click.option("--max-iterations", default=5, help="Hard cap on iterations.")
 @click.option("--work-dir", default=None, type=click.Path(file_okay=False),
@@ -146,6 +146,25 @@ def run(loopfile: str, mock: bool, plan: bool, engine: str, output: str, max_ite
         else:
             console.print(f"\n[yellow]⚠ unverified.[/yellow] trace: {Path(output) / 'run.json'}")
             sys.exit(1)
+        return
+
+    if engine == "codemap":
+        import sys as _sys
+        from pathlib import Path as _Path
+        _repo_root = _Path(__file__).parent.parent.parent.parent
+        _sys.path.insert(0, str(_repo_root / "adapters" / "codemap"))
+        from codemap_adapter import CodemapAdapter
+
+        from .parse import to_dict
+        lf_dict = to_dict(lf)
+        adapter = CodemapAdapter()
+        trace = adapter.execute(lf_dict)
+
+        console.print(f"\n[green]✓ context-aware (codemap).[/green] trace: {Path(output) / 'run.json'}")
+        console.print(f"[dim]  intent: {trace.get('metadata', {}).get('intent', '?')}[/dim]")
+        skills = trace.get("metadata", {}).get("skills", [])
+        if skills:
+            console.print(f"[dim]  matched skills: {', '.join(s['name'] for s in skills[:3])}[/dim]")
         return
 
     if plan:

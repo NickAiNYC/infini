@@ -35,6 +35,7 @@ infini diff lg.json local.json    # → Identical structure
 | Reference | ✅ | ⚠️ (via MCP) | ❌ | ✅ | $0 |
 | LangGraph | ✅ | ✅ | ❌ | ❌ | $ |
 | **Local (Qwythos)** | ❌ | ✅ | ✅ | **✅** | **$0** |
+| **Codemap** | ❌ | ✅ | **Context-Aware** | **✅** | **$0** |
 
 The **Local engine** runs a real LLM (Qwythos-9B GGUF) on consumer hardware.
 No API key. No internet. Deterministic output at `--temp 0.0`.
@@ -100,6 +101,9 @@ infini run examples/hello-world/Loopfile.yaml --mock --engine langgraph
 # Local engine (fully offline, real LLM)
 infini setup --download-qwythos           # Download the model (~5.6GB)
 infini run loop.yaml --engine local --live
+
+# Codemap engine (context-aware)
+infini run loop.yaml --engine codemap --live
 ```
 
 ## Diff the traces

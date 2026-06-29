@@ -1,0 +1,32 @@
+# Codemap Adapter Manifest
+
+adapter:
+  name: codemap
+  version: 0.1.0
+  spec: LOOPFILE-1.0
+  type: execution
+  description: >
+    Codemap adapter — context-aware INFINI engine. Calls codemap context
+    to inject structured project intelligence (file trees, deps, skills,
+    handoff artifacts) into every Loopfile step.
+
+engine:
+  type: codemap
+  runtime: codemap
+  min_version: "0.1.0"
+
+capabilities:
+  parse_loopfile: true
+  run_loop: true
+  verify: true
+  inspect_trace: true
+  replay: false
+  diff: true
+  context_aware: true
+  skills_injection: true
+  handoff_tracking: true
+
+install:
+  brew: JordanCoin/tap/codemap
+
+repo: https://github.com/NickAiNYC/infini/tree/main/adapters/codemap
