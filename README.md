@@ -17,11 +17,7 @@ One spec. Any engine. Replayable traces.
 [![Conformance](https://img.shields.io/badge/conformance-8%2F8-brightgreen?style=flat-square)](tests/conformance/)
 [![Tests](https://img.shields.io/badge/tests-25%20passing-brightgreen?style=flat-square)](cli/tests/)
 [![License](https://img.shields.io/badge/license-MIT-blue?style=flat-square)](LICENSE)
-[![Spec](https://img.shields.io/badge/spec-v1.0-00C853?style=flat-square)](spec/loopfile-v1.md)
-[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen?style=flat-square)](CONTRIBUTING.md)
-[![Made with Python](https://img.shields.io/badge/Made%20with-Python-1f425f?style=flat-square)](https://www.python.org/)
 [![Stars](https://img.shields.io/github/stars/NickAiNYC/infini?style=flat-square&color=orange)](https://github.com/NickAiNYC/infini)
-[![Open in Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/NickAiNYC/infini?quickstart=1)
 
 </div>
 
@@ -30,6 +26,20 @@ pip install infini-cli && infini run examples/hello-world.yaml --mock
 ```
 
 [![INFINI Demo](https://asciinema.org/a/f0AuaBa237gzdT2K.svg)](https://asciinema.org/a/f0AuaBa237gzdT2K)
+
+---
+
+## The Portability Proof
+
+**Same Loopfile. Two Engines. Identical Outcomes.**
+
+```bash
+infini run loops/canonical-supervisor/loop.yaml --mock --engine infini
+infini run loops/canonical-supervisor/loop.yaml --mock --engine langgraph
+infini diff runs/infini/run.json runs/langgraph/run.json
+```
+
+Result: both engines produce `verified` with the same trace format.
 
 ---
 
@@ -45,7 +55,7 @@ pip install infini-cli && infini run examples/hello-world.yaml --mock
 | **Trace Diff** | ✅ Stable | `infini diff` — compare runs across engines |
 | **CrewAI Adapter** | ⏳ Help Wanted | Adapter SDK ready, bounty open |
 | **Observatory UI** | 🚧 Preview | Local Next.js + React Three Fiber dashboard |
-| **Registry** | 📋 Planning | 11 seed loops, CLI works, hosted service planned |
+| **Registry** | 🚧 Preview | Certifications published, `infini install` planned |
 | **Benchmarks** | 📋 Planning | 10-case corpus defined, suite not automated |
 | **Production Runtime** | ❌ Not Yet | Do not use in production |
 
@@ -61,19 +71,7 @@ A **specification** for agent loops, with:
 
 The 3-agent demo below is just one example. Loopfiles run on LangGraph too.
 
----
-
-## The Portability Proof
-
-**Same Loopfile. Two Engines. Identical Outcomes.**
-
-```bash
-infini run loops/canonical-supervisor/loop.yaml --mock --engine infini
-infini run loops/canonical-supervisor/loop.yaml --mock --engine langgraph
-infini diff runs/infini/run.json runs/langgraph/run.json
-```
-
-Result: both engines produce `verified` with the same trace format.
+Like OpenTelemetry standardized observability across vendors, INFINI standardizes agent loop definitions across frameworks — with a trace schema you can export to any backend.
 
 ---
 
@@ -114,6 +112,8 @@ Result: both engines produce `verified` with the same trace format.
 ---
 
 ## 🏗️ How It Works
+
+*This is the INFINI reference engine — one way to run a Loopfile. The same Loopfile also runs on LangGraph, CrewAI, and others via adapters.*
 
 ```text
 ┌─────────────────────────────────────────────────────┐
