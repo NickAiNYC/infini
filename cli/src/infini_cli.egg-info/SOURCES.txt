@@ -24,6 +24,7 @@ src/infini/skills.py
 src/infini/task_manager.py
 src/infini/trace.py
 src/infini/ui.py
+src/infini/verifier.py
 src/infini_cli.egg-info/PKG-INFO
 src/infini_cli.egg-info/SOURCES.txt
 src/infini_cli.egg-info/dependency_links.txt

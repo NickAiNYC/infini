@@ -1,0 +1,76 @@
+LOOPFILE: "1.0"
+name: scrutexity-claim-audit
+version: 1.0.0
+description: >
+  Audit a med-spa website for claim intelligence. Extract assertions,
+  classify them per the Claim Classification Standard, identify proof
+  gaps, run AI distortion check, and emit prioritized findings.
+
+OBJECTIVE: >
+  Produce a structured claim audit of the target URL: extract verbatim
+  assertions, classify each one, identify proof gaps, run AI reality
+  check, and emit 3-5 prioritized findings.
+
+AGENTS:
+  - { name: extractor, role: researcher, model_tier: sonnet, tools: [web, file_system] }
+  - { name: classifier, role: builder, model_tier: sonnet, tools: [file_system] }
+  - { name: analyst, role: researcher, model_tier: sonnet, tools: [file_system] }
+  - { name: verifier, role: verifier, model_tier: haiku, tools: [file_system] }
+
+STEPS:
+  - id: s1
+    name: extract-claims
+    action: web.extract_assertions
+    uses: extractor
+    produces: [extracted-claims.json]
+
+  - id: s2
+    name: classify-claims
+    action: claims.classify
+    uses: classifier
+    depends_on: [s1]
+    produces: [classified-claims.json]
+
+  - id: s3
+    name: identify-proof-gaps
+    action: claims.identify_gaps
+    uses: analyst
+    depends_on: [s2]
+    produces: [proof-gaps.json]
+
+  - id: s4
+    name: ai-reality-check
+    action: claims.ai_distortion_check
+    uses: analyst
+    depends_on: [s2]
+    produces: [ai-distortion.json]
+
+  - id: s5
+    name: emit-findings
+    action: findings.emit
+    uses: extractor
+    depends_on: [s3, s4]
+    produces: [findings.md, audit/findings.json]
+
+VERIFY:
+  syntactic:
+    - "extracted-claims.json:exists"
+    - "extracted-claims.json:non_empty"
+    - "classified-claims.json:valid_json"
+    - "proof-gaps.json:valid_json"
+    - "findings.md:exists"
+    - "audit/findings.json:valid_json"
+  semantic:
+    - "judge:extraction_completeness>=80"
+    - "judge:classification_accuracy>=85"
+    - "judge:findings_prioritization>=85"
+  confidence_threshold: 80
+
+BUDGET: { dollars: 5, minutes: 30 }
+
+STOP_WHEN:
+  - all_verify_passed
+  - iterations>=3
+
+LESSONS: { path: memory/claim-audit.md, append: true }
+STATE:   { path: state/claim-audit/, resume: true }

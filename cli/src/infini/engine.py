@@ -11,6 +11,7 @@ from pathlib import Path
 from .parse import Loopfile, Step
 from .trace import Trace, add_step, add_verification, finalize_trace, save_trace, new_trace
 from .mock import mock_execute, mock_verify
+from .verifier import SyntacticVerifier
 
 
 class BudgetExceeded(Exception):
@@ -24,6 +25,7 @@ def run(
     max_iterations: int = 5,
     verbose: bool = True,
     deterministic: bool = False,
+    working_dir: str | Path | None = None,
 ) -> Trace:
     """Execute a Loopfile. Returns the completed Trace.
 
@@ -34,6 +36,10 @@ def run(
         max_iterations: Hard cap on iterations (overrides STOP_WHEN if lower).
         verbose: Print progress to stdout.
         deterministic: If True, all verifiers pass on iteration 1 (for conformance).
+        working_dir: If set, syntactic checks run against this directory
+                     (real filesystem + subprocess checks). If None,
+                     syntactic checks are skipped — pure mock mode preserves
+                     conformance.
     """
     trace = new_trace(loopfile.name, _serialize(loopfile))
 
@@ -113,13 +119,27 @@ def run(
         all_passed = True
         confidences: list[float] = []
 
-        for check in loopfile.verify.syntactic:
-            passed, _ = mock_verify(check, loopfile.name, iteration, loopfile.verify.confidence_threshold, deterministic=deterministic) if mock else (True, None)
-            add_verification(trace, check, passed, confidence=None)
-            if verbose:
-                _log(f"  {'✓' if passed else '✗'} {check}")
-            if not passed:
-                all_passed = False
+        # Syntactic checks: real when working_dir is set, otherwise fall
+        # back to the mock verifier (preserves conformance determinism).
+        if working_dir is not None:
+            verifier = SyntacticVerifier(working_dir)
+            syn_results = verifier.verify_all(list(loopfile.verify.syntactic))
+            for check in loopfile.verify.syntactic:
+                r = syn_results.get(check, {"passed": False, "detail": "not run"})
+                passed = bool(r["passed"])
+                add_verification(trace, check, passed, confidence=None, detail=r.get("detail"))
+                if verbose:
+                    _log(f"  {'✓' if passed else '✗'} {check}" + (f" ({r['detail']})" if not passed and r.get("detail") else ""))
+                if not passed:
+                    all_passed = False
+        else:
+            for check in loopfile.verify.syntactic:
+                passed, _ = mock_verify(check, loopfile.name, iteration, loopfile.verify.confidence_threshold, deterministic=deterministic) if mock else (True, None)
+                add_verification(trace, check, passed, confidence=None)
+                if verbose:
+                    _log(f"  {'✓' if passed else '✗'} {check}")
+                if not passed:
+                    all_passed = False
 
         for check in loopfile.verify.semantic:
             passed, conf = mock_verify(check, loopfile.name, iteration, loopfile.verify.confidence_threshold, deterministic=deterministic) if mock else (True, 90.0)

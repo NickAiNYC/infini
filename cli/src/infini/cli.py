@@ -89,13 +89,17 @@ def validate(loopfile: str):
 @click.option("--mock/--live", default=True, help="Use mock LLM (default) or live execution.")
 @click.option("--plan", is_flag=True, help="Use 3-agent orchestration (Planner/Worker/Inspector).")
 @click.option("--engine", "-e", default="infini",
-              type=click.Choice(["infini", "reference", "langgraph"]),
-              help="Execution engine: infini (default), reference, langgraph.")
+              type=click.Choice(["infini", "reference", "langgraph", "crewai", "autogen", "mastra", "openai-agents"]),
+              help="Execution engine: infini (default), reference, langgraph, crewai, autogen, mastra, openai-agents.")
 @click.option("-o", "--output", default="runs/latest", help="Output directory for the trace.")
 @click.option("--max-iterations", default=5, help="Hard cap on iterations.")
+@click.option("--work-dir", default=None, type=click.Path(file_okay=False),
+              help="Working directory for real filesystem verification. When set, "
+                   "syntactic VERIFY checks run against real files/subprocesses "
+                   "instead of mock-passing. Required for live verification.")
 @click.option("-q", "--quiet", is_flag=True, help="Suppress progress output.")
-def run(loopfile: str, mock: bool, plan: bool, engine: str, output: str, max_iterations: int, quiet: bool):
-    """Run a Loopfile. Use --engine langgraph for the LangGraph adapter."""
+def run(loopfile: str, mock: bool, plan: bool, engine: str, output: str, max_iterations: int, work_dir: str | None, quiet: bool):
+    """Run a Loopfile. Use --engine langgraph/crewai/autogen/mastra/openai-agents for adapters."""
     try:
         lf = parse_file(loopfile)
     except ParseError as e:
@@ -200,6 +204,7 @@ def run(loopfile: str, mock: bool, plan: bool, engine: str, output: str, max_ite
         mock=mock,
         max_iterations=max_iterations,
         verbose=not quiet,
+        working_dir=work_dir,
     )
 
     # Store run output to memory (best-effort, doesn't affect trace)
@@ -339,33 +344,138 @@ def certify(adapter_path: str, engine: str, mock: bool, conformance_dir: str | N
 
 @cli.command()
 @click.option("--target", "-t", default=".", help="Directory to initialize.")
-@click.option("--filename", "-f", default="Loopfile", help="Starter Loopfile name.")
-def init(target: str, filename: str):
-    """Scaffold a minimal loop project: Loopfile, loops/, state/, runs/."""
+@click.option("--filename", "-f", default="Loopfile.yaml", help="Loopfile name.")
+@click.option("--pattern", "-p", default=None,
+              help="Scaffold from a canonical pattern (daily-triage, pr-babysitter, ci-sweeper, issue-triage, changelog-drafter).")
+def init(target: str, filename: str, pattern: str | None):
+    """Scaffold a loop project: Loopfile + supporting files.
+
+    \b
+    Without --pattern: creates a minimal starter Loopfile.
+    With --pattern: scaffolds a full working loop from a canonical pattern.
+
+    \b
+    Examples:
+      infini init                              # minimal starter
+      infini init --pattern daily-triage       # full daily-triage loop
+      infini init --pattern ci-sweeper -t ./my-sweeper
+    """
+    from .patterns import get_pattern, list_patterns, pattern_names
+
     target_path = Path(target).resolve()
-    for d in ("loops", "state", "runs"):
-        (target_path / d).mkdir(parents=True, exist_ok=True)
-    lf = target_path / filename
-    if not lf.exists():
-        lf.write_text(
-            'LOOPFILE: "1.0"\n'
-            'name: my-loop\n'
-            'version: 1.0.0\n'
-            'OBJECTIVE: "Describe the objective here."\n'
-            'AGENTS:\n'
-            '  - { name: builder, role: builder, model_tier: sonnet }\n'
-            'STEPS: []\n'
-            'VERIFY:\n'
-            '  syntactic: []\n'
-            '  semantic: []\n'
-            '  confidence_threshold: 80\n'
-            'BUDGET: { dollars: 5, minutes: 15 }\n'
-            'STOP_WHEN: ["all_verify_passed"]\n'
-        )
-    console.print(Panel.fit(
-        f"Initialized at [cyan]{target_path}[/cyan]\nLoopfile: [green]{lf}[/green]",
-        title="infini init",
-    ))
+    target_path.mkdir(parents=True, exist_ok=True)
+
+    if pattern:
+        p = get_pattern(pattern)
+        if p is None:
+            console.print(f"[red]✗ unknown pattern: {pattern}[/red]")
+            console.print(f"[dim]  available: {', '.join(pattern_names())}[/dim]")
+            sys.exit(1)
+        created = p.scaffold(target_path)
+        console.print(Panel.fit(
+            f"Pattern: [cyan]{p.name}[/cyan]\n"
+            f"Cadence: [dim]{p.cadence}[/dim]\n"
+            f"Target:  [cyan]{target_path}[/cyan]\n\n"
+            f"[green]Created {len(created)} file(s):[/green]",
+            title="infini init --pattern",
+        ))
+        for f in created:
+            console.print(f"  ✓ {f.relative_to(target_path) if f.is_relative_to(target_path) else f}")
+        console.print(f"\n[dim]Next: infini run {target_path / 'Loopfile.yaml'} --mock[/dim]")
+        console.print(f"[dim]      infini audit {target_path}[/dim]")
+    else:
+        for d in ("loops", "state", "runs"):
+            (target_path / d).mkdir(parents=True, exist_ok=True)
+        lf = target_path / filename
+        if not lf.exists():
+            lf.write_text(
+                'LOOPFILE: "1.0"\n'
+                'name: my-loop\n'
+                'version: 1.0.0\n'
+                'OBJECTIVE: "Describe the objective here."\n'
+                'AGENTS:\n'
+                '  - { name: builder, role: builder, model_tier: sonnet }\n'
+                'STEPS: []\n'
+                'VERIFY:\n'
+                '  syntactic: []\n'
+                '  semantic: []\n'
+                '  confidence_threshold: 80\n'
+                'BUDGET: { dollars: 5, minutes: 15 }\n'
+                'STOP_WHEN: ["all_verify_passed"]\n'
+            )
+        console.print(Panel.fit(
+            f"Initialized at [cyan]{target_path}[/cyan]\nLoopfile: [green]{lf}[/green]\n\n"
+            f"[dim]Tip: use --pattern for a full working loop:[/dim]\n"
+            f"[dim]  infini init --pattern daily-triage[/dim]",
+            title="infini init",
+        ))
+
+
+@cli.command()
+@click.argument("project_dir", required=False, default=".")
+@click.option("--json", "as_json", is_flag=True, help="Output as JSON instead of human-readable.")
+def audit(project_dir: str, as_json: bool):
+    """Audit a project for loop readiness — returns a 0-100 score with fixes.
+
+    \b
+    Scans for 12 infrastructure signals:
+      Loopfile, STATE.md, verifier agent, safety docs, MCP config,
+      budget docs, LOOP.md, AGENTS.md, CI workflows, recent activity,
+      lessons file, replay trace.
+
+    \b
+    Maturity levels:
+      L0 Draft       (0-24)   — aspirational, no infrastructure
+      L1 Report-only  (25-49) — runs but no durable artifacts
+      L2 Assisted    (50-74)  — has state, verification, replay
+      L3 Unattended  (75-100) — production-ready with CI + safety
+
+    \b
+    Examples:
+      infini audit                    # audit current directory
+      infini audit ./my-project       # audit a specific project
+      infini audit --json             # machine-readable output
+    """
+    from .audit import audit_project
+
+    result = audit_project(project_dir)
+
+    if as_json:
+        import json as _json
+        print(_json.dumps(result.to_dict(), indent=2))
+        return
+
+    console.rule(f"[bold]INFINI Audit — {result.project_dir}[/bold]")
+    console.print()
+
+    score_color = "green" if result.score >= 75 else "yellow" if result.score >= 50 else "red"
+    console.print(f"  Score:    [{score_color}]{result.score}/{result.max_score}[/{score_color}] ({result.percentage}%)")
+    console.print(f"  Maturity: [bold]{result.maturity_level}[/bold]")
+    console.print()
+
+    console.print(f"[green]✓ Found ({len(result.found_signals)}):[/green]")
+    for s in result.found_signals:
+        console.print(f"  [green]+{s.points:>2}[/green] {s.name:20s} [dim]{s.detail}[/dim]")
+
+    console.print()
+
+    if result.missing_signals:
+        console.print(f"[red]✗ Missing ({len(result.missing_signals)}):[/red]")
+        for s in result.missing_signals:
+            console.print(f"  [red]-{s.points:>2}[/red] {s.name:20s} [dim]{s.fix}[/dim]")
+    else:
+        console.print("[green]All signals present. Production-ready.[/green]")
+
+    console.print()
+
+    if result.missing_signals:
+        console.print("[bold]Suggested next steps:[/bold]")
+        for s in result.missing_signals[:3]:
+            console.print(f"  → {s.fix}")
+        if len(result.missing_signals) > 3:
+            console.print(f"  [dim]...and {len(result.missing_signals) - 3} more[/dim]")
+
+    sys.exit(0 if result.score >= 50 else 1)
 
 
 @cli.command()

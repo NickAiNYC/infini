@@ -84,8 +84,8 @@ The registry is what makes Loopfiles shareable.
 - **Search** by name, tag, capability, engine.
 
 ### Later
-- **Marketplace** with categories, contributor profiles, verification badges.
-  Mock exists at [`marketplace/`](marketplace/); real one is gated on registry launch.
+- **Loop Registry** with categories, contributor profiles, verification badges.
+  Mock exists at [`loops/`](loops/); real one is gated on registry launch.
 
 ---
 
