@@ -134,7 +134,7 @@ Full proof: [proof/](proof/) — run the reproducible portability proof yourself
 | `infini setup --download-qwythos` | **NEW** — One-command local model download |
 | `infini audit .` | Scans project for 12 loop-readiness signals, returns 0-100 score |
 | `infini init --pattern daily-triage` | Scaffolds 5 canonical patterns |
-| `infini run --work-dir` | Real filesystem verification |
+| `infini run --work-dir` | Real filesystem verification (**default**) |
 | `infini replay --step s2` | Time-travel debug from any step |
 | `infini diff` | Compare traces across engines |
 | `infini validate` | Validates Loopfiles against schema |

@@ -93,10 +93,9 @@ def validate(loopfile: str):
               help="Execution engine: infini (default), reference, langgraph, crewai, autogen, mastra, openai-agents, codemap.")
 @click.option("-o", "--output", default="runs/latest", help="Output directory for the trace.")
 @click.option("--max-iterations", default=5, help="Hard cap on iterations.")
-@click.option("--work-dir", default=None, type=click.Path(file_okay=False),
-              help="Working directory for real filesystem verification. When set, "
-                   "syntactic VERIFY checks run against real files/subprocesses "
-                   "instead of mock-passing. Required for live verification.")
+@click.option("--work-dir", default=".", type=click.Path(file_okay=False),
+              help="Working directory for real filesystem verification. Defaults to current directory. "
+                   "When set, syntactic VERIFY checks run against real files/subprocesses.")
 @click.option("-q", "--quiet", is_flag=True, help="Suppress progress output.")
 def run(loopfile: str, mock: bool, plan: bool, engine: str, output: str, max_iterations: int, work_dir: str | None, quiet: bool):
     """Run a Loopfile. Use --engine langgraph/crewai/autogen/mastra/openai-agents for adapters."""
