@@ -208,7 +208,7 @@ infini run examples/hello-world.yaml --mock --engine langgraph
 infini inspect runs/latest/
 
 # 5. Time-travel replay from any step
-infini replay runs/latest/ --step s2
+infini replay runs/latest/ --step s1
 
 # 6. Install the Anthropic 3-agent harness
 infini registry install @anthropic/3-agent-harness
