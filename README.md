@@ -40,6 +40,8 @@ pip install infini-cli && infini setup && infini run my-loop.yaml --plan
 
 <img src="assets/demo.gif" alt="INFINI Demo" width="700">
 
+[![INFINI Demo — Side-by-side portability proof](https://asciinema.org/a/1FdlBnDl5EkYeDu3.svg)](https://asciinema.org/a/1FdlBnDl5EkYeDu3)
+
 ### Works with
 
 | Adapter | Status | Compatibility |
