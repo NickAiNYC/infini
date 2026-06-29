@@ -11,6 +11,9 @@ import subprocess
 from pathlib import Path
 
 from .db import init_db
+from rich.console import Console
+
+console = Console()
 
 
 def detect_terminals() -> list[str]:
@@ -65,10 +68,39 @@ def setup_codex() -> dict:
     return {"terminal": "codex", "path": str(cmd_file), "status": "installed"}
 
 
+def download_qwythos() -> dict:
+    """Download the Qwythos GGUF model for local inference."""
+    import urllib.request
+    import json
+
+    models_dir = Path.home() / ".infini" / "models"
+    models_dir.mkdir(parents=True, exist_ok=True)
+
+    model_path = models_dir / "qwythos-9b-q4_k_m.gguf"
+
+    if model_path.exists():
+        size_mb = model_path.stat().st_size / (1024 * 1024)
+        return {"model": str(model_path), "size_mb": round(size_mb), "status": "exists"}
+
+    url = "https://huggingface.co/Qwythos/Qwythos-9B-Claude-Mythos-5-1M-GGUF/resolve/main/Qwythos-9B-Claude-Mythos-5-1M-Q4_K_M.gguf"
+    console.print(f"[yellow]Downloading Qwythos-9B GGUF (~5.6GB)...[/yellow]")
+    console.print(f"[dim]  from: {url}[/dim]")
+    console.print(f"[dim]  to:   {model_path}[/dim]")
+
+    try:
+        urllib.request.urlretrieve(url, model_path)
+        size_mb = model_path.stat().st_size / (1024 * 1024)
+        console.print(f"[green]✓ Downloaded: {model_path} ({round(size_mb)} MB)[/green]")
+        return {"model": str(model_path), "size_mb": round(size_mb), "status": "downloaded"}
+    except Exception as e:
+        return {"model": str(model_path), "status": "error", "error": str(e)}
+
+
 SETUP_FUNCTIONS = {
     "claude": setup_claude,
     "gemini": setup_gemini,
     "codex": setup_codex,
+    "qwythos": setup_qwythos,
 }
 
 

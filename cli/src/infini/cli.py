@@ -691,9 +691,24 @@ def skill_install(git_url: str):
 # ════════════════════════════════════════════════════════════
 
 @cli.command()
-def setup():
-    """Initialize INFINI: create DB, detect AI terminals, install slash commands."""
+@click.option("--download-qwythos", is_flag=True, help="Download the Qwythos GGUF model for local inference (~5.6GB).")
+def setup(download_qwythos: bool):
+    """Initialize INFINI: create DB, detect AI terminals, install slash commands.
+
+    Use --download-qwythos to download the local LLM model for --engine local mode.
+    """
     console.rule("[bold]INFINI Setup[/bold]")
+
+    if download_qwythos:
+        console.print("[bold]Downloading Qwythos model...[/bold]")
+        result = setup_mod.download_qwythos()
+        if result.get("status") == "error":
+            console.print(f"[red]✗ Download failed: {result.get('error')}[/red]")
+            sys.exit(1)
+        console.print(f"[green]✓ Model ready: {result['model']} ({result.get('size_mb', '?')} MB)[/green]")
+        console.print(f"[dim]  Run: infini run loop.yaml --engine local --live[/dim]")
+        return
+
     result = setup_mod.run_setup()
 
     console.print(f"\n[green]✓[/green] Database: {result['db_path']}")
