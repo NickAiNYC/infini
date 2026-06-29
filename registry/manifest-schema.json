@@ -1,0 +1,116 @@
+{
+  "$schema": "https://registry.infini.dev/schema/manifest-v1.json",
+  "$id": "https://registry.infini.dev/schema/manifest-v1.json",
+  "title": "INFINI Loop Package Manifest v1",
+  "description": "Metadata for a published Loop Package in the INFINI Loop Registry.",
+  "type": "object",
+  "required": ["name", "version", "namespace", "loopfile_sha256", "description", "author", "license"],
+  "properties": {
+    "name": {
+      "type": "string",
+      "pattern": "^[a-z0-9-]+$",
+      "description": "Loop name (slug)."
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)$",
+      "description": "Semver version."
+    },
+    "namespace": {
+      "type": "string",
+      "pattern": "^@[a-z0-9-]+$",
+      "description": "Publisher namespace (e.g. @acme-corp)."
+    },
+    "description": {
+      "type": "string",
+      "maxLength": 500,
+      "description": "One-line description."
+    },
+    "author": {
+      "type": "object",
+      "required": ["name"],
+      "properties": {
+        "name": { "type": "string" },
+        "email": { "type": "string", "format": "email" },
+        "url": { "type": "string", "format": "uri" }
+      }
+    },
+    "license": {
+      "type": "string",
+      "description": "SPDX license identifier (e.g. MIT, Apache-2.0)."
+    },
+    "keywords": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Search keywords."
+    },
+    "framework_compatibility": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Adapters this loop has been tested with (e.g. langgraph, crewai)."
+    },
+    "model_compatibility": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Model families this loop works with. 'any' means model-agnostic."
+    },
+    "loopfile_sha256": {
+      "type": "string",
+      "pattern": "^sha256:[a-f0-9]{64}$",
+      "description": "Content hash of the Loopfile."
+    },
+    "verification": {
+      "type": "object",
+      "properties": {
+        "conformance": {
+          "type": "string",
+          "enum": ["bronze", "silver", "gold"],
+          "description": "Certification tier achieved."
+        },
+        "score": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Conformance percentage (0.0-1.0)."
+        },
+        "benchmarks": {
+          "type": "object",
+          "properties": {
+            "accuracy": { "type": "number", "minimum": 0, "maximum": 1 },
+            "latency_ms": { "type": "integer", "minimum": 0 },
+            "cost_per_run": { "type": "number", "minimum": 0 }
+          }
+        }
+      }
+    },
+    "dependencies": {
+      "type": "object",
+      "properties": {
+        "mcp_tools": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "MCP tool servers required by this loop."
+        },
+        "skills": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Anthropic Skills required by this loop."
+        },
+        "loops": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Other Loop Packages this loop depends on (e.g. @acme/research@1.0)."
+        }
+      }
+    },
+    "repository": {
+      "type": "object",
+      "properties": {
+        "type": { "type": "string", "default": "git" },
+        "url": { "type": "string", "format": "uri" }
+      }
+    },
+    "created": { "type": "string", "format": "date-time" },
+    "updated": { "type": "string", "format": "date-time" }
+  }
+}

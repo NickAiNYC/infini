@@ -46,6 +46,7 @@ from . import memory
 from . import skills
 from . import orchestrator
 from . import setup as setup_mod
+from .registry_cli import register_registry_commands
 
 console = Console()
 
@@ -569,6 +570,8 @@ def main():
         init_db()
     except Exception:
         pass
+    # Register registry commands
+    register_registry_commands(cli)
     cli()
 
 

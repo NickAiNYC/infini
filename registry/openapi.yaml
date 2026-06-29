@@ -1,0 +1,317 @@
+openapi: 3.0.0
+info:
+  title: INFINI Loop Registry API
+  version: v1
+  description: >
+    The catalog for portable agent intelligence. Discover, share, and install
+    agent Loopfiles that work on any framework.
+  contact:
+    url: https://github.com/NickAiNYC/infini
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: https://registry.infini.dev/v1
+    description: Public registry
+  - url: http://localhost:8080/v1
+    description: Local/self-hosted
+
+paths:
+  /loops:
+    get:
+      summary: Search loops
+      description: Search the registry by keyword, framework, or conformance tier.
+      parameters:
+        - name: q
+          in: query
+          description: Search query
+          schema: { type: string }
+        - name: framework
+          in: query
+          description: Filter by framework compatibility
+          schema: { type: string }
+        - name: tier
+          in: query
+          description: Filter by conformance tier
+          schema: { type: string, enum: [bronze, silver, gold] }
+        - name: limit
+          in: query
+          schema: { type: integer, default: 20, maximum: 100 }
+        - name: offset
+          in: query
+          schema: { type: integer, default: 0 }
+      responses:
+        '200':
+          description: Search results
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  results:
+                    type: array
+                    items: { $ref: '#/components/schemas/Manifest' }
+                  total: { type: integer }
+                  limit: { type: integer }
+                  offset: { type: integer }
+    post:
+      summary: Publish a new loop
+      security: [{ ApiKeyAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/PublishRequest' }
+      responses:
+        '201':
+          description: Loop published
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Manifest' }
+        '400': { description: Invalid manifest or Loopfile }
+        '409': { description: Version already exists }
+
+  /loops/{namespace}/{name}:
+    get:
+      summary: Get loop metadata (latest version)
+      parameters:
+        - $ref: '#/components/parameters/Namespace'
+        - $ref: '#/components/parameters/LoopName'
+      responses:
+        '200':
+          description: Loop metadata
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Manifest' }
+        '404': { description: Loop not found }
+
+  /loops/{namespace}/{name}/versions:
+    get:
+      summary: List all versions
+      parameters:
+        - $ref: '#/components/parameters/Namespace'
+        - $ref: '#/components/parameters/LoopName'
+      responses:
+        '200':
+          description: Version list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  versions:
+                    type: array
+                    items: { type: string }
+
+  /loops/{namespace}/{name}/{version}:
+    get:
+      summary: Get specific version metadata
+      parameters:
+        - $ref: '#/components/parameters/Namespace'
+        - $ref: '#/components/parameters/LoopName'
+        - $ref: '#/components/parameters/Version'
+      responses:
+        '200':
+          description: Version metadata
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Manifest' }
+        '404': { description: Version not found }
+    put:
+      summary: Update loop version
+      security: [{ ApiKeyAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/Namespace'
+        - $ref: '#/components/parameters/LoopName'
+        - $ref: '#/components/parameters/Version'
+      responses:
+        '200': { description: Updated }
+        '403': { description: Not authorized }
+    delete:
+      summary: Deprecate a version
+      security: [{ ApiKeyAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/Namespace'
+        - $ref: '#/components/parameters/LoopName'
+        - $ref: '#/components/parameters/Version'
+      responses:
+        '204': { description: Deprecated }
+        '403': { description: Not authorized }
+
+  /loops/{namespace}/{name}/{version}/loopfile:
+    get:
+      summary: Download the Loopfile
+      parameters:
+        - $ref: '#/components/parameters/Namespace'
+        - $ref: '#/components/parameters/LoopName'
+        - $ref: '#/components/parameters/Version'
+      responses:
+        '200':
+          description: Loopfile YAML
+          content:
+            application/x-yaml:
+              schema: { type: string }
+
+  /loops/{namespace}/{name}/{version}/verify:
+    post:
+      summary: Run verification (conformance suite)
+      security: [{ ApiKeyAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/Namespace'
+        - $ref: '#/components/parameters/LoopName'
+        - $ref: '#/components/parameters/Version'
+      responses:
+        '200':
+          description: Verification report
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/VerificationReport' }
+
+  /loops/{namespace}/{name}/{version}/trace:
+    get:
+      summary: Get replayable trace
+      parameters:
+        - $ref: '#/components/parameters/Namespace'
+        - $ref: '#/components/parameters/LoopName'
+        - $ref: '#/components/parameters/Version'
+      responses:
+        '200':
+          description: Trace JSON
+          content:
+            application/json:
+              schema: { type: object }
+
+  /namespaces:
+    get:
+      summary: List namespaces
+      responses:
+        '200':
+          description: Namespace list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  namespaces:
+                    type: array
+                    items: { type: string }
+
+  /namespaces/{namespace}:
+    post:
+      summary: Create namespace
+      security: [{ ApiKeyAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/Namespace'
+      responses:
+        '201': { description: Namespace created }
+        '409': { description: Namespace already exists }
+
+  /auth/verify:
+    get:
+      summary: Verify API token
+      security: [{ ApiKeyAuth: [] }]
+      responses:
+        '200':
+          description: Token valid
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user: { type: string }
+                  namespace: { type: string }
+        '401': { description: Invalid token }
+
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: Authorization
+      description: "Bearer <token>"
+
+  parameters:
+    Namespace:
+      name: namespace
+      in: path
+      required: true
+      schema: { type: string, pattern: '^@[a-z0-9-]+$' }
+    LoopName:
+      name: name
+      in: path
+      required: true
+      schema: { type: string, pattern: '^[a-z0-9-]+$' }
+    Version:
+      name: version
+      in: path
+      required: true
+      schema: { type: string, pattern: '^\d+\.\d+\.\d+$' }
+
+  schemas:
+    Manifest:
+      type: object
+      required: [name, version, namespace, loopfile_sha256, description, author, license]
+      properties:
+        name: { type: string }
+        version: { type: string }
+        namespace: { type: string }
+        description: { type: string }
+        author:
+          type: object
+          properties:
+            name: { type: string }
+            email: { type: string }
+            url: { type: string }
+        license: { type: string }
+        keywords: { type: array, items: { type: string } }
+        framework_compatibility: { type: array, items: { type: string } }
+        model_compatibility: { type: array, items: { type: string } }
+        loopfile_sha256: { type: string }
+        verification:
+          type: object
+          properties:
+            conformance: { type: string, enum: [bronze, silver, gold] }
+            score: { type: number }
+            benchmarks:
+              type: object
+              properties:
+                accuracy: { type: number }
+                latency_ms: { type: integer }
+                cost_per_run: { type: number }
+        dependencies:
+          type: object
+          properties:
+            mcp_tools: { type: array, items: { type: string } }
+            skills: { type: array, items: { type: string } }
+            loops: { type: array, items: { type: string } }
+        repository:
+          type: object
+          properties:
+            type: { type: string }
+            url: { type: string }
+        created: { type: string, format: date-time }
+        updated: { type: string, format: date-time }
+
+    PublishRequest:
+      type: object
+      required: [manifest, loopfile, signature]
+      properties:
+        manifest: { $ref: '#/components/schemas/Manifest' }
+        loopfile: { type: string, description: "Base64-encoded Loopfile YAML" }
+        signature: { type: string, description: "Ed25519 signature of the Loopfile" }
+
+    VerificationReport:
+      type: object
+      properties:
+        conformance: { type: string, enum: [bronze, silver, gold] }
+        score: { type: number }
+        tests_passed: { type: integer }
+        tests_total: { type: integer }
+        failures: { type: array, items: { type: object } }
+        benchmarks:
+          type: object
+          properties:
+            accuracy: { type: number }
+            latency_ms: { type: integer }
+            cost_per_run: { type: number }
