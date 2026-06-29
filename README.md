@@ -132,6 +132,19 @@ Full spec: [loopfile-v1.md](spec/loopfile-v1.md)
 
 ---
 
+## Quickstart
+
+New here? Start with the [5-minute tutorial](docs/tutorial.md) —
+install INFINI, write a Loopfile, run it on two engines, compare
+the traces.
+
+Or jump straight to:
+
+- [60-second demo](docs/demo.md) — one workflow, four engines
+- [Comparison with other frameworks](docs/comparison.md) — INFINI vs LangGraph, CrewAI, AutoGen, OpenAI Agents, Mastra
+
+---
+
 ## Run on all three engines
 
 ```bash
