@@ -1,0 +1,160 @@
+{
+  "loopfile": "infini/changelog-generator@1.0.0",
+  "spec": "1.0",
+  "engine": {
+    "type": "infini-reference",
+    "version": "1.0.0",
+    "orchestrator": "kahn-dag-walk"
+  },
+  "started_at": "2026-06-29T15:35:57.612232Z",
+  "ended_at": "2026-06-29T15:35:57.613254Z",
+  "workflow_graph": [
+    {
+      "id": "s1",
+      "name": "parse_commits",
+      "action": "parse_commits",
+      "agent": "parser",
+      "depends_on": []
+    },
+    {
+      "id": "s2",
+      "name": "categorize",
+      "action": "categorize",
+      "agent": "categorizer",
+      "depends_on": [
+        "s1"
+      ]
+    },
+    {
+      "id": "s3",
+      "name": "render_changelog",
+      "action": "render_changelog",
+      "agent": "writer",
+      "depends_on": [
+        "s2"
+      ]
+    },
+    {
+      "id": "s4",
+      "name": "render_summary",
+      "action": "render_summary",
+      "agent": "writer",
+      "depends_on": [
+        "s2"
+      ]
+    },
+    {
+      "id": "s5",
+      "name": "audit",
+      "action": "verify",
+      "agent": "auditor",
+      "depends_on": [
+        "s3",
+        "s4"
+      ]
+    }
+  ],
+  "executed_order": [
+    "s1",
+    "s2",
+    "s3",
+    "s4"
+  ],
+  "steps": [
+    {
+      "id": "s1",
+      "name": "parse_commits",
+      "agent": "parser",
+      "action": "parse_commits",
+      "status": "ok",
+      "artifacts": [
+        {
+          "path": "normalized.json",
+          "sha256": "sha256:a5932993348c9313f0b698761155833bc7fefb84fd0943fdb93ad811f5e94e06"
+        }
+      ]
+    },
+    {
+      "id": "s2",
+      "name": "categorize",
+      "agent": "categorizer",
+      "action": "categorize",
+      "status": "ok",
+      "artifacts": [
+        {
+          "path": "categories.json",
+          "sha256": "sha256:23a97b25c9c327d0b035e71b81522aaa0c1765b225f57ba9bd79301306f45df5"
+        }
+      ]
+    },
+    {
+      "id": "s3",
+      "name": "render_changelog",
+      "agent": "writer",
+      "action": "render_changelog",
+      "status": "ok",
+      "artifacts": [
+        {
+          "path": "CHANGELOG.md",
+          "sha256": "sha256:d65439478ef7f8b247365cf97ff41db27f2431f2a445a36401c31ca9282a2b82"
+        }
+      ]
+    },
+    {
+      "id": "s4",
+      "name": "render_summary",
+      "agent": "writer",
+      "action": "render_summary",
+      "status": "ok",
+      "artifacts": [
+        {
+          "path": "summary.json",
+          "sha256": "sha256:cc67071a9f42da8fbdaedbebade058da91daafc317e0381bebe2f6887dd03d8c"
+        }
+      ]
+    }
+  ],
+  "verifications": [
+    {
+      "check": "normalized.json:exists",
+      "status": "pass",
+      "detail": "present"
+    },
+    {
+      "check": "categories.json:exists",
+      "status": "pass",
+      "detail": "present"
+    },
+    {
+      "check": "CHANGELOG.md:exists",
+      "status": "pass",
+      "detail": "present"
+    },
+    {
+      "check": "summary.json:exists",
+      "status": "pass",
+      "detail": "present"
+    },
+    {
+      "check": "summary.json:valid_json",
+      "status": "pass",
+      "detail": "parses as JSON"
+    },
+    {
+      "check": "CHANGELOG.md:contains:## Features",
+      "status": "pass",
+      "detail": "substring found: '## Features'"
+    },
+    {
+      "check": "CHANGELOG.md:contains:## Bug Fixes",
+      "status": "pass",
+      "detail": "substring found: '## Bug Fixes'"
+    },
+    {
+      "check": "summary.json:key:total",
+      "status": "pass",
+      "detail": "key present: total"
+    }
+  ],
+  "outcome": "verified"
+}

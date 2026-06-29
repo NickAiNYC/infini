@@ -1,0 +1,35 @@
+LOOPFILE: "1.0"
+name: changelog-generator
+version: 1.0.0
+description: "Deterministic release-notes workflow (no LLM/RNG) for the portability proof."
+
+OBJECTIVE: "Generate a verified CHANGELOG.md and summary.json from a commit log."
+
+AGENTS:
+  - { name: parser,      role: builder,   model_tier: haiku,  tools: [file_system.read, file_system.write] }
+  - { name: categorizer, role: builder,   model_tier: haiku,  tools: [file_system.read, file_system.write] }
+  - { name: writer,      role: builder,   model_tier: sonnet, tools: [file_system.read, file_system.write] }
+  - { name: auditor,     role: verifier,  model_tier: haiku,  tools: [file_system.read] }
+
+STEPS:
+  - { id: s1, name: parse_commits,    action: parse_commits,    uses: parser,      produces: [normalized.json] }
+  - { id: s2, name: categorize,       action: categorize,       uses: categorizer, depends_on: [s1], produces: [categories.json] }
+  - { id: s3, name: render_changelog, action: render_changelog, uses: writer,      depends_on: [s2], produces: [CHANGELOG.md] }
+  - { id: s4, name: render_summary,   action: render_summary,   uses: writer,      depends_on: [s2], produces: [summary.json] }
+  - { id: s5, name: audit,            action: verify,           uses: auditor,     depends_on: [s3, s4] }
+
+VERIFY:
+  syntactic:
+    - "normalized.json:exists"
+    - "categories.json:exists"
+    - "CHANGELOG.md:exists"
+    - "summary.json:exists"
+    - "summary.json:valid_json"
+    - "CHANGELOG.md:contains:## Features"
+    - "CHANGELOG.md:contains:## Bug Fixes"
+    - "summary.json:key:total"
+  semantic: []
+  confidence_threshold: 100
+
+BUDGET: { dollars: 1, minutes: 5 }
+STOP_WHEN: ["all_verify_passed"]

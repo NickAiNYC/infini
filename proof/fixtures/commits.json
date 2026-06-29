@@ -1,0 +1,21 @@
+{
+  "release": {
+    "version": "1.4.0",
+    "date": "2026-07-01",
+    "previous": "1.3.2"
+  },
+  "commits": [
+    { "sha": "a1b2c3d", "message": "feat(parser): support conventional commit scopes", "author": "nick" },
+    { "sha": "b2c3d4e", "message": "feat(registry): add local install resolution", "author": "nick" },
+    { "sha": "c3d4e5f", "message": "fix(engine): enforce budget ceiling before step dispatch", "author": "nick" },
+    { "sha": "d4e5f6a", "message": "fix(trace): stable ordering of verification entries", "author": "contrib" },
+    { "sha": "e5f6a7b", "message": "fix(cli): replay error when step id is absent", "author": "contrib" },
+    { "sha": "f6a7b8c", "message": "perf(diff): stream large traces instead of loading whole file", "author": "nick" },
+    { "sha": "a7b8c9d", "message": "docs(spec): clarify VERIFY normative semantics", "author": "nick" },
+    { "sha": "b8c9d0e", "message": "docs(readme): mark simulated paths explicitly", "author": "nick" },
+    { "sha": "c9d0e1f", "message": "refactor(parse): extract schema loader", "author": "nick" },
+    { "sha": "d0e1f2a", "message": "chore(ci): pin python matrix to 3.10-3.12", "author": "nick" },
+    { "sha": "e1f2a3b", "message": "feat(verify)!: real filesystem-backed syntactic checks", "author": "nick" },
+    { "sha": "f2a3b4c", "message": "test(conformance): add failing-case fixtures", "author": "contrib" }
+  ]
+}

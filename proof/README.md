@@ -1,0 +1,112 @@
+# INFINI Portability Proof
+
+**Thesis under test:** *A portable Loopfile can describe a workflow independently of the runtime while producing comparable execution traces.*
+
+This directory is **one reproducible experiment**, not a feature. It runs **the same Loopfile** on **two genuinely different orchestration engines** — the INFINI reference runtime and a real [LangGraph](https://github.com/langchain-ai/langgraph) `StateGraph` — and verifies, with **objective filesystem-backed checks**, that they produce the **same artifacts** (byte-for-byte, by SHA-256) and the **same verification outcome**.
+
+There is no mock executor here, no RNG, and no LLM. The workflow agents do real, deterministic work, precisely so that the portability claim is isolated from model nondeterminism.
+
+---
+
+## Reproduce it in under 10 minutes
+
+```bash
+# from the repo root
+pip install -e ./cli          # INFINI's real parser/validator
+pip install langgraph         # the real second runtime
+
+./proof/scripts/run_reference.sh    # Run A — INFINI reference engine
+./proof/scripts/run_langgraph.sh    # Run B — real LangGraph StateGraph
+./proof/scripts/verify.sh           # objective portability assertions (exit 0/1)
+```
+
+You should see every essential assertion pass and the verifier exit `0`. Then prove the verifier isn't a rubber stamp:
+
+```bash
+./proof/scripts/tamper_test.sh      # corrupts one artifact; verifier must exit 1
+```
+
+No paragraph of this README needs to be trusted. The scripts are the argument.
+
+---
+
+## What you are actually comparing
+
+A single Loopfile ([`Loopfile.yaml`](Loopfile.yaml)) describes a real release-notes workflow:
+
+```
+s1 parse_commits ─▶ s2 categorize ─┬─▶ s3 render_changelog ─┐
+                                    └─▶ s4 render_summary  ──┴─▶ s5 audit (verify)
+```
+
+- **4 agents** (parser, categorizer, writer, auditor), **a real DAG with fan-out** (`s3` and `s4` both depend on `s2`), **artifact generation**, **conditional logic** (empty changelog sections are omitted), and an **objective VERIFY block**.
+- **Run A** parses the Loopfile with INFINI's real validator and walks the DAG (Kahn's algorithm).
+- **Run B** translates the same Loopfile into a real `langgraph.StateGraph` (`STEPS → nodes`, `depends_on → edges`), compiles it, and `invoke`s it — **LangGraph performs the orchestration**.
+- Both runtimes call the **identical** deterministic step functions in [`proof_lib/steps.py`](proof_lib/steps.py).
+
+---
+
+## What this proves
+
+✓ **Loopfile portability** — the same declarative file drives two unrelated orchestration engines.
+✓ **Comparable traces** — the workflow graph, dependency-respecting execution order, produced artifacts, and verification outcome are identical across runtimes.
+✓ **Byte-identical artifacts** — `CHANGELOG.md`, `summary.json`, `categories.json`, `normalized.json` match by SHA-256 across both engines (see [`expected/diff.md`](expected/diff.md)).
+✓ **Deterministic, objective verification** — every check (`exists`, `valid_json`, `contains`, `key`) is a real assertion against bytes on disk, evaluated independently per run.
+✓ **A verifier that fails loudly** — `tamper_test.sh` corrupts an artifact and confirms `verify.sh` exits `1`.
+
+## What this does NOT prove
+
+✗ **LLM output parity** — there is no LLM in this experiment, by design. Real model steps will not be byte-deterministic; portability of *model output* is a different, harder claim this proof deliberately does not make.
+✗ **Production readiness** — this is a controlled experiment, not a production runtime.
+✗ **Benchmark superiority** — no performance claim is made or measured here.
+✗ **Universal runtime compatibility** — exactly two runtimes are demonstrated. Other engines are unproven until they have a real adapter and pass this same check.
+
+---
+
+## The objective difference
+
+`verify.sh` asserts equality **only** on the portability-relevant projection of each trace, and **reports** the rest as expected differences:
+
+| Asserted identical (essential) | Reported as different (non-essential) |
+| --- | --- |
+| declared workflow graph | engine type / version |
+| executed order is a valid topological order of the DAG | wall-clock timing (`started_at` / `ended_at`) |
+| every artifact's SHA-256 content hash | orchestrator metadata |
+| every verification check's pass/fail | fan-out sibling ordering (both valid) |
+| final outcome | |
+
+This is the honest line: portability is a claim about **workflow and artifacts**, not about timestamps or engine internals.
+
+---
+
+## Layout
+
+```
+proof/
+  README.md                  ← this file
+  Loopfile.yaml              ← the single workflow definition (validated by INFINI)
+  fixtures/commits.json      ← deterministic input
+  proof_lib/
+    steps.py                 ← deterministic agents (shared by both runtimes)
+    verify_lib.py            ← objective check grammar
+    trace_util.py            ← trace build + essential projection
+  runtimes/
+    run_reference.py         ← Run A (INFINI reference DAG walk)
+    run_langgraph.py         ← Run B (real LangGraph StateGraph)
+    verify.py                ← objective portability assertions
+    diff.py                  ← regenerates expected/diff.md
+  scripts/
+    run_reference.sh  run_langgraph.sh  verify.sh  tamper_test.sh
+  expected/
+    reference-run.json  langgraph-run.json  diff.md  artifacts/
+```
+
+`expected/` holds golden outputs from a real run on this machine. Re-running the scripts regenerates `runs/`; the artifact hashes must match `expected/` and each other.
+
+---
+
+## Acceptance test (for a skeptical reader)
+
+> Clone the repo, run the four commands above, and within ten minutes independently confirm: same Loopfile, two real runtimes, valid traces, objective verification, a reproducible diff, and a verifier that demonstrably fails on a broken run — **without trusting a single sentence of prose.**
+
+If any essential assertion cannot be reproduced on your machine, that is a bug in the proof. Open an issue with your `runs/` directory attached.

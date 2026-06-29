@@ -1,0 +1,15 @@
+{
+  "breaking": 1,
+  "counts": {
+    "chore": 1,
+    "docs": 2,
+    "feat": 3,
+    "fix": 3,
+    "perf": 1,
+    "refactor": 1,
+    "test": 1
+  },
+  "date": "2026-07-01",
+  "total": 12,
+  "version": "1.4.0"
+}
