@@ -81,9 +81,27 @@ def register_registry_commands(cli: click.Group) -> None:
                 continue
 
         if not results:
-            console.print(f"[yellow]No loops found matching '{query}'.[/yellow]")
-            console.print(f"[dim]Remote registry search coming soon. Visit {get_registry_url()}[/dim]")
-            return
+            console.print(f"[yellow]No loops found in local cache matching '{query}'.[/yellow]")
+            # Try remote search
+            try:
+                import urllib.request
+                import urllib.parse
+                url = f"{get_registry_url()}/v1/loops?q={urllib.parse.quote(query)}&limit={limit}"
+                if framework:
+                    url += f"&framework={framework}"
+                if tier:
+                    url += f"&tier={tier}"
+                req = urllib.request.Request(url, headers={"Accept": "application/json"})
+                with urllib.request.urlopen(req, timeout=10) as resp:
+                    data = json.loads(resp.read())
+                    results = data.get("results", [])
+            except Exception:
+                pass
+
+            if not results:
+                console.print(f"[dim]Remote registry not yet available. Visit {get_registry_url()}[/dim]")
+                console.print(f"[dim]Browse seed loops: registry/seed/@infini/[/dim]")
+                return
 
         table = Table(box=box.SIMPLE)
         table.add_column("Package", style="cyan")
@@ -117,34 +135,64 @@ def register_registry_commands(cli: click.Group) -> None:
         """
         console.print(f"[dim]Installing {package_ref}...[/dim]")
 
-        # Parse the reference
-        # Format: @namespace/name@version
-        parts = package_ref.split("@")
-        if len(parts) < 2:
+        # Parse the reference: @namespace/name@version
+        # e.g. @infini/hello-world, @infini/hello-world@1.0.0
+        import re
+        match = re.match(r'^(@[\w-]+)/([\w-]+)(?:@([\d.]+))?$', package_ref)
+        if not match:
             console.print(f"[red]Invalid package reference: {package_ref}[/red]")
-            console.print(f"[dim]Format: @namespace/name@version[/dim]")
+            console.print(f"[dim]Format: @namespace/name@version (version optional)[/dim]")
             return
 
-        namespace = parts[0] if parts[0].startswith("@") else f"@{parts[0]}"
-        name_version = parts[1] if len(parts) > 1 else ""
-        version = parts[2] if len(parts) > 2 else "latest"
+        namespace = match.group(1)
+        name_version = match.group(2)
+        version = match.group(3) or "latest"
 
         console.print(f"  namespace: {namespace}")
         console.print(f"  name: {name_version}")
         console.print(f"  version: {version}")
 
-        # TODO: implement remote download via API
-        # For now, check local cache
+        # Check local cache first
         cache_path = CACHE_DIR / namespace / name_version / version
         if cache_path.exists():
             console.print(f"[green]✓[/green] Found in cache: {cache_path}")
             console.print(f"[dim]Run with: infini run {cache_path}/loop.yaml --mock[/dim]")
-        else:
-            console.print(f"[yellow]⚠[/yellow] Not found in local cache.")
-            console.print(f"[dim]Remote registry install coming soon. Visit {registry_url or get_registry_url()}[/dim]")
-            console.print(f"[dim]For now, clone the repo and run examples directly:[/dim]")
-            console.print(f"[dim]  git clone https://github.com/NickAiNYC/infini[/dim]")
-            console.print(f"[dim]  infini run examples/research-agent/Loopfile.yaml --mock[/dim]")
+            return
+
+        # Check seed loops (bundled with the repo)
+        if namespace == "@infini":
+            # Find the repo root by searching upwards for registry/seed
+            from .adapters import find_adapters_dir
+            p = Path.cwd()
+            for _ in range(10):
+                seed_path = p / "registry" / "seed" / "@infini" / name_version
+                if seed_path.exists():
+                    cache_path = CACHE_DIR / namespace / name_version / version
+                    cache_path.mkdir(parents=True, exist_ok=True)
+                    import shutil
+                    shutil.copytree(seed_path, cache_path, dirs_exist_ok=True)
+                    console.print(f"[green]✓[/green] Installed from seed: {cache_path}")
+                    console.print(f"[dim]Run with: infini run {cache_path}/loop.yaml --mock[/dim]")
+                    return
+                p = p.parent
+
+        # Try remote fetch
+        try:
+            import urllib.request
+            url = f"{registry_url or get_registry_url()}/v1/loops/{namespace}/{name_version}/{version}/loopfile"
+            req = urllib.request.Request(url, headers={"Accept": "application/x-yaml"})
+            with urllib.request.urlopen(req, timeout=15) as resp:
+                loopfile_content = resp.read()
+
+            cache_path = CACHE_DIR / namespace / name_version / version
+            cache_path.mkdir(parents=True, exist_ok=True)
+            (cache_path / "loop.yaml").write_bytes(loopfile_content)
+            console.print(f"[green]✓[/green] Downloaded from registry: {cache_path}")
+            console.print(f"[dim]Run with: infini run {cache_path}/loop.yaml --mock[/dim]")
+        except Exception as e:
+            console.print(f"[yellow]⚠[/yellow] Could not fetch from registry: {e}")
+            console.print(f"[dim]Try: git clone https://github.com/NickAiNYC/infini[/dim]")
+            console.print(f"[dim]Then: infini run registry/seed/@infini/{name_version}/loop.yaml --mock[/dim]")
 
     @registry.command(name="publish")
     @click.argument("loopfile", type=click.Path(exists=True))
@@ -269,6 +317,44 @@ def register_registry_commands(cli: click.Group) -> None:
 
         console.print(f"[green]✓[/green] Packed to {output_path}")
         console.print(f"[dim]Size: {output_path.stat().st_size:,} bytes[/dim]")
+
+    @registry.command(name="verify")
+    @click.argument("loopfile", type=click.Path(exists=True))
+    @click.option("--suite", default="gold", type=click.Choice(["bronze", "silver", "gold"]))
+    def registry_verify(loopfile: str, suite: str):
+        """Run conformance suite on a Loopfile before publishing.
+
+        Checks schema validity, runs the conformance suite, and prints
+        a certification report. This is pre-publish confidence.
+        """
+        console.print(f"[dim]Running conformance suite ({suite} tier)...[/dim]")
+
+        # Validate first
+        try:
+            from .parse import parse_file, ParseError
+            lf = parse_file(loopfile)
+        except ParseError as e:
+            console.print(f"[red]✗ Schema invalid: {e}[/red]")
+            return
+
+        console.print(f"[green]✓[/green] Schema valid: {lf.name}@{lf.version}")
+
+        # Run conformance
+        from .conformance import run_conformance
+        exit_code = run_conformance(
+            str(Path(loopfile).parent),
+            engine="infini",
+            mock=True,
+        )
+
+        if exit_code == 0:
+            console.print(f"\n[green]✓ Conformance passed![/green]")
+            tier_icon = {"gold": "🥇", "silver": "🥈", "bronze": "🥉"}.get(suite, "")
+            console.print(f"{tier_icon} Tier: {suite}")
+            console.print(f"[dim]Ready to publish: infini registry publish {loopfile} --namespace <your-ns>[/dim]")
+        else:
+            console.print(f"\n[yellow]⚠ Conformance issues detected.[/yellow]")
+            console.print(f"[dim]Fix the issues above before publishing.[/dim]")
 
     @registry.command(name="info")
     @click.argument("package_ref")

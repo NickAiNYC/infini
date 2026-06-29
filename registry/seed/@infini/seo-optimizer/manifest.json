@@ -1,0 +1,30 @@
+{
+  "name": "seo-optimizer",
+  "version": "1.0.0",
+  "namespace": "@infini",
+  "description": "Content \u2192 SEO suggestions + optimization",
+  "author": {
+    "name": "INFINI Team",
+    "url": "https://github.com/NickAiNYC/infini"
+  },
+  "license": "MIT",
+  "keywords": [
+    "marketing",
+    "agent",
+    "infini"
+  ],
+  "framework_compatibility": [
+    "infini"
+  ],
+  "model_compatibility": [
+    "any"
+  ],
+  "loopfile_sha256": "sha256:1d8b4c034052c51e1d3c1f319d4629a68bfa4ae8b8471a0a026f1dd1ffd477aa",
+  "verification": {
+    "conformance": "gold",
+    "score": 1.0
+  },
+  "category": "Marketing",
+  "created": "2026-06-29T00:00:00Z",
+  "updated": "2026-06-29T00:00:00Z"
+}

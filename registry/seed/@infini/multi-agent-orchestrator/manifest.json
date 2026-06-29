@@ -1,0 +1,30 @@
+{
+  "name": "multi-agent-orchestrator",
+  "version": "1.0.0",
+  "namespace": "@infini",
+  "description": "3-agent parallel handoff workflow",
+  "author": {
+    "name": "INFINI Team",
+    "url": "https://github.com/NickAiNYC/infini"
+  },
+  "license": "MIT",
+  "keywords": [
+    "orchestration",
+    "agent",
+    "infini"
+  ],
+  "framework_compatibility": [
+    "infini"
+  ],
+  "model_compatibility": [
+    "any"
+  ],
+  "loopfile_sha256": "sha256:fb80e31935f9283af59ca6c009146d13cf0b422c46e3832106a56428d9e07ef6",
+  "verification": {
+    "conformance": "gold",
+    "score": 1.0
+  },
+  "category": "Orchestration",
+  "created": "2026-06-29T00:00:00Z",
+  "updated": "2026-06-29T00:00:00Z"
+}

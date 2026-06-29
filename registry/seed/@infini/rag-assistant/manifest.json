@@ -1,0 +1,30 @@
+{
+  "name": "rag-assistant",
+  "version": "1.0.0",
+  "namespace": "@infini",
+  "description": "Vector retrieval + citation-backed answers",
+  "author": {
+    "name": "INFINI Team",
+    "url": "https://github.com/NickAiNYC/infini"
+  },
+  "license": "MIT",
+  "keywords": [
+    "rag",
+    "agent",
+    "infini"
+  ],
+  "framework_compatibility": [
+    "infini"
+  ],
+  "model_compatibility": [
+    "any"
+  ],
+  "loopfile_sha256": "sha256:3332e149a197c8db9adbfc5f2b3aa0482fb277af73fec77a4d11cf364e35a5c3",
+  "verification": {
+    "conformance": "gold",
+    "score": 1.0
+  },
+  "category": "RAG",
+  "created": "2026-06-29T00:00:00Z",
+  "updated": "2026-06-29T00:00:00Z"
+}

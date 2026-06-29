@@ -1,0 +1,29 @@
+LOOPFILE: "1.0"
+name: finance-analyzer
+version: 1.0.0
+description: "Earnings report analysis + risk scoring"
+
+OBJECTIVE: "Earnings report analysis + risk scoring."
+
+AGENTS:
+  - { name: analyst, role: researcher, model_tier: sonnet }
+  - { name: risk_mgr, role: verifier, model_tier: sonnet }
+
+STEPS:
+  - { id: s1, name: parse, action: file_system.read, uses: analyst, produces: ['parsed.json'] }
+  - { id: s2, name: analyze, action: terminal.run, uses: analyst, depends_on: [s1], produces: ['analysis.json'] }
+  - { id: s3, name: score, action: verify, uses: risk_mgr, depends_on: [s2], produces: ['risk-score.json'] }
+
+VERIFY:
+  syntactic:
+    - "risk-score.json:valid_json"
+  semantic:
+    - "judge:accuracy>=85"
+  confidence_threshold: 85
+
+BUDGET: { dollars: 4, minutes: 12 }
+STOP_WHEN: ["all_verify_passed", "iterations>=3"]
+
+memory:
+  persist: true
+  context_window: 50

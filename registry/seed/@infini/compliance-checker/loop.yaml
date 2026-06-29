@@ -1,0 +1,30 @@
+LOOPFILE: "1.0"
+name: compliance-checker
+version: 1.0.0
+description: "Policy violation detection + audit trail"
+
+OBJECTIVE: "Policy violation detection + audit trail."
+
+AGENTS:
+  - { name: auditor, role: verifier, model_tier: opus }
+  - { name: scanner, role: researcher, model_tier: sonnet }
+
+STEPS:
+  - { id: s1, name: scan, action: terminal.run, uses: scanner, produces: ['scan.json'] }
+  - { id: s2, name: check_policy, action: verify, uses: auditor, depends_on: [s1], produces: ['violations.json'] }
+  - { id: s3, name: sign, action: audit.sign, uses: auditor, depends_on: [s2], produces: ['audit/log.jsonl'] }
+
+VERIFY:
+  syntactic:
+    - "violations.json:valid_json"
+    - "audit/log.jsonl:non_empty"
+  semantic:
+    - "judge:coverage>=85"
+  confidence_threshold: 85
+
+BUDGET: { dollars: 4, minutes: 12 }
+STOP_WHEN: ["all_verify_passed", "iterations>=3"]
+
+memory:
+  persist: true
+  context_window: 50

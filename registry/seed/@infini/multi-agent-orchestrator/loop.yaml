@@ -1,0 +1,34 @@
+LOOPFILE: "1.0"
+name: multi-agent-orchestrator
+version: 1.0.0
+description: "3-agent parallel handoff workflow"
+
+OBJECTIVE: "3-agent parallel handoff workflow."
+
+AGENTS:
+  - { name: coordinator, role: planner, model_tier: sonnet }
+  - { name: merger, role: builder, model_tier: sonnet }
+  - { name: verifier, role: verifier, model_tier: haiku }
+  - { name: worker_a, role: builder, model_tier: haiku }
+  - { name: worker_b, role: builder, model_tier: haiku }
+
+STEPS:
+  - { id: s1, name: prepare, action: prepare, uses: coordinator, produces: ['input.json'] }
+  - { id: s2a, name: worker_a, action: terminal.run, uses: worker_a, depends_on: [s1], produces: ['a.json'] }
+  - { id: s2b, name: worker_b, action: terminal.run, uses: worker_b, depends_on: [s1], produces: ['b.json'] }
+  - { id: s3, name: merge, action: file_system.write, uses: merger, depends_on: [s2a, s2b], produces: ['merged.json'] }
+  - { id: s4, name: verify, action: verify, uses: verifier, depends_on: [s3], produces: ['check.json'] }
+
+VERIFY:
+  syntactic:
+    - "merged.json:valid_json"
+  semantic:
+    - "judge:merge_quality>=85"
+  confidence_threshold: 85
+
+BUDGET: { dollars: 5, minutes: 12 }
+STOP_WHEN: ["all_verify_passed", "iterations>=3"]
+
+memory:
+  persist: true
+  context_window: 50

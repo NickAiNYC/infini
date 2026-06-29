@@ -1,0 +1,31 @@
+LOOPFILE: "1.0"
+name: seo-optimizer
+version: 1.0.0
+description: "Content → SEO suggestions + optimization"
+
+OBJECTIVE: "Content → SEO suggestions + optimization."
+
+AGENTS:
+  - { name: analyst, role: researcher, model_tier: sonnet }
+  - { name: verifier, role: verifier, model_tier: haiku }
+  - { name: writer, role: builder, model_tier: sonnet }
+
+STEPS:
+  - { id: s1, name: analyze, action: file_system.read, uses: analyst, produces: ['analysis.json'] }
+  - { id: s2, name: optimize, action: file_system.write, uses: writer, depends_on: [s1], produces: ['optimized.md'] }
+  - { id: s3, name: verify, action: verify, uses: verifier, depends_on: [s2], produces: ['seo-check.json'] }
+
+VERIFY:
+  syntactic:
+    - "optimized.md:exists"
+    - "seo-check.json:valid_json"
+  semantic:
+    - "judge:seo_score>=85"
+  confidence_threshold: 85
+
+BUDGET: { dollars: 4, minutes: 12 }
+STOP_WHEN: ["all_verify_passed", "iterations>=3"]
+
+memory:
+  persist: true
+  context_window: 50

@@ -1,0 +1,30 @@
+{
+  "name": "support-agent",
+  "version": "1.0.0",
+  "namespace": "@infini",
+  "description": "Ticket triage + empathetic response",
+  "author": {
+    "name": "INFINI Team",
+    "url": "https://github.com/NickAiNYC/infini"
+  },
+  "license": "MIT",
+  "keywords": [
+    "support",
+    "agent",
+    "infini"
+  ],
+  "framework_compatibility": [
+    "infini"
+  ],
+  "model_compatibility": [
+    "any"
+  ],
+  "loopfile_sha256": "sha256:3cc1914b167a32890f5645daa92f8ff8ee8eef0e331dd2c3cb0c6baac2e92553",
+  "verification": {
+    "conformance": "gold",
+    "score": 1.0
+  },
+  "category": "Support",
+  "created": "2026-06-29T00:00:00Z",
+  "updated": "2026-06-29T00:00:00Z"
+}

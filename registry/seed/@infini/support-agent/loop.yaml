@@ -1,0 +1,31 @@
+LOOPFILE: "1.0"
+name: support-agent
+version: 1.0.0
+description: "Ticket triage + empathetic response"
+
+OBJECTIVE: "Ticket triage + empathetic response."
+
+AGENTS:
+  - { name: resolver, role: builder, model_tier: sonnet }
+  - { name: triager, role: researcher, model_tier: sonnet }
+  - { name: verifier, role: verifier, model_tier: haiku }
+
+STEPS:
+  - { id: s1, name: recall, action: memory.recall, uses: triager, produces: ['past.json'] }
+  - { id: s2, name: draft, action: file_system.write, uses: resolver, depends_on: [s1], produces: ['response.md'] }
+  - { id: s3, name: verify, action: verify, uses: verifier, depends_on: [s2], produces: ['check.json'] }
+
+VERIFY:
+  syntactic:
+    - "response.md:exists"
+  semantic:
+    - "judge:empathy>=85"
+    - "judge:accuracy>=90"
+  confidence_threshold: 85
+
+BUDGET: { dollars: 3, minutes: 10 }
+STOP_WHEN: ["all_verify_passed", "iterations>=3"]
+
+memory:
+  persist: true
+  context_window: 50

@@ -1,0 +1,31 @@
+LOOPFILE: "1.0"
+name: rag-assistant
+version: 1.0.0
+description: "Vector retrieval + citation-backed answers"
+
+OBJECTIVE: "Vector retrieval + citation-backed answers."
+
+AGENTS:
+  - { name: retriever, role: researcher, model_tier: sonnet }
+  - { name: verifier, role: verifier, model_tier: haiku }
+  - { name: writer, role: builder, model_tier: sonnet }
+
+STEPS:
+  - { id: s1, name: retrieve, action: memory.recall, uses: retriever, produces: ['context.json'] }
+  - { id: s2, name: generate, action: file_system.write, uses: writer, depends_on: [s1], produces: ['answer.md'] }
+  - { id: s3, name: verify_citations, action: verify, uses: verifier, depends_on: [s2], produces: ['check.json'] }
+
+VERIFY:
+  syntactic:
+    - "answer.md:every_claim_has_citation"
+    - "check.json:valid_json"
+  semantic:
+    - "judge:accuracy>=85"
+  confidence_threshold: 85
+
+BUDGET: { dollars: 5, minutes: 15 }
+STOP_WHEN: ["all_verify_passed", "iterations>=3"]
+
+memory:
+  persist: true
+  context_window: 50

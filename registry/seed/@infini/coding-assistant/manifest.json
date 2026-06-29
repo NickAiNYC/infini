@@ -1,0 +1,30 @@
+{
+  "name": "coding-assistant",
+  "version": "1.0.0",
+  "namespace": "@infini",
+  "description": "Code generation + test + review",
+  "author": {
+    "name": "INFINI Team",
+    "url": "https://github.com/NickAiNYC/infini"
+  },
+  "license": "MIT",
+  "keywords": [
+    "coding",
+    "agent",
+    "infini"
+  ],
+  "framework_compatibility": [
+    "infini"
+  ],
+  "model_compatibility": [
+    "any"
+  ],
+  "loopfile_sha256": "sha256:474f481ef213f80a34d05a7781e65c399762d419a79ecd30c92a6fe38863d642",
+  "verification": {
+    "conformance": "gold",
+    "score": 1.0
+  },
+  "category": "Coding",
+  "created": "2026-06-29T00:00:00Z",
+  "updated": "2026-06-29T00:00:00Z"
+}

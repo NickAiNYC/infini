@@ -1,0 +1,30 @@
+{
+  "name": "compliance-checker",
+  "version": "1.0.0",
+  "namespace": "@infini",
+  "description": "Policy violation detection + audit trail",
+  "author": {
+    "name": "INFINI Team",
+    "url": "https://github.com/NickAiNYC/infini"
+  },
+  "license": "MIT",
+  "keywords": [
+    "compliance",
+    "agent",
+    "infini"
+  ],
+  "framework_compatibility": [
+    "infini"
+  ],
+  "model_compatibility": [
+    "any"
+  ],
+  "loopfile_sha256": "sha256:4983724dd2625f42dad9c680d06b32dce9e46d3c03cb8c5a79429486761988e9",
+  "verification": {
+    "conformance": "gold",
+    "score": 1.0
+  },
+  "category": "Compliance",
+  "created": "2026-06-29T00:00:00Z",
+  "updated": "2026-06-29T00:00:00Z"
+}

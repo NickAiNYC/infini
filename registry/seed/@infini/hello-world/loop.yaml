@@ -1,0 +1,26 @@
+LOOPFILE: "1.0"
+name: hello-world
+version: 1.0.0
+description: "Minimal hello world agent"
+
+OBJECTIVE: "Minimal hello world agent."
+
+AGENTS:
+  - { name: greeter, role: builder, model_tier: haiku }
+
+STEPS:
+  - { id: s1, name: greet, action: echo, uses: greeter, produces: ['greeting.txt'] }
+
+VERIFY:
+  syntactic:
+    - "greeting.txt:exists"
+  semantic:
+    []
+  confidence_threshold: 0
+
+BUDGET: { dollars: 1, minutes: 2 }
+STOP_WHEN: ["all_verify_passed", "iterations>=3"]
+
+memory:
+  persist: true
+  context_window: 50

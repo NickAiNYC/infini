@@ -1,0 +1,30 @@
+{
+  "name": "finance-analyzer",
+  "version": "1.0.0",
+  "namespace": "@infini",
+  "description": "Earnings report analysis + risk scoring",
+  "author": {
+    "name": "INFINI Team",
+    "url": "https://github.com/NickAiNYC/infini"
+  },
+  "license": "MIT",
+  "keywords": [
+    "finance",
+    "agent",
+    "infini"
+  ],
+  "framework_compatibility": [
+    "infini"
+  ],
+  "model_compatibility": [
+    "any"
+  ],
+  "loopfile_sha256": "sha256:e663deca76d50cc290fa748085c338555cd6871c2bed65b83ab64fd31a54603c",
+  "verification": {
+    "conformance": "gold",
+    "score": 1.0
+  },
+  "category": "Finance",
+  "created": "2026-06-29T00:00:00Z",
+  "updated": "2026-06-29T00:00:00Z"
+}

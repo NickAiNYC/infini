@@ -1,0 +1,31 @@
+LOOPFILE: "1.0"
+name: healthcare-triage
+version: 1.0.0
+description: "Symptom → specialist mapping with verification"
+
+OBJECTIVE: "Symptom → specialist mapping with verification."
+
+AGENTS:
+  - { name: classifier, role: builder, model_tier: sonnet }
+  - { name: triager, role: researcher, model_tier: sonnet }
+  - { name: verifier, role: verifier, model_tier: haiku }
+
+STEPS:
+  - { id: s1, name: intake, action: memory.recall, uses: triager, produces: ['symptoms.json'] }
+  - { id: s2, name: classify, action: terminal.run, uses: classifier, depends_on: [s1], produces: ['classification.json'] }
+  - { id: s3, name: verify, action: verify, uses: verifier, depends_on: [s2], produces: ['verify.json'] }
+
+VERIFY:
+  syntactic:
+    - "classification.json:exists"
+    - "verify.json:valid_json"
+  semantic:
+    - "judge:safety>=90"
+  confidence_threshold: 90
+
+BUDGET: { dollars: 4, minutes: 10 }
+STOP_WHEN: ["all_verify_passed", "iterations>=3"]
+
+memory:
+  persist: true
+  context_window: 50

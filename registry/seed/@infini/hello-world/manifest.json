@@ -1,0 +1,30 @@
+{
+  "name": "hello-world",
+  "version": "1.0.0",
+  "namespace": "@infini",
+  "description": "Minimal hello world agent",
+  "author": {
+    "name": "INFINI Team",
+    "url": "https://github.com/NickAiNYC/infini"
+  },
+  "license": "MIT",
+  "keywords": [
+    "demo",
+    "agent",
+    "infini"
+  ],
+  "framework_compatibility": [
+    "infini"
+  ],
+  "model_compatibility": [
+    "any"
+  ],
+  "loopfile_sha256": "sha256:ca7444e85c67b917ce7591407d2edfc2e77f28221b69d9d05f33dad524252789",
+  "verification": {
+    "conformance": "gold",
+    "score": 1.0
+  },
+  "category": "Demo",
+  "created": "2026-06-29T00:00:00Z",
+  "updated": "2026-06-29T00:00:00Z"
+}

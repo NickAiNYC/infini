@@ -1,0 +1,31 @@
+LOOPFILE: "1.0"
+name: research-agent
+version: 1.0.0
+description: "Web search + summarization with citations"
+
+OBJECTIVE: "Web search + summarization with citations."
+
+AGENTS:
+  - { name: researcher, role: researcher, model_tier: sonnet }
+  - { name: verifier, role: verifier, model_tier: haiku }
+  - { name: writer, role: builder, model_tier: sonnet }
+
+STEPS:
+  - { id: s1, name: find_sources, action: browser.navigate, uses: researcher, produces: ['sources.json'] }
+  - { id: s2, name: extract_claims, action: browser.scrape, uses: researcher, depends_on: [s1], produces: ['claims.json'] }
+  - { id: s3, name: verify_citations, action: browser.navigate, uses: verifier, depends_on: [s2], produces: ['citation-check.json'] }
+  - { id: s4, name: write_brief, action: file_system.write, uses: writer, depends_on: [s3], produces: ['brief.md'] }
+
+VERIFY:
+  syntactic:
+    - "brief.md:every_claim_has_citation"
+  semantic:
+    - "judge:source_quality>=85"
+  confidence_threshold: 85
+
+BUDGET: { dollars: 6, minutes: 20 }
+STOP_WHEN: ["all_verify_passed", "iterations>=3"]
+
+memory:
+  persist: true
+  context_window: 50

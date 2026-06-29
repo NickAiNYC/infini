@@ -1,0 +1,30 @@
+{
+  "name": "research-agent",
+  "version": "1.0.0",
+  "namespace": "@infini",
+  "description": "Web search + summarization with citations",
+  "author": {
+    "name": "INFINI Team",
+    "url": "https://github.com/NickAiNYC/infini"
+  },
+  "license": "MIT",
+  "keywords": [
+    "research",
+    "agent",
+    "infini"
+  ],
+  "framework_compatibility": [
+    "infini"
+  ],
+  "model_compatibility": [
+    "any"
+  ],
+  "loopfile_sha256": "sha256:52de8833012f4212215a7fad0553b7a356457e8e74b01d95cdf8f6989423acc1",
+  "verification": {
+    "conformance": "gold",
+    "score": 1.0
+  },
+  "category": "Research",
+  "created": "2026-06-29T00:00:00Z",
+  "updated": "2026-06-29T00:00:00Z"
+}

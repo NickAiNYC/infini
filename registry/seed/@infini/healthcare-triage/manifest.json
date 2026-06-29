@@ -1,0 +1,30 @@
+{
+  "name": "healthcare-triage",
+  "version": "1.0.0",
+  "namespace": "@infini",
+  "description": "Symptom \u2192 specialist mapping with verification",
+  "author": {
+    "name": "INFINI Team",
+    "url": "https://github.com/NickAiNYC/infini"
+  },
+  "license": "MIT",
+  "keywords": [
+    "healthcare",
+    "agent",
+    "infini"
+  ],
+  "framework_compatibility": [
+    "infini"
+  ],
+  "model_compatibility": [
+    "any"
+  ],
+  "loopfile_sha256": "sha256:52231138155261e5e1eb618cdd70028cc55bad8d1f1de504182ff28177b22f69",
+  "verification": {
+    "conformance": "gold",
+    "score": 1.0
+  },
+  "category": "Healthcare",
+  "created": "2026-06-29T00:00:00Z",
+  "updated": "2026-06-29T00:00:00Z"
+}
