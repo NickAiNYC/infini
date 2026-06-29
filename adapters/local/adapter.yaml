@@ -1,0 +1,30 @@
+# Local LLM Adapter Manifest
+
+adapter:
+  name: local
+  version: 0.3.0
+  spec: LOOPFILE-1.0
+  type: execution
+  description: >
+    Local LLM adapter — runs INFINI Loopfiles fully offline via
+    llama.cpp + Qwythos GGUF. No API key. No internet.
+    Deterministic output at --temp 0.0.
+
+engine:
+  type: local
+  runtime: llama.cpp
+  min_version: "b5000"
+
+capabilities:
+  parse_loopfile: true
+  run_loop: true
+  verify: true
+  inspect_trace: true
+  replay: true
+  diff: true
+
+install:
+  brew: llama.cpp
+  model: qwythos-9b-q4_k_m
+
+repo: https://github.com/NickAiNYC/infini/tree/main/adapters/local
