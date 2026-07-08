@@ -28,6 +28,8 @@ import click
 from rich.console import Console
 from rich.panel import Panel
 from rich.table import Table
+
+from .telemetry import emit_run_telemetry
 from rich import box
 
 from . import __version__
@@ -136,9 +138,45 @@ def run(loopfile: str, mock: bool, plan: bool, engine: str, output: str, max_ite
                 )
         except Exception:
             pass
+            
+        emit_run_telemetry("langgraph", trace.outcome, lf.name, mock)
 
         if trace.outcome == "verified":
             console.print(f"\n[green]✓ shipped (langgraph).[/green] trace: {Path(output) / 'run.json'}")
+        elif trace.outcome == "budget_exceeded":
+            console.print(f"\n[red]✗ budget exceeded.[/red] trace: {Path(output) / 'run.json'}")
+            sys.exit(1)
+        else:
+            console.print(f"\n[yellow]⚠ unverified.[/yellow] trace: {Path(output) / 'run.json'}")
+            sys.exit(1)
+        return
+
+    if engine == "crewai":
+        import sys as _sys
+        from pathlib import Path as _Path
+        _repo_root = _Path(__file__).parent.parent.parent.parent
+        _sys.path.insert(0, str(_repo_root / "adapters" / "crewai"))
+        from crewai_adapter import CrewAIAdapter
+
+        adapter = CrewAIAdapter()
+        trace = adapter.run(
+            lf, mock=mock, output_dir=output,
+            max_iterations=max_iterations, verbose=not quiet,
+        )
+
+        try:
+            for step_trace in trace.steps:
+                memory.store_run_output(
+                    lf.name, step_trace.id, step_trace.name,
+                    f"status={step_trace.status} cost=${step_trace.cost['dollars']:.2f}"
+                )
+        except Exception:
+            pass
+            
+        emit_run_telemetry("crewai", trace.outcome, lf.name, mock)
+
+        if trace.outcome == "verified":
+            console.print(f"\n[green]✓ shipped (crewai).[/green] trace: {Path(output) / 'run.json'}")
         elif trace.outcome == "budget_exceeded":
             console.print(f"\n[red]✗ budget exceeded.[/red] trace: {Path(output) / 'run.json'}")
             sys.exit(1)
@@ -232,8 +270,13 @@ def run(loopfile: str, mock: bool, plan: bool, engine: str, output: str, max_ite
                 lf.name, step_trace.id, step_trace.name,
                 f"status={step_trace.status} cost=${step_trace.cost['dollars']:.2f}"
             )
+    except KeyboardInterrupt:
+        console.print("\n[yellow]⚠ aborted.[/yellow]")
+        sys.exit(1)
     except Exception:
         pass
+
+    emit_run_telemetry(engine, trace.outcome, lf.name, mock)
 
     if trace.outcome == "verified":
         console.print(f"\n[green]✓ shipped.[/green] trace: {Path(output) / 'run.json'}")

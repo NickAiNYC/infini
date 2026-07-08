@@ -9,7 +9,7 @@
 **Experimental.** Run an AI workflow, record every step, replay any moment.
 Diff traces across engines. Verify outputs against real filesystem checks.
 
-[![Tests](https://img.shields.io/badge/tests-25%20passing-brightgreen?style=flat-square)](cli/tests/)
+[![CI](https://img.shields.io/github/actions/workflow/status/NickAiNYC/infini/infini-ci.yml?style=flat-square&branch=main&label=CI)](https://github.com/NickAiNYC/infini/actions)
 [![Conformance](https://img.shields.io/badge/conformance-8%2F8-brightgreen?style=flat-square)](tests/conformance/)
 [![Portability](https://img.shields.io/badge/portability-4%20engines-blue?style=flat-square)](proof/)
 [![License](https://img.shields.io/badge/license-MIT-blue?style=flat-square)](LICENSE)

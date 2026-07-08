@@ -100,7 +100,7 @@ SETUP_FUNCTIONS = {
     "claude": setup_claude,
     "gemini": setup_gemini,
     "codex": setup_codex,
-    "qwythos": setup_qwythos,
+    "qwythos": download_qwythos,
 }
 
 

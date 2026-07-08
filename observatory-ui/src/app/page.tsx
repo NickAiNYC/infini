@@ -68,36 +68,30 @@ interface Trace {
 // Sample trace (used before user uploads one)
 // ────────────────────────────────────────────────────────────
 const SAMPLE_TRACE: Trace = {
-  loopfile: "infini/governed-coding-loop@1.0.0",
-  loopfile_hash: "sha256:b7c1f3a2e9d8c7b6a5e4f3d2c1b0a9f8e7d6c5b4a3f2e1d0c9b8a7f6e5d4c3b2",
-  engine: { type: "hermes + openclaw", version: "1.0.0" },
-  started_at: "2026-06-28T10:42:50Z",
-  ended_at: "2026-06-28T10:47:11Z",
-  iterations: 2,
+  loopfile: "infini/coding-loop@1.0.0",
+  loopfile_hash: "sha256:973d991cbc874489538155e24281ebb0a941af4f94c571510f994263258f314d",
+  engine: { type: "crewai", version: "0.1.0+" },
+  started_at: "2026-07-08T16:14:48Z",
+  ended_at: "2026-07-08T16:14:48Z",
+  iterations: 1,
   steps: [
-    { id: "s1", name: "plan", status: "ok", started_at: "2026-06-28T10:42:50Z", ended_at: "2026-06-28T10:43:32Z", cost: { dollars: 0.18, minutes: 0.7, tokens: { input: 2100, output: 800, total: 2900 } }, artifacts: ["plan.md"], agent: "planner", action: "coding.plan", retry_attempt: null },
-    { id: "s2", name: "policy_check", status: "ok", started_at: "2026-06-28T10:43:32Z", ended_at: "2026-06-28T10:44:26Z", cost: { dollars: 0.31, minutes: 0.9, tokens: { input: 3200, output: 1100, total: 4300 } }, artifacts: ["policy_check.json"], agent: "auditor", action: "policy.cross_check", retry_attempt: null },
-    { id: "s3", name: "audit_pre", status: "ok", started_at: "2026-06-28T10:44:26Z", ended_at: "2026-06-28T10:44:44Z", cost: { dollars: 0.12, minutes: 0.3, tokens: { input: 800, output: 400, total: 1200 } }, artifacts: ["audit/pre.jsonl"], agent: "auditor", action: "audit.sign", retry_attempt: null },
-    { id: "s4", name: "edit_files", status: "ok", started_at: "2026-06-28T10:44:44Z", ended_at: "2026-06-28T10:45:56Z", cost: { dollars: 0.34, minutes: 1.2, tokens: { input: 2800, output: 1400, total: 4200 } }, artifacts: ["src/dark-mode.tsx", "src/dark-mode.css"], agent: "coder", action: "file_system.write", retry_attempt: null },
-    { id: "s5", name: "run_tests", status: "ok", started_at: "2026-06-28T10:45:56Z", ended_at: "2026-06-28T10:46:44Z", cost: { dollars: 0.21, minutes: 0.8, tokens: { input: 1500, output: 600, total: 2100 } }, artifacts: ["test-output.log"], agent: "tester", action: "terminal.run", retry_attempt: 1 },
-    { id: "s6", name: "open_pr", status: "ok", started_at: "2026-06-28T10:46:44Z", ended_at: "2026-06-28T10:47:20Z", cost: { dollars: 0.22, minutes: 0.6, tokens: { input: 1200, output: 500, total: 1700 } }, artifacts: ["pr-url.txt"], agent: "coder", action: "github.open_pr", retry_attempt: null },
-    { id: "s7", name: "audit_post", status: "ok", started_at: "2026-06-28T10:47:20Z", ended_at: "2026-06-28T10:47:41Z", cost: { dollars: 0.14, minutes: 0.35, tokens: { input: 900, output: 400, total: 1300 } }, artifacts: ["audit/post.jsonl"], agent: "auditor", action: "audit.sign", retry_attempt: null },
-    { id: "s8", name: "verify_governed", status: "ok", started_at: "2026-06-28T10:47:11Z", ended_at: "2026-06-28T10:47:41Z", cost: { dollars: 0.18, minutes: 0.5, tokens: { input: 1800, output: 700, total: 2500 } }, artifacts: ["governance-verify.json"], agent: "auditor", action: "governance.verify", retry_attempt: null },
+    { id: "s1", name: "plan", status: "ok", started_at: "2026-07-08T16:14:48Z", ended_at: "2026-07-08T16:14:48Z", cost: { dollars: 0.0196, minutes: 0.94, tokens: { input: 1401, output: 1028, total: 2429 } }, artifacts: ["plan.md"], agent: "coder", action: "coding.plan", retry_attempt: null },
+    { id: "s2", name: "edit", status: "ok", started_at: "2026-07-08T16:14:48Z", ended_at: "2026-07-08T16:14:48Z", cost: { dollars: 0.0195, minutes: 0.94, tokens: { input: 1320, output: 1034, total: 2354 } }, artifacts: ["src/dark-mode.tsx", "src/dark-mode.css"], agent: "coder", action: "file_system.write", retry_attempt: null },
+    { id: "s3", name: "test", status: "ok", started_at: "2026-07-08T16:14:48Z", ended_at: "2026-07-08T16:14:48Z", cost: { dollars: 0.0093, minutes: 0.34, tokens: { input: 2245, output: 794, total: 3039 } }, artifacts: ["test-output.log"], agent: "tester", action: "terminal.run", retry_attempt: null },
+    { id: "s4", name: "push_pr", status: "ok", started_at: "2026-07-08T16:14:48Z", ended_at: "2026-07-08T16:14:48Z", cost: { dollars: 0.0127, minutes: 0.76, tokens: { input: 1937, output: 461, total: 2398 } }, artifacts: ["pr-url.txt"], agent: "coder", action: "github.open_pr", retry_attempt: null }
   ],
   verifications: [
-    { check: "plan.md:exists", status: "pass", confidence: null, detail: null },
-    { check: "policy_check.json:status_pass", status: "pass", confidence: null, detail: null },
-    { check: "audit/post.jsonl:non_empty", status: "pass", confidence: null, detail: "12 lines" },
-    { check: "test-output.log:exit_zero", status: "pass", confidence: null, detail: "exit 0" },
-    { check: "pr-url.txt:valid_url", status: "pass", confidence: null, detail: "PR #4130" },
-    { check: "judge:policy_citation>=90", status: "pass", confidence: 95, detail: null },
-    { check: "judge:feature_completeness>=90", status: "pass", confidence: 92, detail: null },
-    { check: "judge:test_coverage>=85", status: "pass", confidence: 87, detail: null },
+    { check: "src/dark-mode.tsx:exists", status: "pass", confidence: null, detail: null },
+    { check: "src/dark-mode.css:exists", status: "pass", confidence: null, detail: null },
+    { check: "test-output.log:exit_zero", status: "pass", confidence: null, detail: null },
+    { check: "pr-url.txt:valid_url", status: "pass", confidence: null, detail: null },
+    { check: "judge:feature_completeness>=90", status: "pass", confidence: 90.0, detail: null },
+    { check: "judge:test_coverage>=85", status: "pass", confidence: 90.0, detail: null }
   ],
-  budget: { spent_dollars: 1.7, spent_minutes: 4.35 },
+  budget: { spent_dollars: 0.0611, spent_minutes: 2.98 },
   outcome: "verified",
-  lessons: ["Dark-mode toggle implemented in 4 minutes. Start from src/App.tsx in future runs."],
-  provenance: { engine_signature: "ed25519:2b4f..." },
+  lessons: ["coding-loop shipped at iteration 1 on CrewAI (mock)."],
+  provenance: { engine_signature: "ed25519:placeholder" },
 };
 
 // ────────────────────────────────────────────────────────────

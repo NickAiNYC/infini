@@ -3,6 +3,7 @@ pyproject.toml
 src/infini/__init__.py
 src/infini/__main__.py
 src/infini/adapters.py
+src/infini/audit.py
 src/infini/certify.py
 src/infini/cli.py
 src/infini/conformance.py
@@ -16,6 +17,7 @@ src/infini/memory.py
 src/infini/mock.py
 src/infini/orchestrator.py
 src/infini/parse.py
+src/infini/patterns.py
 src/infini/registry_cli.py
 src/infini/replay.py
 src/infini/schema.json
