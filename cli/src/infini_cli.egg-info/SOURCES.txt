@@ -1,9 +1,9 @@
-LICENSE
 README.md
 pyproject.toml
 src/infini/__init__.py
 src/infini/__main__.py
 src/infini/adapters.py
+src/infini/adapters_framework.py
 src/infini/agent_pay.py
 src/infini/audit.py
 src/infini/certify.py
@@ -26,9 +26,12 @@ src/infini/schema.json
 src/infini/setup.py
 src/infini/skills.py
 src/infini/task_manager.py
+src/infini/telemetry.py
 src/infini/trace.py
 src/infini/ui.py
 src/infini/verifier.py
+src/infini/benchmark/__init__.py
+src/infini/benchmark/vulnerability.py
 src/infini_cli.egg-info/PKG-INFO
 src/infini_cli.egg-info/SOURCES.txt
 src/infini_cli.egg-info/dependency_links.txt
