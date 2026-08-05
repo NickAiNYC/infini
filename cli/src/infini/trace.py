@@ -61,11 +61,12 @@ class Trace:
     lessons: list[str]
     provenance: dict
     extensions: dict = field(default_factory=dict)
+    settlement: dict | None = None
     replay_of: str | None = None
     replay_from_step: str | None = None
 
     def to_dict(self) -> dict:
-        return {
+        d = {
             "loopfile": self.loopfile,
             "loopfile_hash": self.loopfile_hash,
             "engine": self.engine,
@@ -82,6 +83,9 @@ class Trace:
             "replay_of": self.replay_of,
             "replay_from_step": self.replay_from_step,
         }
+        if self.settlement is not None:
+            d["settlement"] = self.settlement
+        return d
 
     def to_json(self, indent: int = 2) -> str:
         return json.dumps(self.to_dict(), indent=indent, default=str)

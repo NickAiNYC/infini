@@ -57,7 +57,10 @@ def run(
         _log(f"▶ engine: infini-reference {'(mock)' if mock else '(live)'}")
         _log(f"▶ reading state... none found, starting fresh")
         _log(f"▶ objective: {loopfile.objective}")
-        _log(f"▶ budget: ${loopfile.budget.dollars} / {loopfile.budget.minutes}m")
+        _log(f"▶ budget: ${loopfile.budget.dollars} / {loopfile.budget.minutes}m (payment: {loopfile.budget.payment_method}, settlement: {loopfile.budget.settlement})")
+
+    from .agent_pay import AgentPayAdapter
+    pay_adapter = AgentPayAdapter(wallet_address=loopfile.budget.wallet_address, default_method=loopfile.budget.payment_method)
 
     outcome = "unverified"
     lessons: list[str] = []
@@ -79,6 +82,10 @@ def run(
                     result = _execute_step(loopfile, step, iteration, mock, retry_attempt=attempt)
                     if result.status == "ok":
                         break
+
+            # Escrow hold check for step budget
+            if result.cost_dollars > 0:
+                pay_adapter.hold_in_escrow(loopfile, step.id, result.cost_dollars)
 
             add_step(
                 trace, step.id, step.name,
@@ -102,6 +109,7 @@ def run(
                 if verbose:
                     _log(f"  ✗ budget exceeded (${trace.budget['spent_dollars']:.2f} / ${loopfile.budget.dollars})")
                 finalize_trace(trace, outcome, lessons)
+                pay_adapter.settle_or_refund(trace, loopfile)
                 save_trace(trace, Path(output_dir) / "run.json")
                 return trace
 
@@ -110,6 +118,7 @@ def run(
                 if verbose:
                     _log(f"  ✗ budget exceeded ({trace.budget['spent_minutes']:.1f}m / {loopfile.budget.minutes}m)")
                 finalize_trace(trace, outcome, lessons)
+                pay_adapter.settle_or_refund(trace, loopfile)
                 save_trace(trace, Path(output_dir) / "run.json")
                 return trace
 
@@ -172,11 +181,13 @@ def run(
             break
 
     finalize_trace(trace, outcome, lessons)
+    pay_adapter.settle_or_refund(trace, loopfile)
     save_trace(trace, Path(output_dir) / "run.json")
 
     if verbose:
+        settlement_status = trace.settlement.get("status") if trace.settlement else "none"
         _log(f"▶ cost: ${trace.budget['spent_dollars']:.2f} / ${loopfile.budget.dollars} · {trace.budget['spent_minutes']:.1f}m / {loopfile.budget.minutes}m")
-        _log(f"▶ outcome: {outcome}")
+        _log(f"▶ outcome: {outcome} (settlement: {settlement_status})")
         _log(f"▶ trace: {Path(output_dir) / 'run.json'}")
 
     return trace

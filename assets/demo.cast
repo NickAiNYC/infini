@@ -1,0 +1,11 @@
+{"version":3,"term":{"cols":120,"rows":30,"type":"xterm-256color","theme":{"fg":"#e6e6e6","bg":"#212733","palette":"#35424b:#b45547:#6caa71:#c4ac62:#6d96b4:#bd7bcd:#7ccbce:#dee6ec:#465c6d:#e06c5a:#79be7e:#e5c872:#67b5ed:#d389e5:#84dee1:#e6eff6"}},"timestamp":1782700508,"env":{"SHELL":"/bin/zsh"}}
+[0.068, "o", "\u001b[1m\u001b[7m%\u001b[27m\u001b[1m\u001b[0m                                                                                                                       \r \r"]
+[0.001, "o", "\u001b]7;file://Mac.lan/Users/nick/infini\u0007"]
+[0.004, "o", "\r\u001b[0m\u001b[27m\u001b[24m\u001b[Jnick@Mac infini % \u001b[K\u001b[?2004h"]
+[13.783, "o", "\u001b[?2004l\r\r\n"]
+[0.002, "o", "\r\nSaving session..."]
+[0.017, "o", "\r\n...copying shared history..."]
+[0.006, "o", "\r\n...saving history..."]
+[0.015, "o", "truncating history files..."]
+[0.006, "o", "\r\n...completed.\r\n"]
+[0.006, "x", "0"]

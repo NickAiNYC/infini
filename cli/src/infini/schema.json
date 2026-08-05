@@ -148,7 +148,16 @@
       "properties": {
         "dollars": { "type": "number", "exclusiveMinimum": 0 },
         "minutes": { "type": "number", "exclusiveMinimum": 0 },
-        "tokens":  { "type": "integer", "minimum": 1 }
+        "tokens":  { "type": "integer", "minimum": 1 },
+        "payment_method": {
+          "type": "string",
+          "enum": ["wallet", "api_key", "http402"]
+        },
+        "settlement": {
+          "type": "string",
+          "enum": ["hold_until_verified", "immediate"]
+        },
+        "wallet_address": { "type": "string" }
       }
     },
 

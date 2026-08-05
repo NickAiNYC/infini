@@ -47,6 +47,9 @@ class Budget:
     dollars: float
     minutes: float
     tokens: int | None = None
+    payment_method: str = "api_key"
+    settlement: str = "hold_until_verified"
+    wallet_address: str | None = None
 
 
 @dataclass
@@ -151,6 +154,9 @@ def _build_loopfile(raw: dict) -> Loopfile:
         dollars=raw["BUDGET"]["dollars"],
         minutes=raw["BUDGET"]["minutes"],
         tokens=raw["BUDGET"].get("tokens"),
+        payment_method=raw["BUDGET"].get("payment_method", "api_key"),
+        settlement=raw["BUDGET"].get("settlement", "hold_until_verified"),
+        wallet_address=raw["BUDGET"].get("wallet_address"),
     )
 
     return Loopfile(
@@ -199,6 +205,9 @@ def to_dict(loopfile: Loopfile) -> dict:
             "dollars": loopfile.budget.dollars,
             "minutes": loopfile.budget.minutes,
             "tokens": loopfile.budget.tokens,
+            "payment_method": loopfile.budget.payment_method,
+            "settlement": loopfile.budget.settlement,
+            "wallet_address": loopfile.budget.wallet_address,
         },
         "STOP_WHEN": loopfile.stop_when,
         "LESSONS": loopfile.lessons,

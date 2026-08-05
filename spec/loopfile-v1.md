@@ -146,15 +146,27 @@ VERIFY:
 - `confidence_threshold` is the minimum mean confidence across semantic checks for the loop to be considered *verified*.
 - A loop that exits without all checks passing is **not** shipped, regardless of `STOP_WHEN`.
 
-## 8. BUDGET
+## 8. BUDGET & PAYMENT HOOKS
 
 ```yaml
-BUDGET: { dollars: 5, minutes: 15, tokens: 500000 }
+BUDGET:
+  dollars: 5
+  minutes: 15
+  tokens: 500000
+  payment_method: wallet    # wallet | api_key | http402
+  settlement: hold_until_verified
+  wallet_address: "0x1234...5678"  # optional ERC-4337 or Solana agent wallet address
 ```
 
-- `dollars` and `minutes` are required. `tokens` is optional.
+- `dollars` and `minutes` are required. `tokens`, `payment_method`, `settlement`, and `wallet_address` are optional.
+- `payment_method`: Specifies how external APIs or sub-agent services are settled (`wallet` for ERC-4337 or Solana wallets, `api_key` for traditional keys, `http402` for HTTP 402 payment protocol negotiation).
+- `settlement`: Release condition for funds. Default is `hold_until_verified`, ensuring funds held in escrow are released only when `VERIFY` assertions pass (`outcome == "verified"`). Unverified or failing steps release escrow holds and refund budget.
+- **Defensive Primitives against Autonomous Risk**:
+  - *Algorithmic Drain*: Mitigated by strict `BUDGET` dollar/minute ceilings and `STOP_WHEN` predicates.
+  - *Denial-of-Wallet & Price Gouging*: Mitigated by `settlement: hold_until_verified` escrow locks before execution and price negotiation validation.
+  - *Unbounded Execution*: Enforced via deterministic stopping predicates and replayable trace audits.
 - The engine must abort the loop and mark the run `budget_exceeded` if any ceiling is breached.
-- Partial work is preserved in the trace for replay.
+- Partial work and escrow refund states are preserved in the trace for replay.
 
 ## 9. STOP_WHEN
 
@@ -192,11 +204,20 @@ Every conforming engine must produce a `run.json` trace containing, at minimum:
     { "check": "tests:pass",           "status": "pass" },
     { "check": "judge:correctness>=90","status": "pass", "confidence": 92 }
   ],
-  "budget":  { "spent_dollars": 1.84, "spent_minutes": 4.53 },
+  "budget":  { "spent_dollars": 1.84, "spent_minutes": 4.53, "payment_method": "http402" },
+  "settlement": {
+    "status": "settled",
+    "settled_amount_usd": 1.84,
+    "payment_method": "http402",
+    "receipt_hash": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "tx_hash": "0x402_settled_escrow_s1"
+  },
   "outcome": "verified",
   "lessons": ["Prefer explicit JSON schema before drafting."]
 }
 ```
+
+A verified trace (`outcome == "verified"`) acts as a machine-readable invoice and settlement receipt unlocking payments for executed steps.
 
 This is what `infini inspect`, `infini replay`, and `infini diff` operate on.
 

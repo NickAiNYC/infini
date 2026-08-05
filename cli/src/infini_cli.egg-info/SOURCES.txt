@@ -1,8 +1,10 @@
+LICENSE
 README.md
 pyproject.toml
 src/infini/__init__.py
 src/infini/__main__.py
 src/infini/adapters.py
+src/infini/agent_pay.py
 src/infini/audit.py
 src/infini/certify.py
 src/infini/cli.py
@@ -33,6 +35,7 @@ src/infini_cli.egg-info/dependency_links.txt
 src/infini_cli.egg-info/entry_points.txt
 src/infini_cli.egg-info/requires.txt
 src/infini_cli.egg-info/top_level.txt
+tests/test_agent_pay.py
 tests/test_certify.py
 tests/test_langgraph_adapter.py
 tests/test_mock.py
