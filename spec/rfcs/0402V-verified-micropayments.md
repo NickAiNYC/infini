@@ -14,7 +14,13 @@ This document specifies RFC-402V, an extension to the HTTP `402 Payment Required
 
 ---
 
-## 2. Headers Specification
+## 2. Status of This Memo
+
+This document specifies an open, un-licenseable standards-track protocol extension for the machine-to-machine agent economy. Distribution of this memo is unlimited.
+
+---
+
+## 3. Headers Specification
 
 Compliant clients and servers MUST support the following HTTP headers:
 
@@ -25,7 +31,7 @@ Compliant clients and servers MUST support the following HTTP headers:
 
 ---
 
-## 3. Protocol Flow
+## 4. Protocol Flow
 
 ```text
 Client (Agent)                      Provider (API / Sub-Agent)
@@ -45,7 +51,7 @@ b) Fail: REFUND  ── 5b. Refund Event ─────────X (Escrow un
 
 ---
 
-## 4. Trace Receipt Validation Rules
+## 5. Trace Receipt Validation Rules
 
 A trace receipt is valid for settlement IF AND ONLY IF:
 1. `trace.outcome == "verified"`.
@@ -55,7 +61,7 @@ A trace receipt is valid for settlement IF AND ONLY IF:
 
 ---
 
-## 5. Fallback & Error Behavior
+## 6. Fallback & Error Behavior
 
 - If execution produces an unverified status (`outcome != "verified"`), the client engine MUST NOT broadcast the settlement signature.
 - The client engine automatically triggers `refund(escrow_id)`, releasing held funds back to the agent's available budget.
@@ -63,8 +69,14 @@ A trace receipt is valid for settlement IF AND ONLY IF:
 
 ---
 
-## 6. Security & Defense
+## 7. Security & Defense
 
 - **Denial-of-Wallet (DoW) Defense**: Upfront payments are prohibited; providers receive funds only upon delivering verified execution artifacts.
 - **Sybil / Extortion Prevention**: Price quotes locked during Step 2 cannot be modified mid-step.
 - **Replay Protection**: `X-402V-Escrow-ID` incorporates a single-use nonce tied to `trace.started_at`.
+
+---
+
+## 8. Copyright Notice
+
+Copyright (c) 2026 Infini Architecture Team. Released under the MIT License.
