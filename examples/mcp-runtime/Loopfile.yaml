@@ -1,0 +1,44 @@
+# Example Loopfile: MCP Tool Runtime
+# Declares one real MCP server in the TOOLS block. The agent gains
+# its tools by their namespaced names (notes.write_note, ...).
+LOOPFILE: "1.0"
+name: mcp-notes-loop
+version: 1.0.0
+description: >
+  Example loop for the MCP Tool Runtime: an agent writes and reads
+  notes through a real MCP server declared in the TOOLS block.
+
+OBJECTIVE: >
+  Demonstrate a Loopfile whose tools come from an MCP server, not
+  from code compiled into the engine.
+
+TOOLS:
+  - mcp: "./notes_server.py"
+    config:
+      name: "notes"
+
+AGENTS:
+  - name: scribe
+    role: researcher
+    model_tier: sonnet
+    tools: [notes.write_note, notes.read_note]
+
+STEPS:
+  - id: s1
+    name: take_notes
+    action: write_and_read_notes
+    uses: scribe
+    produces: [notes.md]
+
+VERIFY:
+  syntactic:
+    - "notes.md:exists"
+  semantic:
+    - "judge:correctness>=80"
+  confidence_threshold: 80
+
+BUDGET: { dollars: 5, minutes: 5 }
+
+STOP_WHEN:
+  - all_verify_passed
+  - iterations>=2

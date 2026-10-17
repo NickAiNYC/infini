@@ -1,0 +1,42 @@
+# Conformance test: mcp-loop
+# A Loopfile that declares an MCP server in its TOOLS block must
+# parse, validate, and run like any other loop. The deterministic
+# engine records the declared servers in the trace extensions.
+LOOPFILE: "1.0"
+name: mcp-loop
+version: 1.0.0
+description: >
+  Conformance test loop: TOOLS (MCP) block parses and runs.
+
+OBJECTIVE: >
+  TOOLS (MCP) block parses and runs.
+
+TOOLS:
+  - mcp: "./examples/mcp-runtime/notes_server.py"
+    config:
+      name: "notes"
+
+AGENTS:
+  - name: scribe
+    role: researcher
+    model_tier: sonnet
+    tools: [notes.write_note, notes.read_note]
+  - { name: builder, role: builder, model_tier: sonnet }
+  - { name: verifier, role: verifier, model_tier: haiku }
+  - { name: planner, role: planner, model_tier: sonnet }
+
+STEPS:
+  - { id: s1, name: take_notes, action: write_notes, uses: scribe, produces: [notes.md] }
+
+VERIFY:
+  syntactic:
+    - "notes.md:exists"
+  semantic:
+    - "judge:correctness>=80"
+  confidence_threshold: 80
+
+BUDGET: { dollars: 5, minutes: 5 }
+
+STOP_WHEN:
+  - all_verify_passed
+  - iterations>=2
