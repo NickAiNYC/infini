@@ -8,6 +8,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) 
 
 ## [Unreleased]
 
+### Added
+
+#### MCP Tool Runtime
+- **`cli/src/infini/mcp_client.py`** — minimal MCP client (JSON-RPC 2.0 over stdio, stdlib only): initialize handshake, `tools/list`, `tools/call`, ping, timeouts, orderly teardown
+- **`McpToolRuntime`** in `mcp_runtime.py` — resolves the Loopfile `TOOLS` block, launches each MCP server, discovers and namespaces its tools (`server.tool`), routes calls, and classifies failures as `tool_unavailable` / `tool_timeout` / `tool_error`; `${VAR}` config substitution with values never logged or traced
+- `Loopfile.tools` parsed from `TOOLS` (+ `to_dict` round-trip); live engine starts servers and offers their tools next to the built-ins; deterministic engine records declared servers in `trace.extensions["mcp"]`
+- Example (`examples/mcp-runtime/`) with a real stdlib MCP server, a conformance loop (`tests/conformance/mcp-loop/`), docs (`docs/mcp-runtime.md`), and 20 new tests
+
 ### Added — Milestone 3: The Standard Scales
 
 #### Community Adapter SDK

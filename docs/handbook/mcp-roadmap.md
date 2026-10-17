@@ -22,7 +22,7 @@ TOOLS:
 | Phase | What ships | Status |
 | --- | --- | --- |
 | 1 — Spec | `TOOLS` block in schema + docs | ✅ shipped |
-| 2 — Reference engine | `infini run` loads MCP servers | 🔄 in progress |
+| 2 — Reference engine | `infini run` loads MCP servers | ✅ shipped — stdio transport; see [mcp-runtime.md](../mcp-runtime.md) |
 | 3 — Observatory | MCP tool calls in trace UI | 🔄 in progress |
 | 4 — Registry | `infini install mcp/postgres@1.2` | 📋 planned |
 | 5 — Marketplace | Browse MCP-compatible loops | 📋 planned |
