@@ -14,9 +14,22 @@ on:
       - 'cli/**'
       - 'tests/conformance/**'
       - 'benchmarks/**'
+      - 'demo.sh'
       - '.github/workflows/infini-ci.yml'
 
 jobs:
+  demo-smoke:
+    name: Demo Script Reproducible Smoke Gate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.11' }
+      - name: Execute ./demo.sh in clean runner
+        run: |
+          chmod +x demo.sh
+          ./demo.sh
+
   quickstart-doc-verification:
     name: Verify README Quick Start
     runs-on: ubuntu-latest
