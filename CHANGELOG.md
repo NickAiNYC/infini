@@ -11,7 +11,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) 
 ### Added
 - **OpenTelemetry GenAI Semantic Conventions Exporter:** `infini export-otel` and `--otel` flag for `infini run`. Maps execution traces to OTel ResourceSpans with experimental `gen_ai.*` attributes and stable trace envelopes.
 - **Cross-Engine Step Divergence Diffing:** Enhanced `infini diff` to detect and name the exact first step where two execution engine runs diverge in step ID, status, action, or artifacts.
-- **Reproducible Benchmark Suite:** Added `benchmarks/run_benchmarks.py` (`make bench`) measuring replay determinism (100% byte-identical over N=100 runs) and reference engine per-step overhead (1.824 ms mean latency), committed with machine specs in `benchmarks/results.json`.
+- **Reproducible Benchmark Suite:** Added `benchmarks/run_benchmarks.py` (`make bench`) measuring replay determinism (100% byte-identical over N=100 runs) and reference engine per-step overhead (1.846 ms mean latency), committed with machine specs in `benchmarks/results.json`.
 - **Local Ed25519 Trace Signing & Offline Verification:** Added pure-Python RFC 8032 Ed25519 signing (`infini run --sign`) and offline signature verification command (`infini verify-trace`) with zero external dependencies.
 - **Minimal Working Quickstart:** Added `examples/quickstart.yaml` guaranteeing execution in < 60s on clean installations.
 - **Formalized Scoring Methodology:** Added `docs/scoring.md` defining formulas for Project Readiness Audit Score (0-100 across 12 signals) and Adapter Compatibility Score (Hermes 70.8%, OpenClaw 66.7%).

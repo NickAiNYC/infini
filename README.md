@@ -111,10 +111,10 @@ Measured locally via the reproducible benchmark suite (`make bench` / `benchmark
 | Metric | Measured Result | Benchmark Methodology |
 | :--- | :---: | :--- |
 | **Replay Determinism** | **100.0%** (100/100) | $N=100$ replays of canonical workflow trace with cached model responses; asserts % byte-identical canonical payloads. |
-| **Per-Step Overhead (Mean)** | **1.824 ms** | Reference engine dispatch, DAG resolution, and step recording latency per step ($N=100$ samples). |
-| **Per-Step Overhead (P50)** | **1.805 ms** | Median step overhead. |
-| **Per-Step Overhead (P95)** | **1.966 ms** | 95th percentile step overhead. |
-| **Per-Step Overhead (Min / Max)**| **1.624 ms / 2.182 ms** | Bounds across 100 benchmark iterations. |
+| **Per-Step Overhead (Mean)** | **1.846 ms** | Reference engine dispatch, DAG resolution, and step recording latency per step ($N=100$ samples). |
+| **Per-Step Overhead (P50)** | **1.819 ms** | Median step overhead. |
+| **Per-Step Overhead (P95)** | **2.008 ms** | 95th percentile step overhead. |
+| **Per-Step Overhead (Min / Max)**| **1.667 ms / 2.520 ms** | Bounds across 100 benchmark iterations. |
 | **Machine Specification** | Apple M4 · 16 GB RAM | macOS Darwin 27.2.0 · Python 3.11.16 |
 
 Reproduce locally anytime:
