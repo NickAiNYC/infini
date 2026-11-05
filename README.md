@@ -43,14 +43,13 @@ python3.11 -m venv venv
 source venv/bin/activate
 pip install -e .
 
-# 2. Run the minimal working workflow (mock engine — zero API keys required)
-infini run examples/quickstart.yaml
+# 2. Run the automated walkthrough in one command:
+./demo.sh
 
-# 3. Inspect the execution trace
-infini inspect runs/latest/
-
-# 4. Time-travel replay from any step
-infini replay runs/latest/ --step s1
+# Or step-by-step:
+infini run examples/quickstart.yaml      # Execute workflow
+infini inspect runs/latest/              # Inspect execution trace
+infini replay runs/latest/ --step s1     # Time-travel replay
 ```
 
 Every run emits a structured `run.json` recording every step, cost, token count, and verification check.
