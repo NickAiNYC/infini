@@ -4,411 +4,206 @@
   <img alt="INFINI" src="assets/banner.png" width="100%">
 </picture>
 
-# INFINI — Debug Any Agent Loop
+# INFINI — Portable Agent Workflow Spec & CLI
 
-**Experimental.** Run an AI workflow, record every step, replay any moment.
-Diff traces across engines. Verify outputs against real filesystem checks.
+**Run the same agent workflow across execution engines, verify outputs against real constraints, and inspect or diff standardized execution traces.**
 
 [![CI](https://img.shields.io/github/actions/workflow/status/NickAiNYC/infini/infini-ci.yml?style=flat-square&branch=main&label=CI)](https://github.com/NickAiNYC/infini/actions)
-[![Conformance](https://img.shields.io/badge/conformance-8%2F8-brightgreen?style=flat-square)](tests/conformance/)
-[![Portability](https://img.shields.io/badge/portability-4%20engines-blue?style=flat-square)](proof/)
+[![Conformance](https://img.shields.io/badge/conformance-8%2F8%20passed-brightgreen?style=flat-square)](tests/conformance/)
+[![Python](https://img.shields.io/badge/python-3.11%20%7C%203.12-blue?style=flat-square)](pyproject.toml)
 [![License](https://img.shields.io/badge/license-MIT-blue?style=flat-square)](LICENSE)
 
-**Status: early alpha.** 4 engines working, real verification, time-travel replay.
-Do not use in production.
+---
+
+## What Problem This Solves
+
+Every modern agent framework (LangGraph, CrewAI, AutoGen, custom orchestration) forces you to hardcode control flow, state schemas, and verification logic into proprietary runtimes. If you want to evaluate an alternative engine or compare how two runtimes execute the exact same task, you have to rewrite the workflow from scratch and parse incompatible log dumps.
+
+**INFINI solves this by separating the workflow specification from the runtime engine.**
+You define a workflow once in a declarative `Loopfile.yaml`. INFINI executes it on supported engines and produces deterministic, comparable traces (`run.json`) so you can diff where two engines diverge in step execution, cost, or verification.
 
 ---
 
-## Time-travel debug any agent loop
+## ⚡ 60-Second Quick Start
+
+Requires Python 3.11+. Works out of the box from a clean clone with no external services or API keys:
 
 ```bash
-# Inspect the full trace
+# 1. Clone & install in a fresh virtualenv
+git clone https://github.com/NickAiNYC/infini.git
+cd infini
+python3.11 -m venv venv
+source venv/bin/activate
+pip install -e .
+
+# 2. Run the minimal working workflow (mock engine — zero API keys required)
+infini run examples/quickstart.yaml
+
+# 3. Inspect the execution trace
 infini inspect runs/latest/
+
+# 4. Time-travel replay from any step
+infini replay runs/latest/ --step s1
 ```
 
-### Works with
-
-| Adapter | Status | Compatibility |
-| --- | :---: | :---: |
-| [Hermes](adapters/hermes/) | ✅ Certified | 70.8% |
-| [OpenClaw](adapters/openclaw/) | ✅ Certified | 66.7% |
-| [LangGraph](adapters/langgraph/) | ⏳ Help wanted | — |
-| [CrewAI](adapters/crewai/) | ⏳ Help wanted | — |
-| [Mastra](adapters/mastra/) | ⏳ Help wanted | — |
-| [Goose](adapters/goose/) | ⏳ Help wanted | — |
-| [OpenAI Agents SDK](adapters/codex/) | ⏳ Help wanted | — |
+Every run emits a structured `run.json` recording every step, cost, token count, and verification check.
 
 ---
 
-## Ecosystem Integration Status
+## Honest Adapter & Engine Status
 
-| Integration | Status | What Works | What's Missing |
-|-------------|--------|------------|----------------|
-| **LangGraph Adapter** | ✅ Implemented | Full adapter, 5 tests, `--engine langgraph` CLI | Live mode (mock only), replay |
-| **OpenClaw Skill Adapter** | 🚧 In Progress | 5-skill resolver, export to Loopfile, mock execution | Live API calls, marketplace integration |
-| **Hermes Verify Adapter** | 🚧 In Progress | Condition parser, mock confidence scoring | `hermes judge` CLI integration, live curator |
-| **Supervisor Loop** | ✅ Reference Example | Loopfile validates, real trace generated (2 iters, 18 checks) | Live execution (mock mode works) |
-| **Anthropic 3-Agent Harness** | ✅ Implemented | 7-step Loopfile, premature-victory prevention | Live execution (mock mode works) |
+Every adapter in INFINI has exactly one honest status:
+- **`working`**: Fully implemented end-to-end (mock and/or live execution, verification, trace generation).
+- **`mock-only`**: Implements specification parsing, step translation, and mock execution with structured trace emission; live framework execution is not yet wired.
+- **`not built`**: Manifest or stub only; CLI explicitly fails with a descriptive "not implemented" error.
 
-## Integration Compatibility Matrix
+| Engine / Adapter | Status | Type | Capabilities & Coverage |
+| :--- | :---: | :--- | :--- |
+| **Reference (`infini`)** | `working` | Built-in Engine | Canonical spec runtime. Mock and live execution, syntactic & semantic verification, time-travel replay, trace diff. |
+| **LangGraph** | `mock-only` | Execution Adapter | StateGraph step mapping, mock execution, structured trace generation. Live LangGraph runtime execution not yet wired. |
+| **Hermes** | `mock-only` | Governance Adapter | Policy verification and governance checks. 70.8% compatibility score (see [docs/scoring.md](docs/scoring.md)). |
+| **OpenClaw** | `mock-only` | Execution Adapter | Agent step execution and tool manifests. 66.7% compatibility score (see [docs/scoring.md](docs/scoring.md)). |
+| **Codemap** | `mock-only` | Context Adapter | Context-aware step routing and handoff artifact tracking. |
+| **Local (llama.cpp)** | `mock-only` | Offline LLM | Trace simulation; live execution requires external llama.cpp binary and local model weights. |
+| **CrewAI** | `not built` | Execution Adapter | Manifest only (`adapters/crewai/adapter.yaml`). CLI rejects with `not implemented`. |
+| **AutoGen** | `not built` | Multi-Agent | Planned community adapter manifest (`adapters/`). CLI rejects with `not implemented`. |
+| **Mastra** | `not built` | TypeScript | Planned community adapter manifest. CLI rejects with `not implemented`. |
+| **Goose** | `not built` | Developer Agent | Planned community adapter manifest. CLI rejects with `not implemented`. |
+| **OpenAI Agents SDK** | `not built` | Execution Adapter | Planned community adapter manifest (`adapters/codex/`). CLI rejects with `not implemented`. |
 
-| Integration | Parse | Resolve | Execute | Trace | Verify | Replay | Status |
-|-------------|:-----:|:-------:|:-------:|:-----:|:------:|:------:|--------|
-| **Reference Engine** | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | Stable |
-| **LangGraph Adapter** | ✅ | ✅ | ✅ | ✅ | ✅ | ⚠️ | Stable |
-| **OpenClaw Skill Adapter** | ✅ | ⚠️ | ⚠️ | ⚠️ | N/A | ❌ | Experimental |
-| **Hermes Verify Adapter** | ✅ | N/A | N/A | ✅ | ⚠️ | N/A | Experimental |
-| **Supervisor Loop** | ✅ | N/A | ⚠️ | ✅ | ✅ | ⚠️ | Reference |
-
-**Legend:** ✅ = Fully implemented and tested · ⚠️ = Partial · ❌ = Not yet · N/A = Not applicable
-
----
-
-## Why INFINI?
-
-> **Infini turns autonomous agent work into a portable, verifiable, and settleable unit of economic activity.**  
-> **Software buys software only after the work is proven correct.**
-
-| Problem | INFINI Solution |
-|---------|-----------------|
-| **Agents have amnesia** | Eternal memory with FTS5 retrieval — verbatim storage, no summarization |
-| **Coordination costs $$$** | SQLite bus = $0 infrastructure, sub-100ms scheduling latency |
-| **Algorithmic drain & DoW** | Native `BUDGET` caps + `settlement: hold_until_verified` escrow locks |
-| **Unverified API spending** | Agent Pay adapter: HTTP 402 + ERC-4337 / Solana wallet settlement receipts |
-| **Plugins are a mess** | Anthropic Skills standard — `infini skill install <git-url>` and go |
-| **Agents hallucinate** | 3-agent supervision (Planner → Worker → Inspector) via SQLite message bus |
-| **Complex setup** | One CLI, auto-installs `/infini` slash commands for Claude/Gemini/Codex |
-| **Vendor lock-in** | Write a Loopfile once, run on any engine — same YAML, any framework |
-
-<div align="center">
-
-### Spaghetti → Spec
-
-<img src="assets/spaghetti-to-spec.png" alt="150 lines of tangled framework code becomes 15 lines of declarative Loopfile YAML" width="800">
-
-<sub>Stop hardcoding your agent logic into frameworks. Write it once as a standard spec, run it anywhere.</sub>
-
-</div>
+*(Note: Exploratory ideas like on-chain escrow payments, 50+ agent micro-benchmarks, and 3D graph UIs are archived in [docs/ideas.md](docs/ideas.md) until backed by reproducible benchmarks.)*
 
 ---
 
-## 🎬 See It In Action
+## Cross-Engine Portability & Trace Diff
 
-<img src="assets/demo.gif" alt="INFINI Demo — setup, task creation, 3-agent orchestration" width="700">
-
-**What you're watching:**
-1. `infini setup` → Initializes SQLite DB, detects AI terminals, installs slash commands
-2. `infini validate loop.yaml` → Checks against the spec
-3. `infini run loop.yaml --mock` → Executes deterministically (no API key)
-4. `infini replay runs/latest/ --step s2` → Time-travel debug from any step
-5. `infini certify adapters/hermes --mock` → Adapter certification (70.8%)
-6. `infini engines` → The adapter ecosystem
-
----
-
-## 🏗️ How It Works
-
-```text
-┌─────────────────────────────────────────────────────┐
-│                     USER                            │
-│               infini run --plan                     │
-└─────────────────┬───────────────────────────────────┘
-                  │
-                  ▼
-┌─────────────────────────────────────────────────────┐
-│                  PLANNER (Agent 1)                  │
-│        Writes plan.md with step checklist           │
-└─────────────────┬───────────────────────────────────┘
-                  │ (SQLite Message Bus)
-                  ▼
-┌─────────────────────────────────────────────────────┐
-│                  WORKER (Agent 2)                   │
-│      Executes steps, updates tasks table            │
-└─────────────────┬───────────────────────────────────┘
-                  │ (SQLite Message Bus)
-                  ▼
-┌─────────────────────────────────────────────────────┐
-│                 INSPECTOR (Agent 3)                 │
-│         Reviews output, writes review.md            │
-└─────────────────┬───────────────────────────────────┘
-                  │
-                  ▼
-┌─────────────────────────────────────────────────────┐
-│                  ETERNAL MEMORY                     │
-│         (SQLite FTS5 — verbatim retrieval)          │
-└─────────────────────────────────────────────────────┘
-```
-
-**All without Redis. All without Kafka. Just SQLite.**
-
----
-
-## ✨ Features
-
-### For Developers
-- **`infini run --plan`** → 3-agent supervision reduces hallucinations
-- **`infini task *`** → Full task lifecycle (create/ack/complete/wait)
-- **`infini skill install`** → Plug in any Anthropic Skills-compatible adapter
-- **`infini run --live`** → Execute against real LLMs (Anthropic/OpenAI, no vendor lock-in)
-- **`infini replay --step s2`** → Time-travel debug from any node
-
-### For DevOps
-- **Zero infrastructure** → No Redis, no message queues, no microservices
-- **SQLite WAL mode** → Handles 50+ concurrent agents on a t3.micro
-- **Single binary deployment** → `pip install` and you're done
-
-### For AI Engineers
-- **Eternal memory** → Verbatim storage + FTS5 retrieval (MemPalace pattern)
-- **MCP runtime** → Model Context Protocol tool definitions + live execution
-- **Full observability** → Every run produces a signed `.trace` file
-- **3D Observatory** → Next.js + React Three Fiber trace visualizer
-
-### For End Users
-- **`/infini` slash commands** → Works inside Claude Code, Gemini CLI, Codex
-- **One-command setup** → `infini setup` detects and configures everything
-- **Declarative Loopfiles** → YAML workflows, no code required
-
----
-
-## 📊 INFINI vs. The World
-
-| Feature | INFINI | LangGraph | CrewAI | AutoGen |
-|---------|--------|-----------|--------|---------|
-| Zero-infra orchestration | ✅ | ❌ | ❌ | ❌ |
-| Eternal memory (FTS5) | ✅ | ❌ | ❌ | ✅ |
-| Slash command auto-install | ✅ | ❌ | ❌ | ❌ |
-| 3-agent supervision | ✅ | ✅ | ❌ | ✅ |
-| SQLite message bus | ✅ | ❌ | ❌ | ❌ |
-| Adapter certification | ✅ | ❌ | ❌ | ❌ |
-| Anthropic Skills standard | ✅ | ❌ | ❌ | ❌ |
-| Time-travel replay | ✅ | ❌ | ❌ | ❌ |
-
----
-
-## 🚀 Quick Start
+Run the same Loopfile across supported engines and compare their execution traces:
 
 ```bash
-# 1. Install
-pip install infini-cli
+# Execute on reference engine
+infini run Loopfile.yaml --engine infini -o runs/reference
 
-# 2. Setup (init DB + detect terminals + install slash commands)
-infini setup
+# Execute on LangGraph adapter
+infini run Loopfile.yaml --engine langgraph -o runs/langgraph
 
-# 3. Run your first workflow (mock mode — no API keys needed)
-infini run examples/golden-research-assistant/research-loop.yaml --mock
-
-# 4. Run with real agents (3-agent supervision)
-infini run examples/golden-research-assistant/research-loop.yaml --plan
-
-# 5. Run against a live LLM (needs ANTHROPIC_API_KEY or OPENAI_API_KEY)
-infini run examples/golden-research-assistant/research-loop.yaml --live
-
-# 6. Inspect the trace
->>>>>>> 1627358 (feat(spec): add native budget payment hooks, agent pay adapter, and settlement receipts)
-infini inspect runs/latest/
-
-# Replay from any step (time-travel debug)
-infini replay runs/latest/ --step s3
-
-# Diff two traces side-by-side
+# Diff the two traces to compare step progression and identify divergence
 infini diff runs/reference/run.json runs/langgraph/run.json
 ```
 
-Every run produces a structured `run.json` trace. Every step, token,
-cost, and verification result is recorded. Replay from any step with
-identical inputs. Diff across engines, models, or prompt versions.
-
-## Also runs on 4 engines
-
-Write once. Run on Reference, LangGraph, Local (Qwythos), or Codemap.
-Same Loopfile. Identical trace structure. Real verification.
-
-```bash
-infini run loop.yaml --engine infini --trace ref.json
-infini run loop.yaml --engine langgraph --trace lg.json
-infini run loop.yaml --engine local --trace local.json
-infini run loop.yaml --engine codemap --trace codemap.json
-
-infini diff ref.json local.json   # → Identical structure
-```
-
-| Engine | Mock | Live | Context-Aware | Offline | Cost |
-|--------|------|------|---------------|---------|------|
-| Reference | ✅ | ⚠️ (thin wrapper) | ❌ | ✅ | $0 |
-| LangGraph | ✅ | ✅ | ❌ | ❌ | $ |
-| **Local (Qwythos)** | ❌ | ✅ | ❌ | ✅ | **$0** |
-| **Codemap** | ❌ | ✅ | **✅** | ✅ | **$0** |
-
-The **Local engine** runs a real LLM (Qwythos-9B GGUF) on consumer hardware.
-No API key. No internet. Deterministic output at `--temp 0.0`.
-
 ---
 
-## Why
+## The Loopfile Specification
 
-**The old way:** You prompt. The agent answers. You review. You fix.
-You prompt again. It feels productive because something is happening,
-but zoom out and it's still you doing the work.
-
-**The new way:** You define the goal. The loop discovers what's needed.
-The agent executes. A checker verifies. The loop fixes failures.
-The system stops when the goal is reached.
-
-That's **loop engineering** — the AI skill every builder needs in 2026.
-INFINI is the open standard for it.
-
-> "Stop prompting. Start looping."
-
-Practically: INFINI separates the workflow specification from the
-runtime so the same Loopfile can execute across supported engines
-while producing comparable execution traces.
-
----
-
-## CI Integration (30 seconds)
-
-Add INFINI Guard to your repo — audit every PR for loop portability.
-
-```yaml
-# .github/workflows/infini-guard.yml
-name: INFINI Guard
-on: [pull_request]
-jobs:
-  audit:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: NickAiNYC/infini/.github/actions/infini-guard@main
-        with:
-          min-score: '50'  # L2 Assisted. Use '75' for L3 Unattended.
-```
-
-Fails the build if the audit score drops below your threshold or any Loopfile is invalid.
-
-## 60-second install
-
-```bash
-pip install infini-cli
-```
-(Currently install from source while the package stabilizes.)
-
-```bash
-git clone https://github.com/NickAiNYC/infini
-cd infini
-pip install -e './cli[dev]'
-infini conformance tests/conformance/ --mock
-```
-
----
-
-## One Loopfile
+Workflows are declared in YAML. A minimal example ([`examples/quickstart.yaml`](examples/quickstart.yaml)):
 
 ```yaml
 LOOPFILE: "1.0"
-name: hello-world
-OBJECTIVE: "Demonstrate portability across engines."
+name: quickstart
+version: 1.0.0
+description: "Minimal 60-second portable agent workflow."
+
+OBJECTIVE: "Generate project summary report and verify delivery."
+
 AGENTS:
-  - { name: builder, role: builder, model_tier: sonnet }
+  - name: researcher
+    role: researcher
+    model_tier: haiku
+
 STEPS:
-  - { id: s1, name: greet, action: write.greeting, uses: builder, produces: [greeting.txt] }
+  - id: s1
+    name: analyze
+    action: summarize_project
+    uses: researcher
+    produces:
+      - report.md
+
 VERIFY:
-  syntactic: ["greeting.txt:exists"]
-  semantic: []
+  syntactic:
+    - "report.md:exists"
+  semantic:
+    - "judge:summary_quality>=80"
   confidence_threshold: 80
-BUDGET: { dollars: 1, minutes: 5 }
-STOP_WHEN: ["all_verify_passed"]
+
+BUDGET:
+  dollars: 1
+  minutes: 5
+
+STOP_WHEN:
+  - all_verify_passed
 ```
 
-Full spec: [loopfile-v1.md](spec/loopfile-v1.md)
+Full specification reference: [`spec/loopfile-v1.md`](spec/loopfile-v1.md).
 
 ---
 
-## Quickstart
+## Conformance & Certification
 
-New here? Start with the [5-minute tutorial](docs/tutorial.md) —
-install INFINI, write a Loopfile, run it on two engines, compare
-the traces.
+INFINI ships an automated conformance suite to ensure adapters adhere strictly to the specification.
 
-Or jump straight to:
+Run the conformance suite:
+```bash
+infini conformance tests/conformance/ --mock
+```
 
-- [60-second demo](docs/demo.md) — one workflow, four engines
-- [Comparison with other frameworks](docs/comparison.md) — INFINI vs LangGraph, CrewAI, AutoGen, OpenAI Agents, Mastra
+To certify an adapter and print its compatibility score:
+```bash
+infini certify adapters/hermes --mock
+```
+Compatibility scores (e.g. Hermes 70.8%, OpenClaw 66.7%) are computed as:
+$$\text{Compatibility} = \left(\frac{\text{Supported Capabilities}}{12}\times 50\right) + \left(\frac{\text{Passed Conformance Tests}}{8}\times 50\right)$$
+See [`docs/scoring.md`](docs/scoring.md) for the complete mathematical derivation and capability checklist.
 
 ---
 
-## Run on all three engines
+## Project Readiness Audit
+
+Audit your own repository for agent workflow readiness:
+```bash
+infini audit .
+```
+Evaluates 12 infrastructure signals (Loopfile, state tracking, verifiers, safety docs, CI workflows) and prints the exact score and formula.
+
+---
+
+## Status & Roadmap
+
+Consolidated from historical status documents.
+
+### Current Implementation Status
+- **Core CLI & Spec Parser:** Stable. Schema validation against JSON Schema.
+- **Reference Engine:** Working. Deterministic mock engine, budget enforcement, syntactic file checks, semantic judge checks, and time-travel replay.
+- **Adapters:** 1 reference engine working (`infini`), 5 mock-only adapters (`langgraph`, `hermes`, `openclaw`, `codemap`, `local`), 5 not built (`crewai`, `autogen`, `mastra`, `goose`, `openai-agents`).
+- **Memory & Storage:** Embedded SQLite with FTS5 for local run memory and state persistence.
+- **Conformance Suite:** 8/8 tests passing (`tests/conformance/`).
+
+### Active Roadmap
+1. **Standards-Based Traces (v0.2.0):** OpenTelemetry GenAI semantic conventions export and step-level trace divergence diffing.
+2. **Offline Trace Signing:** Local Ed25519 signing of canonical trace hashes for offline verification.
+3. **External Runtime Adapters:** Upgrading `langgraph` adapter from mock-only to live execution via LangGraph Python SDK.
+4. **CI Enforcement:** Standalone GitHub Action (`infini-guard`) running conformance and audit checks on pull requests.
+
+---
+
+## Honest Limitations
+
+1. **Mock-first ecosystem:** Outside the reference engine, adapter execution is currently `mock-only` (simulates steps and validates Loopfile translation) rather than driving live third-party runtime graphs.
+2. **Single-node runtime:** The orchestration engine runs as a single local process using embedded SQLite. There is no distributed coordinator or multi-tenant isolation.
+3. **Syntactic file checks:** Real filesystem checks (`file:exists`, `file:valid_json`) run within the local process working directory; containerized sandboxing is not yet implemented.
+
+---
+
+## Development & Testing
 
 ```bash
-# Reference engine (mock)
-infini run examples/hello-world/Loopfile.yaml --mock
+# Run unit tests
+python -m pytest cli/tests/ -v
 
-# LangGraph engine (mock or live)
-infini run examples/hello-world/Loopfile.yaml --mock --engine langgraph
+# Run conformance suite
+infini conformance tests/conformance/ --mock
 
-# Local engine (fully offline, real LLM)
-infini setup --download-qwythos           # Download the model (~5.6GB)
-infini run loop.yaml --engine local --live
-
-# Codemap engine (context-aware)
-infini run loop.yaml --engine codemap --live
+# Run adapter certifications
+infini certify adapters/hermes --mock
+infini certify adapters/openclaw --mock
 ```
 
-## Diff the traces
-
-```bash
-infini run loop.yaml --mock -o runs/reference
-infini run loop.yaml --mock --engine langgraph -o runs/langgraph
-infini run loop.yaml --engine local --trace runs/local
-
-infini diff runs/reference/run.json runs/langgraph/run.json
-infini diff runs/langgraph/run.json runs/local/run.json
-```
-
-All three engines produce `verified` with the same trace schema.
-
-Full proof: [proof/](proof/) — run the reproducible portability proof yourself.
-
----
-
-## Feature matrix
-
-| Feature | Status |
-|---------|--------|
-| Loopfile spec v1.0 | Stable — full JSON Schema + EBNF grammar |
-| `infini run --mock` | Deterministic, no API keys needed |
-| `infini run --engine langgraph --mock` | LangGraph runtime, identical traces |
-| `infini run --engine local --live` | **NEW** — Real LLM, fully offline, $0 cost |
-| `infini setup --download-qwythos` | **NEW** — One-command local model download |
-| `infini audit .` | Scans project for 12 loop-readiness signals, returns 0-100 score |
-| `infini init --pattern daily-triage` | Scaffolds 5 canonical patterns |
-| `infini run --work-dir` | Real filesystem verification (**default**) |
-| `infini replay --step s2` | Time-travel debug from any step |
-| `infini diff` | Compare traces across engines |
-| `infini validate` | Validates Loopfiles against schema |
-| 25 unit tests + 8 conformance tests | All passing |
-
-## What's NOT ready
-
-- 4 of 6 adapters (CrewAI, AutoGen, Mastra, OpenAI Agents). CLI accepts
-  `--engine crewai` but the runtime isn't wired — it will error.
-- Production use. Zero users. The repo is public for feedback, not deployment.
-- Observatory UI exists as a prototype. It currently renders mock data until
-  live trace ingestion is implemented.
-
-## How to contribute
-
-- **Adapters** — Help wire CrewAI, AutoGen, Mastra. Adapter manifests exist;
-  the runtime just needs building.
-- **Live mode testing** — Run the same Loopfile on two engines in live mode
-  and post the trace diff.
-- **Feedback** — Run `infini audit .` on your project and open an issue telling
-  me if the signals feel wrong.
-
-[Contributing Guide](CONTRIBUTING.md) · [Adapter SDK](sdk/) ·
-[Discussions](https://github.com/NickAiNYC/infini/discussions) ·
-[License: MIT](LICENSE)
-
----
-
-*MIT licensed reference implementation of the INFINI Loopfile specification.
-Spec is CC-BY-4.0. Code is MIT.*
+[Contributing Guide](CONTRIBUTING.md) · [Scoring Methodology](docs/scoring.md) · [Ideas Archive](docs/ideas.md) · [License: MIT](LICENSE)

@@ -95,9 +95,8 @@ def validate(loopfile: str):
               help="Execution engine: infini (default), reference, langgraph, crewai, autogen, mastra, openai-agents, codemap.")
 @click.option("-o", "--output", default="runs/latest", help="Output directory for the trace.")
 @click.option("--max-iterations", default=5, help="Hard cap on iterations.")
-@click.option("--work-dir", default=".", type=click.Path(file_okay=False),
-              help="Working directory for real filesystem verification. Defaults to current directory. "
-                   "When set, syntactic VERIFY checks run against real files/subprocesses.")
+@click.option("--work-dir", default=None, type=click.Path(file_okay=False),
+              help="Working directory for real filesystem verification. When set, syntactic VERIFY checks run against real files/subprocesses.")
 @click.option("-q", "--quiet", is_flag=True, help="Suppress progress output.")
 def run(loopfile: str, mock: bool, plan: bool, engine: str, output: str, max_iterations: int, work_dir: str | None, quiet: bool):
     """Run a Loopfile. Use --engine langgraph/crewai/autogen/mastra/openai-agents for adapters."""
@@ -115,6 +114,16 @@ def run(loopfile: str, mock: bool, plan: bool, engine: str, output: str, max_ite
         pass
 
     # ── Engine routing ──
+    if engine == "crewai":
+        console.print("[red]✗ Engine 'crewai' is not implemented.[/red]")
+        console.print("[dim]The CrewAI adapter is not built yet (status: not built). See adapters/crewai/adapter.yaml[/dim]")
+        sys.exit(1)
+
+    if engine in ("autogen", "mastra", "openai-agents"):
+        console.print(f"[red]✗ Engine '{engine}' is not implemented.[/red]")
+        console.print(f"[dim]The {engine} adapter is not built yet (status: not built). See adapters/[/dim]")
+        sys.exit(1)
+
     if engine == "langgraph":
         import sys as _sys
         from pathlib import Path as _Path
@@ -511,6 +520,7 @@ def audit(project_dir: str, as_json: bool):
 
     score_color = "green" if result.score >= 75 else "yellow" if result.score >= 50 else "red"
     console.print(f"  Score:    [{score_color}]{result.score}/{result.max_score}[/{score_color}] ({result.percentage}%)")
+    console.print(f"  Formula:  [dim]Score = sum(points) / 100 * 100% across 12 signals (see docs/scoring.md)[/dim]")
     console.print(f"  Maturity: [bold]{result.maturity_level}[/bold]")
     console.print()
 

@@ -55,6 +55,7 @@ class AuditResult:
             "score": self.score,
             "max_score": self.max_score,
             "percentage": self.percentage,
+            "formula": "sum(signal.points) / max_score * 100% across 12 infrastructure signals (see docs/scoring.md)",
             "maturity_level": self.maturity_level,
             "signals": [
                 {

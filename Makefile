@@ -1,8 +1,8 @@
 .PHONY: setup test lint format clean publish conformance certify
 
 setup:
-	python -m venv venv
-	. venv/bin/activate && pip install -e './cli[dev]'
+	python3.11 -m venv venv
+	. venv/bin/activate && pip install --upgrade pip && pip install -e '.[dev]'
 
 test:
 	python -m pytest cli/tests/ -q

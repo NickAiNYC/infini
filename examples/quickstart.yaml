@@ -1,0 +1,36 @@
+# quickstart.yaml — Minimal working Loopfile for INFINI (<60s out of the box)
+# Run: infini run examples/quickstart.yaml
+
+LOOPFILE: "1.0"
+name: quickstart
+version: 1.0.0
+description: "Minimal 60-second portable agent workflow."
+
+OBJECTIVE: "Generate project summary report and verify delivery."
+
+AGENTS:
+  - name: researcher
+    role: researcher
+    model_tier: haiku
+
+STEPS:
+  - id: s1
+    name: analyze
+    action: summarize_project
+    uses: researcher
+    produces:
+      - report.md
+
+VERIFY:
+  syntactic:
+    - "report.md:exists"
+  semantic:
+    - "judge:summary_quality>=80"
+  confidence_threshold: 80
+
+BUDGET:
+  dollars: 1
+  minutes: 5
+
+STOP_WHEN:
+  - all_verify_passed
