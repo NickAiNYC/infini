@@ -44,7 +44,23 @@ infini run examples/quickstart.yaml --engine langgraph -o runs/demo-langgraph/ -
 infini diff runs/demo-ref/run.json runs/demo-langgraph/run.json
 echo ""
 
+# Assert expected artifact generation and valid JSON formatting
+echo "5. Validating demonstration artifacts and exit integrity..."
+for trace_path in "runs/demo-ref/run.json" "runs/replay-s1/run.json" "runs/demo-langgraph/run.json"; do
+  if [ ! -s "$trace_path" ]; then
+    echo "ERROR: Expected demonstration trace was not generated: $trace_path" >&2
+    exit 1
+  fi
+  python3 -m json.tool "$trace_path" >/dev/null 2>&1 || {
+    echo "ERROR: Trace file is not valid JSON: $trace_path" >&2
+    exit 1
+  }
+done
+echo "   ✓ All expected trace files verified and valid JSON."
+echo ""
+
 echo "============================================================"
 echo "  ✓ Demonstration Complete"
-echo "  Same Loopfile. Two Engines. Identical Traces."
+echo "  Workflow executed. Traces generated. Replay and comparison completed."
 echo "============================================================"
+
