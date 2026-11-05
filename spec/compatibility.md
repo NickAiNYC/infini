@@ -14,11 +14,14 @@ Legend: ✅ supported · 🚧 in progress · ❌ not supported · — not declar
 
 | Engine | Version | Type | Validate | Run | Verify | Inspect | Replay | Diff | Memory | Tools Mcp | Dag Parallel | Budget | Verification | Trace Export | Compat % | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| agent-pay | — | — | — | — | — | — | — | — | — | — | — | — | — | — | — | — |
+| codemap | 0.1.0 | execution | ✅ | ✅ | ✅ | ✅ | 🚧 | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | — | — |
 | codex | 0.1.0 | community | 🚧 | 🚧 | 🚧 | 🚧 | 🚧 | 🚧 | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | — | — |
 | crewai | 0.1.0 | community | 🚧 | 🚧 | 🚧 | 🚧 | 🚧 | 🚧 | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | — | — |
 | goose | 0.1.0 | community | 🚧 | 🚧 | 🚧 | 🚧 | 🚧 | 🚧 | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | — | — |
 | hermes | 1.0.0 | governance | ✅ | ✅ | ✅ | ✅ | ✅ | 🚧 | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | 70.8% | certified |
-| langgraph | 0.1.0 | community | 🚧 | 🚧 | 🚧 | 🚧 | 🚧 | 🚧 | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | — | — |
+| langgraph | 0.1.0 | execution | ✅ | ✅ | ✅ | ✅ | 🚧 | 🚧 | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | — | — |
+| local | 0.3.0 | execution | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | — | — |
 | mastra | 0.1.0 | community | 🚧 | 🚧 | 🚧 | 🚧 | 🚧 | 🚧 | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | — | — |
 | openclaw | 1.0.0 | execution | ✅ | ✅ | ✅ | ✅ | 🚧 | 🚧 | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | 66.7% | certified |
 

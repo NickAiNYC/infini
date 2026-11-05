@@ -1,0 +1,93 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 320" width="100%" height="100%">
+  <defs>
+    <style>
+      .bg { fill: #0d1117; }
+      .box { fill: #161b22; stroke: #30363d; stroke-width: 1.5; rx: 8px; }
+      .box-accent { fill: #161b22; stroke: #388bfd; stroke-width: 1.5; rx: 8px; }
+      .box-green { fill: #161b22; stroke: #238636; stroke-width: 1.5; rx: 8px; }
+      .text-title { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; font-size: 13px; font-weight: 600; fill: #58a6ff; }
+      .text-body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; font-size: 11px; fill: #8b949e; }
+      .text-code { font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace; font-size: 11px; fill: #c9d1d9; }
+      .text-green { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; font-size: 11px; font-weight: 600; fill: #3fb950; }
+      .arrow { stroke: #58a6ff; stroke-width: 1.5; fill: none; marker-end: url(#arrowhead); }
+      @media (prefers-color-scheme: light) {
+        .bg { fill: #ffffff; }
+        .box { fill: #f6f8fa; stroke: #d0d7de; }
+        .box-accent { fill: #f6f8fa; stroke: #0969da; }
+        .box-green { fill: #f6f8fa; stroke: #1a7f37; }
+        .text-title { fill: #0969da; }
+        .text-body { fill: #57606a; }
+        .text-code { fill: #24292f; }
+        .text-green { fill: #1a7f37; }
+        .arrow { stroke: #0969da; }
+      }
+    </style>
+    <marker id="arrowhead" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#388bfd" />
+    </marker>
+  </defs>
+
+  <rect width="100%" height="100%" class="bg" rx="10" />
+
+  <!-- 1. Spec Input -->
+  <g transform="translate(30, 40)">
+    <rect width="180" height="240" class="box-accent" />
+    <text x="16" y="32" class="text-title">1. Declarative Spec</text>
+    <text x="16" y="58" class="text-code">Loopfile.yaml</text>
+    <text x="16" y="90" class="text-body">• Steps DAG &amp; uses</text>
+    <text x="16" y="112" class="text-body">• Budget ($, minutes)</text>
+    <text x="16" y="134" class="text-body">• Syntactic checks</text>
+    <text x="16" y="156" class="text-body">• Semantic judges</text>
+    <text x="16" y="178" class="text-body">• Stop conditions</text>
+    <text x="16" y="200" class="text-body">• MCP tools declaration</text>
+  </g>
+
+  <!-- Arrow 1 -> 2 -->
+  <line x1="210" y1="160" x2="250" y2="160" class="arrow" />
+
+  <!-- 2. INFINI Core Runtime -->
+  <g transform="translate(255, 40)">
+    <rect width="210" height="240" class="box" />
+    <text x="16" y="32" class="text-title">2. Orchestration Runtime</text>
+    <text x="16" y="58" class="text-code">INFINI Engine</text>
+    <text x="16" y="90" class="text-body">• SQLite State Persistence</text>
+    <text x="16" y="112" class="text-body">• Dependency DAG Resolver</text>
+    <text x="16" y="134" class="text-body">• Budget Ceiling Enforcement</text>
+    <text x="16" y="156" class="text-body">• Two-Tier Verifier Loop</text>
+    <text x="16" y="178" class="text-body">• Step Retry &amp; Recovery</text>
+    <text x="16" y="200" class="text-body">• MCP Stdio Dispatch</text>
+  </g>
+
+  <!-- Arrow 2 -> 3 -->
+  <line x1="465" y1="160" x2="505" y2="160" class="arrow" />
+
+  <!-- 3. Adapter Seam -->
+  <g transform="translate(510, 40)">
+    <rect width="165" height="240" class="box" />
+    <text x="16" y="32" class="text-title">3. Adapter Seam</text>
+    <text x="16" y="58" class="text-code">Execution Plane</text>
+    <text x="16" y="90" class="text-green">✓ Reference (working)</text>
+    <text x="16" y="112" class="text-body">• LangGraph (mock-only)</text>
+    <text x="16" y="134" class="text-body">• Hermes (mock-only)</text>
+    <text x="16" y="156" class="text-body">• OpenClaw (mock-only)</text>
+    <text x="16" y="178" class="text-body">• Codemap (mock-only)</text>
+    <text x="16" y="200" class="text-body">• Local (mock-only)</text>
+  </g>
+
+  <!-- Arrow 3 -> 4 -->
+  <line x1="675" y1="160" x2="715" y2="160" class="arrow" />
+
+  <!-- 4. Verifiable Artifacts -->
+  <g transform="translate(720, 40)">
+    <rect width="130" height="240" class="box-green" />
+    <text x="14" y="32" class="text-title">4. Evidence</text>
+    <text x="14" y="58" class="text-code">run.json</text>
+    <text x="14" y="90" class="text-body">• Canonical Hash</text>
+    <text x="14" y="112" class="text-body">• Ed25519 Sig</text>
+    <text x="14" y="134" class="text-body">• OTel GenAI</text>
+    <text x="14" y="166" class="text-code">CLI Tools</text>
+    <text x="14" y="188" class="text-body">• infini diff</text>
+    <text x="14" y="206" class="text-body">• infini replay</text>
+    <text x="14" y="224" class="text-body">• verify-trace</text>
+  </g>
+</svg>

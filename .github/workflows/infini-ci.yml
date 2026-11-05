@@ -115,6 +115,10 @@ jobs:
         example:
           - examples/golden-research-assistant/research-loop.yaml
           - examples/golden-seo-pipeline/seo-loop.yaml
+          - examples/claim-audit/claim-audit-loop.yaml
+          - examples/github-pr-review/coding-loop.yaml
+          - examples/squad-loop/Loopfile.yaml
+          - examples/mcp-runtime/Loopfile.yaml
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
