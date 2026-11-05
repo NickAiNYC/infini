@@ -1,5 +1,7 @@
 name: INFINI CI
 on:
+  push:
+    branches: [main]
   pull_request:
     paths:
       - '**/Loopfile'
@@ -11,8 +13,24 @@ on:
       - 'spec/**'
       - 'cli/**'
       - 'tests/conformance/**'
+      - 'benchmarks/**'
+      - '.github/workflows/infini-ci.yml'
 
 jobs:
+  quickstart-doc-verification:
+    name: Verify README Quick Start
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.11' }
+      - name: Execute README quick start verbatim on a clean runner
+        run: |
+          pip install -e .
+          infini run examples/quickstart.yaml
+          infini inspect runs/latest/
+          infini replay runs/latest/ --step s1
+
   validate:
     name: Validate Loopfiles
     runs-on: ubuntu-latest

@@ -1,4 +1,4 @@
-.PHONY: setup test lint format clean publish conformance certify
+.PHONY: setup test lint format clean publish conformance certify bench
 
 setup:
 	python3.11 -m venv venv
@@ -6,6 +6,9 @@ setup:
 
 test:
 	python -m pytest cli/tests/ -q
+
+bench:
+	python benchmarks/run_benchmarks.py
 
 conformance:
 	infini conformance tests/conformance/ --engine infini --mock

@@ -25,6 +25,7 @@ def replay(
     mutations: dict | None = None,
     output_dir: str | Path | None = None,
     freeze_model_calls: bool = False,
+    verbose: bool = True,
 ) -> dict:
     """Replay a run from a specific step.
 
@@ -34,6 +35,7 @@ def replay(
         mutations: Optional dict of input mutations.
         output_dir: Where to save the replay trace. Defaults to runs/replay-<timestamp>/.
         freeze_model_calls: If True, reuse the original model responses (bit-exact).
+        verbose: Print progress to console.
 
     Returns:
         The replay trace as a dict.
@@ -45,15 +47,16 @@ def replay(
     if from_step is None:
         from_step = original["steps"][0]["id"] if original.get("steps") else "s1"
 
-    console.print(f"[bold]▶ replay[/bold] {original.get('loopfile', '?')} from step [cyan]{from_step}[/cyan]")
+    if verbose:
+        console.print(f"[bold]▶ replay[/bold] {original.get('loopfile', '?')} from step [cyan]{from_step}[/cyan]")
 
-    if freeze_model_calls:
-        console.print("[dim]  --freeze-model-calls: using cached model responses[/dim]")
+        if freeze_model_calls:
+            console.print("[dim]  --freeze-model-calls: using cached model responses[/dim]")
 
-    if mutations:
-        console.print("[dim]  input mutations:[/dim]")
-        for k, v in mutations.items():
-            console.print(f"[dim]    {k}: {v}[/dim]")
+        if mutations:
+            console.print("[dim]  input mutations:[/dim]")
+            for k, v in mutations.items():
+                console.print(f"[dim]    {k}: {v}[/dim]")
 
     # In V1 mock mode: re-execute from the named step
     # A real implementation would restore state and resume; the mock just re-runs.
@@ -78,7 +81,8 @@ def replay(
     replay_trace.replay_of = str(trace_path)
     replay_trace.replay_from_step = from_step
 
-    console.print(f"[dim]  re-executing {len(replay_steps)} step(s)[/dim]")
+    if verbose:
+        console.print(f"[dim]  re-executing {len(replay_steps)} step(s)[/dim]")
     for s in replay_steps:
         # In freeze mode, copy the original step's result
         if freeze_model_calls:
@@ -111,8 +115,9 @@ def replay(
                 tokens_in=result.tokens_in, tokens_out=result.tokens_out,
             )
 
-        status_icon = "✓" if s.get("status") == "ok" else "⚠"
-        console.print(f"  {status_icon} {s['id']} {s['name']}")
+        if verbose:
+            status_icon = "✓" if s.get("status") == "ok" else "⚠"
+            console.print(f"  {status_icon} {s['id']} {s['name']}")
 
     # Copy verifications
     for v in original.get("verifications", []):
@@ -129,9 +134,10 @@ def replay(
     if output_dir is None:
         output_dir = f"runs/replay-{from_step}"
     out_path = save_trace(replay_trace, Path(output_dir) / "run.json")
-    console.print(f"\n[green]✓ replay complete[/green]")
-    console.print(f"[dim]  original: {trace_path}[/dim]")
-    console.print(f"[dim]  replay:   {out_path}[/dim]")
-    console.print(f"[dim]  diff:     infini diff {trace_path} {out_path}[/dim]")
+    if verbose:
+        console.print(f"\n[green]✓ replay complete[/green]")
+        console.print(f"[dim]  original: {trace_path}[/dim]")
+        console.print(f"[dim]  replay:   {out_path}[/dim]")
+        console.print(f"[dim]  diff:     infini diff {trace_path} {out_path}[/dim]")
 
     return replay_trace
