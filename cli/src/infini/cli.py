@@ -97,8 +97,9 @@ def validate(loopfile: str):
 @click.option("--max-iterations", default=5, help="Hard cap on iterations.")
 @click.option("--work-dir", default=None, type=click.Path(file_okay=False),
               help="Working directory for real filesystem verification. When set, syntactic VERIFY checks run against real files/subprocesses.")
+@click.option("--otel", is_flag=True, help="Also export OpenTelemetry GenAI trace (otel-trace.json).")
 @click.option("-q", "--quiet", is_flag=True, help="Suppress progress output.")
-def run(loopfile: str, mock: bool, plan: bool, engine: str, output: str, max_iterations: int, work_dir: str | None, quiet: bool):
+def run(loopfile: str, mock: bool, plan: bool, engine: str, output: str, max_iterations: int, work_dir: str | None, otel: bool, quiet: bool):
     """Run a Loopfile. Use --engine langgraph/crewai/autogen/mastra/openai-agents for adapters."""
     try:
         lf = parse_file(loopfile)
@@ -150,42 +151,12 @@ def run(loopfile: str, mock: bool, plan: bool, engine: str, output: str, max_ite
             
         emit_run_telemetry("langgraph", trace.outcome, lf.name, mock)
 
+        if otel:
+            from .otel import export_trace_to_otel_json
+            export_trace_to_otel_json(Path(output) / "run.json", Path(output) / "otel-trace.json")
+
         if trace.outcome == "verified":
             console.print(f"\n[green]✓ shipped (langgraph).[/green] trace: {Path(output) / 'run.json'}")
-        elif trace.outcome == "budget_exceeded":
-            console.print(f"\n[red]✗ budget exceeded.[/red] trace: {Path(output) / 'run.json'}")
-            sys.exit(1)
-        else:
-            console.print(f"\n[yellow]⚠ unverified.[/yellow] trace: {Path(output) / 'run.json'}")
-            sys.exit(1)
-        return
-
-    if engine == "crewai":
-        import sys as _sys
-        from pathlib import Path as _Path
-        _repo_root = _Path(__file__).parent.parent.parent.parent
-        _sys.path.insert(0, str(_repo_root / "adapters" / "crewai"))
-        from crewai_adapter import CrewAIAdapter
-
-        adapter = CrewAIAdapter()
-        trace = adapter.run(
-            lf, mock=mock, output_dir=output,
-            max_iterations=max_iterations, verbose=not quiet,
-        )
-
-        try:
-            for step_trace in trace.steps:
-                memory.store_run_output(
-                    lf.name, step_trace.id, step_trace.name,
-                    f"status={step_trace.status} cost=${step_trace.cost['dollars']:.2f}"
-                )
-        except Exception:
-            pass
-            
-        emit_run_telemetry("crewai", trace.outcome, lf.name, mock)
-
-        if trace.outcome == "verified":
-            console.print(f"\n[green]✓ shipped (crewai).[/green] trace: {Path(output) / 'run.json'}")
         elif trace.outcome == "budget_exceeded":
             console.print(f"\n[red]✗ budget exceeded.[/red] trace: {Path(output) / 'run.json'}")
             sys.exit(1)
@@ -287,6 +258,10 @@ def run(loopfile: str, mock: bool, plan: bool, engine: str, output: str, max_ite
 
     emit_run_telemetry(engine, trace.outcome, lf.name, mock)
 
+    if otel:
+        from .otel import export_trace_to_otel_json
+        export_trace_to_otel_json(Path(output) / "run.json", Path(output) / "otel-trace.json")
+
     if trace.outcome == "verified":
         console.print(f"\n[green]✓ shipped.[/green] trace: {Path(output) / 'run.json'}")
     elif trace.outcome == "budget_exceeded":
@@ -324,6 +299,17 @@ def replay(run_dir: str, step: str | None, freeze_model_calls: bool, output: str
 def diff(v1: str, v2: str):
     """Semantic diff between two Loopfiles or two traces."""
     diff_cmd(v1, v2)
+
+
+@cli.command("export-otel")
+@click.argument("trace_path", type=click.Path(exists=True))
+@click.option("-o", "--output", default=None, help="Output JSON path for OpenTelemetry trace.")
+def export_otel(trace_path: str, output: str | None):
+    """Export an INFINI run trace to OpenTelemetry GenAI format."""
+    from .otel import export_trace_to_otel_json
+    out = Path(output) if output else Path(trace_path).parent / "otel-trace.json"
+    export_trace_to_otel_json(trace_path, out)
+    console.print(f"[green]✓ Exported OpenTelemetry GenAI trace to {out}[/green]")
 
 
 @cli.command()

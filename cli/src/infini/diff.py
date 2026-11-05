@@ -137,6 +137,84 @@ def _diff_loopfiles(v1: Path, v2: Path) -> None:
         console.print(f"\n  [green]This is an ADDITIVE change.[/green]")
 
 
+def find_first_step_divergence(t1: dict, t2: dict) -> dict[str, Any] | None:
+    """Find the first step where two execution traces diverge.
+
+    Returns a dict with details if diverged, or None if step sequences match.
+    """
+    steps1 = t1.get("steps", [])
+    steps2 = t2.get("steps", [])
+
+    min_len = min(len(steps1), len(steps2))
+    for i in range(min_len):
+        s1 = steps1[i]
+        s2 = steps2[i]
+
+        step_id_1, step_id_2 = s1.get("id"), s2.get("id")
+        if step_id_1 != step_id_2:
+            return {
+                "step_index": i,
+                "step_id": f"{step_id_1} vs {step_id_2}",
+                "reason": f"Step ID mismatch: '{step_id_1}' != '{step_id_2}'",
+                "v1_step": s1,
+                "v2_step": s2,
+            }
+
+        if s1.get("status") != s2.get("status"):
+            return {
+                "step_index": i,
+                "step_id": step_id_1,
+                "step_name": s1.get("name"),
+                "reason": f"Status differed: engine 1 was '{s1.get('status')}' but engine 2 was '{s2.get('status')}'",
+                "v1_step": s1,
+                "v2_step": s2,
+            }
+
+        if s1.get("action") != s2.get("action"):
+            return {
+                "step_index": i,
+                "step_id": step_id_1,
+                "step_name": s1.get("name"),
+                "reason": f"Action differed: '{s1.get('action')}' != '{s2.get('action')}'",
+                "v1_step": s1,
+                "v2_step": s2,
+            }
+
+        if s1.get("agent") != s2.get("agent"):
+            return {
+                "step_index": i,
+                "step_id": step_id_1,
+                "step_name": s1.get("name"),
+                "reason": f"Assigned agent differed: '{s1.get('agent')}' != '{s2.get('agent')}'",
+                "v1_step": s1,
+                "v2_step": s2,
+            }
+
+        if s1.get("artifacts") != s2.get("artifacts"):
+            return {
+                "step_index": i,
+                "step_id": step_id_1,
+                "step_name": s1.get("name"),
+                "reason": f"Produced artifacts differed: {s1.get('artifacts')} != {s2.get('artifacts')}",
+                "v1_step": s1,
+                "v2_step": s2,
+            }
+
+    if len(steps1) != len(steps2):
+        longer_engine = "v1" if len(steps1) > len(steps2) else "v2"
+        extra_step = (steps1 if len(steps1) > len(steps2) else steps2)[min_len]
+        return {
+            "step_index": min_len,
+            "step_id": extra_step.get("id"),
+            "step_name": extra_step.get("name"),
+            "reason": f"Step count mismatch: {longer_engine} executed extra step '{extra_step.get('id')}' ({extra_step.get('name')})",
+            "v1_step": steps1[min_len] if len(steps1) > min_len else None,
+            "v2_step": steps2[min_len] if len(steps2) > min_len else None,
+        }
+
+    return None
+
+
 def _diff_traces(v1: Path, v2: Path) -> None:
     """Diff two traces."""
     t1 = load_trace(v1)
@@ -165,3 +243,13 @@ def _diff_traces(v1: Path, v2: Path) -> None:
                   f"[{'red' if d_time > 0 else 'green'}]{'+' if d_time > 0 else ''}{d_time:.1f}m[/]")
 
     console.print(table)
+
+    divergence = find_first_step_divergence(t1, t2)
+    console.print()
+    if divergence:
+        console.print(f"[bold yellow]⚡ First Step Divergence:[/bold yellow]")
+        console.print(f"  Step: [bold]{divergence['step_id']}[/bold] (index {divergence['step_index']})")
+        console.print(f"  Detail: {divergence['reason']}")
+    else:
+        total_steps = len(t1.get("steps", []))
+        console.print(f"[bold green]✓ Step Execution Matches:[/bold green] [dim]No divergence across {total_steps} step(s). Identical execution sequence.[/dim]")

@@ -90,6 +90,10 @@ class Trace:
     def to_json(self, indent: int = 2) -> str:
         return json.dumps(self.to_dict(), indent=indent, default=str)
 
+    def to_otel(self) -> dict:
+        from .otel import trace_to_otel
+        return trace_to_otel(self.to_dict())
+
 
 def new_trace(loopfile_name: str, loopfile_yaml: str, engine_type: str = "infini-reference") -> Trace:
     """Create a fresh Trace at the start of a run."""
