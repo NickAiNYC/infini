@@ -16,13 +16,32 @@ echo ""
 if [ -d "venv" ]; then
   # shellcheck source=/dev/null
   source venv/bin/activate
+elif [ -d ".venv" ]; then
+  # shellcheck source=/dev/null
+  source .venv/bin/activate
 elif command -v infini >/dev/null 2>&1; then
   : # infini already in PATH
 else
-  echo "Installing infini locally in virtual environment..."
-  python3 -m venv .demo_venv
+  PYTHON_BIN=""
+  for candidate in python3.12 python3.11 python3; do
+    if command -v "$candidate" >/dev/null 2>&1; then
+      if "$candidate" -c "import sys; sys.exit(0 if sys.version_info >= (3, 11) else 1)" 2>/dev/null; then
+        PYTHON_BIN="$candidate"
+        break
+      fi
+    fi
+  done
+
+  if [ -z "$PYTHON_BIN" ]; then
+    echo "ERROR: INFINI requires Python >= 3.11, but none was found in PATH." >&2
+    exit 1
+  fi
+
+  echo "Setting up repository virtual environment (.venv) using $PYTHON_BIN..."
+  "$PYTHON_BIN" -m venv .venv
   # shellcheck source=/dev/null
-  source .demo_venv/bin/activate
+  source .venv/bin/activate
+  python -m pip install --upgrade pip -q
   pip install -q -e .
 fi
 
