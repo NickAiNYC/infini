@@ -5,7 +5,7 @@
 **Version:** 1.0.0
 **Engine:** infini
 **Spec:** LOOPFILE-1.0
-**Certified at:** 2026-06-28T17:48:05Z
+**Certified at:** 2026-11-05T14:38:32Z
 
 ## Supported capabilities
 
@@ -20,6 +20,7 @@
 | --- | :---: | --- | --- |
 | browser-loop | ✅ pass | outcome=verified, steps=4, iters=1 | — |
 | cost-loop | ✅ pass | outcome=verified, steps=1, iters=1 | — |
+| mcp-loop | ✅ pass | outcome=verified, steps=1, iters=1 | — |
 | memory-loop | ✅ pass | outcome=verified, steps=3, iters=1 | — |
 | parallel-loop | ✅ pass | outcome=verified, steps=5, iters=1 | — |
 | research-loop | ✅ pass | outcome=verified, steps=4, iters=1 | — |

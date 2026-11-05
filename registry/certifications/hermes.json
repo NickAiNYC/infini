@@ -24,6 +24,12 @@
       "required_capabilities": []
     },
     {
+      "test_name": "mcp-loop",
+      "status": "pass",
+      "detail": "outcome=verified, steps=1, iters=1",
+      "required_capabilities": []
+    },
+    {
       "test_name": "memory-loop",
       "status": "pass",
       "detail": "outcome=verified, steps=3, iters=1",
@@ -62,6 +68,6 @@
   ],
   "compatibility_percentage": 70.8,
   "certification_status": "certified",
-  "timestamp": "2026-06-28T18:31:49Z",
+  "timestamp": "2026-11-05T14:38:31Z",
   "notes": []
 }

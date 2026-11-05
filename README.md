@@ -10,7 +10,7 @@
 **Run the exact same agent workflow across multiple execution engines, verify outputs against real constraints, and diff standardized execution traces to see precisely where runtimes diverge.**
 
 [![CI](https://img.shields.io/github/actions/workflow/status/NickAiNYC/infini/infini-ci.yml?style=flat-square&branch=main&label=CI)](https://github.com/NickAiNYC/infini/actions)
-[![Conformance](https://img.shields.io/badge/conformance-8%2F8%20passed-brightgreen?style=flat-square)](docs/conformance.md)
+[![Conformance](https://img.shields.io/badge/conformance-9%2F9%20passed-brightgreen?style=flat-square)](docs/conformance.md)
 [![Python](https://img.shields.io/badge/python-3.11%20%7C%203.12-blue?style=flat-square)](pyproject.toml)
 [![License](https://img.shields.io/badge/license-MIT-blue?style=flat-square)](LICENSE)
 
@@ -24,6 +24,10 @@ Every modern agent runtime (LangGraph, CrewAI, AutoGen, custom orchestration) fo
 1. You declare the workflow once in a portable `Loopfile.yaml`.
 2. Any conforming engine executes the workflow and produces a structured trace (`run.json`).
 3. You diff traces across engines to find divergences in step ordering, latency, costs, or check failures.
+
+<p align="center">
+  <img src="assets/architecture.svg" alt="INFINI System Architecture" width="100%" />
+</p>
 
 ---
 

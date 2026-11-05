@@ -97,7 +97,16 @@ def run(
 
             # Escrow hold check for step budget
             if result.cost_dollars > 0:
-                pay_adapter.hold_in_escrow(loopfile, step.id, result.cost_dollars)
+                try:
+                    pay_adapter.hold_in_escrow(loopfile, step.id, result.cost_dollars)
+                except ValueError as exc:
+                    outcome = "budget_exceeded"
+                    if verbose:
+                        _log(f"  ✗ budget exceeded: {exc}")
+                    finalize_trace(trace, outcome, lessons)
+                    pay_adapter.settle_or_refund(trace, loopfile)
+                    save_trace(trace, Path(output_dir) / "run.json")
+                    return trace
 
             add_step(
                 trace, step.id, step.name,

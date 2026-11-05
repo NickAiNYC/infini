@@ -11,10 +11,14 @@ and a README explaining what it demonstrates.
 
 | Example | Purpose |
 |---------|---------|
+| [`quickstart.yaml`](quickstart.yaml) | Zero-dependency minimal working workflow (<60s execution) |
 | [`hello-world/`](hello-world/) | Smallest valid Loopfile — one agent, one step, one artifact |
+| [`golden-research-assistant/`](golden-research-assistant/) | Multi-agent research pipeline with citation verification gates |
+| [`golden-seo-pipeline/`](golden-seo-pipeline/) | 6-step content drafting, rubric grading, and SEO verification |
 | [`claim-audit/`](claim-audit/) | Evidence-heavy verification workflow with policy, budget, escalation |
 | [`github-pr-review/`](github-pr-review/) | Engineering workflow — file edits, tests, PR creation |
 | [`squad-loop/`](squad-loop/) | Declarative mapping of imperative multi-agent collaboration |
+| [`mcp-runtime/`](mcp-runtime/) | Model Context Protocol runtime with local tool discovery |
 
 ## Running an example
 
