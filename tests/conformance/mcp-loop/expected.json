@@ -1,0 +1,1 @@
+{"budget":{"dollars":5,"minutes":5},"expected_outcome":"verified","expected_steps":1,"expected_verifications":{"semantic_count":1,"syntactic_count":1},"loopfile":"infini/mcp-loop@1.0.0","max_iterations":2,"min_iterations":1}

@@ -43,6 +43,18 @@ def run(
     """
     trace = new_trace(loopfile.name, _serialize(loopfile))
 
+    # MCP: record the declared TOOLS servers in the trace. The mock
+    # engine never launches servers (determinism); the live engine
+    # and McpToolRuntime do the actual loading. See docs/mcp-runtime.md.
+    if loopfile.tools:
+        from .mcp_runtime import plan_mcp_runtime
+        trace.extensions["mcp"] = plan_mcp_runtime(loopfile.tools)
+        if verbose:
+            names = ", ".join(
+                s["name"] for s in trace.extensions["mcp"]["servers"]
+            )
+            _log(f"▶ mcp: {len(loopfile.tools)} server(s) declared: {names}")
+
     # Parse iterations>=N from STOP_WHEN to use as the run cap
     stop_when_cap = max_iterations
     for pred in loopfile.stop_when:

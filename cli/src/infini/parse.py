@@ -67,6 +67,7 @@ class Loopfile:
     lessons: dict | None = None
     state: dict | None = None
     engine: dict | None = None
+    tools: list[dict] = field(default_factory=list)
     raw: dict = field(default_factory=dict, repr=False)
 
 
@@ -173,6 +174,7 @@ def _build_loopfile(raw: dict) -> Loopfile:
         lessons=raw.get("LESSONS"),
         state=raw.get("STATE"),
         engine=raw.get("ENGINE"),
+        tools=raw.get("TOOLS") or [],
         raw=raw,
     )
 
@@ -213,4 +215,5 @@ def to_dict(loopfile: Loopfile) -> dict:
         "LESSONS": loopfile.lessons,
         "STATE": loopfile.state,
         "ENGINE": loopfile.engine,
+        "TOOLS": loopfile.tools,
     }

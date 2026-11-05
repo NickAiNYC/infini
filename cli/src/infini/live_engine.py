@@ -17,7 +17,7 @@ from typing import Any
 
 from .parse import Loopfile, Step
 from .trace import Trace, add_step, add_verification, finalize_trace, save_trace, new_trace
-from .mcp_runtime import get_tool_definitions, execute_tool
+from .mcp_runtime import get_tool_definitions, execute_tool, McpToolRuntime
 
 
 def _get_llm_provider():
@@ -136,6 +136,24 @@ def run_live(
             declared_tools.add(t)
     available_tools = [t for t in all_tools if t["name"] in declared_tools or not declared_tools]
 
+    # MCP Tool Runtime: launch any servers declared in the Loopfile
+    # TOOLS block, discover their tools, and offer them alongside the
+    # built-ins. Servers that fail to start are recorded in the trace
+    # and their tools are simply not offered (see docs/mcp-runtime.md).
+    mcp_runtime = None
+    if loopfile.tools:
+        mcp_runtime = McpToolRuntime(loopfile.tools)
+        mcp_runtime.start()
+        trace.extensions["mcp"] = mcp_runtime.trace_summary()
+        mcp_defs = mcp_runtime.tool_definitions()
+        available_tools += [
+            d for d in mcp_defs if d["name"] in declared_tools or not declared_tools
+        ]
+        if verbose:
+            ready = sum(1 for s in mcp_runtime.servers if s.status == "ready")
+            print(f"▶ mcp: {ready}/{len(mcp_runtime.servers)} server(s) ready, "
+                  f"{len(mcp_defs)} tool(s) discovered")
+
     outcome = "unverified"
     lessons: list[str] = []
 
@@ -164,10 +182,15 @@ def run_live(
                 tokens_in = result.get("tokens_in", 0)
                 tokens_out = result.get("tokens_out", 0)
 
-                # Execute any tool calls
+                # Execute any tool calls — MCP namespaced tools route
+                # to their server through the runtime; the rest use
+                # the built-in registry.
                 for tc in result.get("tool_calls", []):
-                    tool_result = execute_tool(tc["name"], **tc["arguments"])
-                    content += f"\n[tool:{tc['name']}] {json.dumps(tool_result)[:500]}"
+                    if mcp_runtime is not None and mcp_runtime.has_tool(tc["name"]):
+                        tool_result = mcp_runtime.call(tc["name"], tc["arguments"])
+                    else:
+                        tool_result = execute_tool(tc["name"], **tc["arguments"])
+                    content += f"\n[tool:{tc['name']}] {json.dumps(tool_result, default=str)[:500]}"
 
                 cost_dollars = (tokens_in * 0.000003 + tokens_out * 0.000015)
                 cost_minutes = 0.5  # rough estimate
@@ -208,6 +231,8 @@ def run_live(
                 outcome = "budget_exceeded"
                 finalize_trace(trace, outcome, lessons)
                 save_trace(trace, Path(output_dir) / "run.json")
+                if mcp_runtime is not None:
+                    mcp_runtime.close()
                 return trace
 
         # Verification (simplified — the LLM self-verifies)
@@ -248,6 +273,9 @@ def run_live(
 
     finalize_trace(trace, outcome, lessons)
     save_trace(trace, Path(output_dir) / "run.json")
+
+    if mcp_runtime is not None:
+        mcp_runtime.close()
 
     if verbose:
         print(f"▶ cost: ${trace.budget['spent_dollars']:.2f} / ${loopfile.budget.dollars}")
