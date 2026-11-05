@@ -98,8 +98,9 @@ def validate(loopfile: str):
 @click.option("--work-dir", default=None, type=click.Path(file_okay=False),
               help="Working directory for real filesystem verification. When set, syntactic VERIFY checks run against real files/subprocesses.")
 @click.option("--otel", is_flag=True, help="Also export OpenTelemetry GenAI trace (otel-trace.json).")
+@click.option("--sign", is_flag=True, help="Cryptographically sign trace hash with local Ed25519 keypair.")
 @click.option("-q", "--quiet", is_flag=True, help="Suppress progress output.")
-def run(loopfile: str, mock: bool, plan: bool, engine: str, output: str, max_iterations: int, work_dir: str | None, otel: bool, quiet: bool):
+def run(loopfile: str, mock: bool, plan: bool, engine: str, output: str, max_iterations: int, work_dir: str | None, otel: bool, sign: bool, quiet: bool):
     """Run a Loopfile. Use --engine langgraph/crewai/autogen/mastra/openai-agents for adapters."""
     try:
         lf = parse_file(loopfile)
@@ -154,6 +155,15 @@ def run(loopfile: str, mock: bool, plan: bool, engine: str, output: str, max_ite
         if otel:
             from .otel import export_trace_to_otel_json
             export_trace_to_otel_json(Path(output) / "run.json", Path(output) / "otel-trace.json")
+
+        if sign:
+            import json as _json
+            from .crypto import sign_trace_dict
+            trace_path = Path(output) / "run.json"
+            trace_data = _json.loads(trace_path.read_text(encoding="utf-8"))
+            updated_data, sig_hex, pub_hex = sign_trace_dict(trace_data)
+            trace_path.write_text(_json.dumps(updated_data, indent=2), encoding="utf-8")
+            console.print(f"[dim]  signed: ed25519:{pub_hex[:16]}... (trace hash: {updated_data['provenance']['canonical_hash'][:23]}...)[/dim]")
 
         if trace.outcome == "verified":
             console.print(f"\n[green]✓ shipped (langgraph).[/green] trace: {Path(output) / 'run.json'}")
@@ -262,6 +272,15 @@ def run(loopfile: str, mock: bool, plan: bool, engine: str, output: str, max_ite
         from .otel import export_trace_to_otel_json
         export_trace_to_otel_json(Path(output) / "run.json", Path(output) / "otel-trace.json")
 
+    if sign:
+        import json as _json
+        from .crypto import sign_trace_dict
+        trace_path = Path(output) / "run.json"
+        trace_data = _json.loads(trace_path.read_text(encoding="utf-8"))
+        updated_data, sig_hex, pub_hex = sign_trace_dict(trace_data)
+        trace_path.write_text(_json.dumps(updated_data, indent=2), encoding="utf-8")
+        console.print(f"[dim]  signed: ed25519:{pub_hex[:16]}... (trace hash: {updated_data['provenance']['canonical_hash'][:23]}...)[/dim]")
+
     if trace.outcome == "verified":
         console.print(f"\n[green]✓ shipped.[/green] trace: {Path(output) / 'run.json'}")
     elif trace.outcome == "budget_exceeded":
@@ -310,6 +329,26 @@ def export_otel(trace_path: str, output: str | None):
     out = Path(output) if output else Path(trace_path).parent / "otel-trace.json"
     export_trace_to_otel_json(trace_path, out)
     console.print(f"[green]✓ Exported OpenTelemetry GenAI trace to {out}[/green]")
+
+
+@cli.command("verify-trace")
+@click.argument("trace_path", type=click.Path(exists=True))
+@click.option("--key", default=None, help="Expected public key (hex or ed25519:<hex>). If omitted, uses embedded key.")
+def verify_trace_cmd(trace_path: str, key: str | None):
+    """Verify an offline Ed25519 cryptographic signature on a run trace."""
+    import json as _json
+    from .crypto import verify_trace_dict
+    trace_data = _json.loads(Path(trace_path).read_text(encoding="utf-8"))
+    valid, reason = verify_trace_dict(trace_data, expected_pubkey_hex=key)
+    if valid:
+        pub_key = key or trace_data.get("provenance", {}).get("public_key", "unknown")
+        console.print(f"[green]✓ Trace signature is VALID[/green]")
+        console.print(f"[dim]  Signer: {pub_key}[/dim]")
+        console.print(f"[dim]  Detail: {reason}[/dim]")
+    else:
+        console.print(f"[red]✗ Trace signature is INVALID[/red]")
+        console.print(f"[red]  Reason: {reason}[/red]")
+        sys.exit(1)
 
 
 @cli.command()
