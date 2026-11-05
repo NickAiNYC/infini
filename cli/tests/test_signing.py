@@ -78,3 +78,4 @@ def test_tampered_trace_rejection():
     valid_step, reason_step = verify_trace_dict(tampered_steps)
     assert valid_step is False
     assert "Signature verification failed" in reason_step
+

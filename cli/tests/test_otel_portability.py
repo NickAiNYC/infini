@@ -127,3 +127,4 @@ def test_first_step_divergence_detection():
     assert div3 is not None
     assert div3["step_id"] == "s3"
     assert "Step count mismatch" in div3["reason"]
+

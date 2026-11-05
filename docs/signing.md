@@ -75,3 +75,4 @@ External verification tools, ledger connectors, or downstream verification engin
    - Compute `SHA-256(canonical_bytes)`.
 3. **Signature Validation:**
    - Verify `Ed25519Verify(pubkey, hash_ascii_bytes, signature) == true`.
+

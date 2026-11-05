@@ -25,3 +25,4 @@ Per Rule Zero of INFINI:
 - **Original Claim:** Real-time 3D web-based execution graph visualizer built with Next.js and React Three Fiber.
 - **Current Reality:** `observatory-ui/` contains a prototype frontend with mock WebGL canvas components, but live trace streaming and production WebSocket ingestion are not complete.
 - **Path to Verification:** Implement OpenTelemetry / WebSocket ingestion into a lightweight frontend renderer, tested end-to-end against live run traces.
+

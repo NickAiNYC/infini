@@ -1,5 +1,5 @@
 {
-  "benchmark_timestamp_utc": "2026-11-05T04:48:38.059188+00:00",
+  "benchmark_timestamp_utc": "2026-11-05T04:53:39.224149+00:00",
   "machine_spec": {
     "os": "Darwin 27.2.0",
     "architecture": "arm64",
@@ -15,11 +15,11 @@
   },
   "per_step_overhead": {
     "n_samples": 100,
-    "mean_ms": 1.824,
-    "p50_ms": 1.805,
-    "p95_ms": 1.966,
-    "p99_ms": 2.182,
-    "min_ms": 1.624,
-    "max_ms": 2.182
+    "mean_ms": 1.846,
+    "p50_ms": 1.819,
+    "p95_ms": 2.008,
+    "p99_ms": 2.52,
+    "min_ms": 1.667,
+    "max_ms": 2.52
   }
 }

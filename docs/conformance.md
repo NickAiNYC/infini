@@ -40,3 +40,4 @@ To certify an adapter and calculate its official compatibility percentage:
 infini certify adapters/hermes --mock
 ```
 Formula and scoring methodology are detailed in [docs/scoring.md](scoring.md).
+

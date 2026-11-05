@@ -66,3 +66,4 @@ Where:
   - Supported capabilities: 4 of 12 (`parse_loopfile`, `run_loop`, `verify`, `inspect_trace`) $\rightarrow (4 / 12) \times 50 = 16.667\%$
   - Conformance suite: 8 of 8 passed $\rightarrow (8 / 8) \times 50 = 50.000\%$
   - **Total: $16.667\% + 50.000\% = 66.7\%$** (rounded to 1 decimal place).
+
