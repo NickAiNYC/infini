@@ -12,19 +12,25 @@ echo "  Portable AI Agent Workflow Infrastructure"
 echo "============================================================"
 echo ""
 
-# 1. Environment & Python discovery (guarantees local repository execution, no global collision)
+# Helper to validate that a specific python binary meets the minimum version requirement (>= 3.11)
+check_python_version() {
+  local py="$1"
+  "$py" -c "import sys; sys.exit(0 if sys.version_info >= (3, 11) else 1)" 2>/dev/null
+}
+
+# 1. Environment & Python discovery (guarantees local repository execution and validates interpreter version)
 PYTHON_EXEC=""
-if [ -n "${VIRTUAL_ENV:-}" ] && [ -x "${VIRTUAL_ENV}/bin/python" ]; then
+if [ -n "${VIRTUAL_ENV:-}" ] && [ -x "${VIRTUAL_ENV}/bin/python" ] && check_python_version "${VIRTUAL_ENV}/bin/python"; then
   PYTHON_EXEC="${VIRTUAL_ENV}/bin/python"
-elif [ -d "venv" ] && [ -x "venv/bin/python" ]; then
+elif [ -d "venv" ] && [ -x "venv/bin/python" ] && check_python_version "venv/bin/python"; then
   PYTHON_EXEC="venv/bin/python"
-elif [ -d ".venv" ] && [ -x ".venv/bin/python" ]; then
+elif [ -d ".venv" ] && [ -x ".venv/bin/python" ] && check_python_version ".venv/bin/python"; then
   PYTHON_EXEC=".venv/bin/python"
 else
   # Discover compatible Python runtime (>= 3.11)
   for candidate in python3.12 python3.11 python3; do
     if command -v "$candidate" >/dev/null 2>&1; then
-      if "$candidate" -c "import sys; sys.exit(0 if sys.version_info >= (3, 11) else 1)" 2>/dev/null; then
+      if check_python_version "$candidate"; then
         PYTHON_EXEC="$candidate"
         break
       fi

@@ -7,7 +7,8 @@
 # INFINI — Portable Agent Workflow Spec & CLI
 
 **What can you do with INFINI that you cannot do with a normal agent framework?**  
-**Run the exact same agent workflow across multiple execution engines, verify outputs against real constraints, and diff standardized execution traces to see precisely where runtimes diverge.**
+**Run the exact same agent workflow across multiple execution engines, verify outputs against real constraints, and diff standardized execution traces to see precisely where runtimes diverge.**  
+*(The reference engine is fully implemented for live local workflow execution; external runtime adapters like LangGraph and CrewAI currently operate in simulated/mock mode for trace schema comparison and divergence detection; live third-party runtime execution is experimental/in-progress.)*
 
 [![CI](https://img.shields.io/github/actions/workflow/status/NickAiNYC/infini/infini-ci.yml?style=flat-square&branch=main&label=CI)](https://github.com/NickAiNYC/infini/actions)
 [![Conformance](https://img.shields.io/badge/conformance-9%2F9%20passed-brightgreen?style=flat-square)](docs/conformance.md)
@@ -22,7 +23,7 @@ Every modern agent runtime (LangGraph, CrewAI, AutoGen, custom orchestration) fo
 
 **INFINI solves this by separating the workflow specification from the runtime engine.**
 1. You declare the workflow once in a portable `Loopfile.yaml`.
-2. Any conforming engine executes the workflow and produces a structured trace (`run.json`).
+2. Conforming engines execute the workflow and produce structured traces (`run.json`). *(Today, the built-in reference engine executes live workflows, while external adapters like `langgraph` operate in simulated/mock mode for trace schema translation and divergence diffing.)*
 3. You diff traces across engines to find divergences in step ordering, latency, costs, or check failures.
 
 <p align="center">
@@ -84,7 +85,7 @@ $ infini replay runs/reference/ --step s1
   ✓ s1 analyze
 ✓ replay complete
 
-# 4. Execute on LangGraph engine and diff execution traces
+# 4. Execute on LangGraph adapter (simulated) and diff execution traces
 $ infini run examples/quickstart.yaml --engine langgraph -o runs/langgraph
 $ infini diff runs/reference/run.json runs/langgraph/run.json
 
